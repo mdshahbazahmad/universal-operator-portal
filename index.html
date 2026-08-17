@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>यूनिवर्सल ऑपरेटर पोर्टल - Eagle Network SBZ</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('background.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #2b3674;
+            overflow: hidden;
+        }
+
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-text {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b00;
+            z-index: 2;
+        }
+
+        .auth-container {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s ease-in-out;
+            z-index: 1;
+        }
+
+        .auth-container.fade-out {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .auth-header h2 {
+            color: #0b1437;
+            font-size: 26px;
+        }
+        .auth-header p {
+            font-size: 14px;
+            color: #ff6b00;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1b2559;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d0d7de;
+            border-radius: 10px;
+            outline: none;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #ff6b00;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #ff6b00;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 5px 10px rgba(255, 107, 0, 0.3);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .btn-primary:hover {
+            background: #e05e00;
+            box-shadow: 0 7px 15px rgba(255, 107, 0, 0.4);
+        }
+        
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #0066cc;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-text">ईगल नेटवर्क एसबीजेड</div>
+
+    <div id="authContainer" class="auth-container">
+        <div class="auth-header">
+            <h2><i class="fa-solid fa-network-wired"></i> ऑपरेटर लॉगिन (Login)</h2>
+            <p>POWERED BY EAGLE NETWORK SBZ</p>
+        </div>
+        
+        <form onsubmit="event.preventDefault(); alert('लॉगिन सफल रहा!');">
+            <div class="form-group">
+                <label>रजिस्टर्ड मोबाइल नंबर</label>
+                <input type="tel" id="loginMobile" placeholder="9876543210" required>
+            </div>
+            <div class="form-group">
+                <label>पासवर्ड</label>
+                <input type="password" id="loginPassword" placeholder="******" required>
+            </div>
+            
+            <button type="submit" class="btn-primary">डैशबोर्ड में प्रवेश करें</button>
+        </form>
+        
+        <div class="toggle-link" onclick="toggleForm()">
+            नया ऑपरेटर? रजिस्ट्रेशन करें
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const container = document.getElementById('authContainer');
+            container.classList.add('fade-out');
+
+            setTimeout(() => {
+                const headerH2 = container.querySelector('.auth-header h2');
+                const form = container.querySelector('form');
+                const submitBtn = container.querySelector('.btn-primary');
+                const toggleLink = container.querySelector('.toggle-link');
+
+                if (submitBtn.innerText === 'डैशबोर्ड में प्रवेश करें') {
+                    // Sign Up State
+                    headerH2.innerHTML = '<i class="fa-solid fa-user-plus"></i> ऑपरेटर रजिस्ट्रेशन (Sign Up)';
+                    
+                    form.innerHTML = `
+                        <div class="form-group">
+                            <label>ऑपरेटर का नाम / नेटवर्क का नाम</label>
+                            <input type="text" placeholder="उदाहरण: मलिक वाई-फाई / प्रेम नेटवर्क" required>
+                        </div>
+                        <div class="form-group">
+                            <label>मोबाइल नंबर</label>
+                            <input type="tel" placeholder="9876543210" required>
+                        </div>
+                        <div class="form-group">
+                            <label>पासवर्ड बनाएं</label>
+                            <input type="password" placeholder="******" required>
+                        </div>
+                        <button type="submit" class="btn-primary">अकाउंट बनाएं और पोर्टल शुरू करें</button>
+                    `;
+                    toggleLink.innerText = 'पहले से अकाउंट है? लॉगिन करें';
+                } else {
+                    // Login State
+                    headerH2.innerHTML = '<i class="fa-solid fa-network-wired"></i> ऑपरेटर लॉगिन (Login)';
+                    
+                    form.innerHTML = `
+                        <div class="form-group">
+                            <label>रजिस्टर्ड मोबाइल नंबर</label>
+                            <input type="tel" id="loginMobile" placeholder="9876543210" required>
+                        </div>
+                        <div class="form-group">
+                            <label>पासवर्ड</label>
+                            <input type="password" id="loginPassword" placeholder="******" required>
+                        </div>
+                        <button type="submit" class="btn-primary">डैशबोर्ड में प्रवेश करें</button>
+                    `;
+                    toggleLink.innerText = 'नया ऑपरेटर? रजिस्ट्रेशन करें';
+                }
+                
+                container.classList.remove('fade-out');
+            }, 300);
+        }
+    </script>
+
+</body>
+</html>
