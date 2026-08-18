@@ -161,13 +161,18 @@
         .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
 
         /* Action Buttons */
-        .btn-whatsapp { background: #16a34a; color: white; border: none; padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .btn-whatsapp { background: #16a34a; color: white; border: none; padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; margin-right: 4px; }
         .btn-recharge { background: #2563eb; color: white; border: none; padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .btn-delete { background: #dc2626; color: white; border: none; padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-left: 4px; }
 
         /* Modals (Popups) */
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: #1e293b; width: 90%; max-width: 600px; border-radius: 20px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.1); position: relative; color: #fff; }
+        .modal-card { background: #1e293b; width: 90%; max-width: 500px; border-radius: 20px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1); position: relative; color: #fff; }
         .close-modal { position: absolute; top: 20px; right: 20px; font-size: 22px; cursor: pointer; color: #94a3b8; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; color: #fff; outline: none; }
 
         /* Right-to-Left styling support for Urdu */
         .rtl { direction: rtl; text-align: right; }
@@ -215,23 +220,23 @@
         <div class="stats-grid">
             <div class="card">
                 <h4 id="lbl-total">Total Subscribers</h4>
-                <h2 id="val-total">3</h2>
+                <h2 id="val-total">2</h2>
             </div>
             <div class="card" style="border-left-color: #4ade80;">
                 <h4 id="lbl-online">🟢 Active (Online)</h4>
-                <h2 style="color: #4ade80;">1</h2>
+                <h2 style="color: #4ade80;" id="val-online">1</h2>
             </div>
             <div class="card" style="border-left-color: #f87171;">
                 <h4 id="lbl-offline">🔴 Cut-Off / Offline</h4>
-                <h2 style="color: #f87171;">1</h2>
+                <h2 style="color: #f87171;" id="val-offline">1</h2>
             </div>
             <div class="card" style="border-left-color: #fbbf24;">
                 <h4 id="lbl-weak">🟡 Weak Signal Alert</h4>
-                <h2 style="color: #fbbf24;">1</h2>
+                <h2 style="color: #fbbf24;">0</h2>
             </div>
             <div class="card">
                 <h4 id="lbl-revenue">Today Revenue</h4>
-                <h2 style="color: #38bdf8;">₹ 12,400</h2>
+                <h2 style="color: #38bdf8;" id="val-revenue">₹ 12,400</h2>
             </div>
         </div>
 
@@ -271,7 +276,7 @@
                         <th id="th-action">Quick Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tableBody">
                     <tr class="customer-row">
                         <td><span class="badge badge-online">🟢 Online</span></td>
                         <td><b>Ramesh Kumar</b></td>
@@ -281,7 +286,8 @@
                         <td style="color:#4ade80; font-weight:bold;">-18.5 dBm</td>
                         <td>
                             <button class="btn-whatsapp" onclick="sendWhatsApp('9876543210', 'Ramesh Kumar', '599')"><i class="fa-brands fa-whatsapp"></i> Bill</button>
-                            <button class="btn-recharge" onclick="alert('Recharged Successfully!')">Renew</button>
+                            <button class="btn-recharge" onclick="renewCustomer(this)">Renew</button>
+                            <button class="btn-delete" onclick="deleteCustomer(this)"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
 
@@ -294,13 +300,52 @@
                         <td style="color:#f87171; font-weight:bold;">Signal Loss ⚠️</td>
                         <td>
                             <button class="btn-whatsapp" onclick="sendWhatsApp('9876543211', 'Sanjay Verma', '399')"><i class="fa-brands fa-whatsapp"></i> Bill</button>
-                            <button class="btn-recharge" onclick="alert('Recharged Successfully!')">Renew</button>
+                            <button class="btn-recharge" onclick="renewCustomer(this)">Renew</button>
+                            <button class="btn-delete" onclick="deleteCustomer(this)"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
+    </div>
+
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-card">
+            <span class="close-modal" onclick="closeAddModal()">&times;</span>
+            <h3 style="margin-bottom: 20px; color:#38bdf8;"><i class="fa-solid fa-user-plus"></i> Add New Subscriber</h3>
+            
+            <form onsubmit="event.preventDefault(); addNewCustomer();">
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="custName" placeholder="e.g. Rahul Kumar" required>
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="custMobile" placeholder="9876543210" required>
+                </div>
+                <div class="form-group">
+                    <label>Area / Street</label>
+                    <select id="custArea">
+                        <option value="Street 1">Street 1</option>
+                        <option value="Street 2">Street 2</option>
+                        <option value="Main Road">Main Road</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Connection Type & Plan Amount</label>
+                    <input type="text" id="custPlan" placeholder="₹599 (50 Mbps)" required>
+                </div>
+                <div class="form-group">
+                    <label>STB Number or MAC Address</label>
+                    <input type="text" id="custHardware" placeholder="MAC: 5B:9C:14..." required>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 15px;">
+                    Save Customer & Active Line
+                </button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -392,7 +437,6 @@
             const t = translations[lang];
             const mainContent = document.getElementById('main-area');
 
-            // Toggle RTL orientation for Urdu
             if(lang === 'ur') {
                 mainContent.classList.add('rtl');
             } else {
@@ -437,11 +481,95 @@
 
         function filterTable() {
             const input = document.getElementById('searchInput').value.toLowerCase();
+            const area = document.getElementById('areaFilter').value;
+            const status = document.getElementById('statusFilter').value.toLowerCase();
             const rows = document.querySelectorAll('#customerTable tbody tr');
+
             rows.forEach(r => {
-                r.style.display = r.innerText.toLowerCase().includes(input) ? '' : 'none';
+                const text = r.innerText.toLowerCase();
+                const matchesSearch = text.includes(input);
+                const matchesArea = area === '' || text.includes(area.toLowerCase());
+                const matchesStatus = status === '' || text.includes(status);
+
+                if (matchesSearch && matchesArea && matchesStatus) {
+                    r.style.display = '';
+                } else {
+                    r.style.display = 'none';
+                }
             });
+        }
+
+        /* Modal Functions & Dynamic Customer Management */
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        function addNewCustomer() {
+            const name = document.getElementById('custName').value;
+            const mobile = document.getElementById('custMobile').value;
+            const area = document.getElementById('custArea').value;
+            const plan = document.getElementById('custPlan').value;
+            const hardware = document.getElementById('custHardware').value;
+
+            const tbody = document.getElementById('tableBody');
+            const newRow = document.createElement('tr');
+            newRow.className = 'customer-row';
+            
+            newRow.innerHTML = `
+                <td><span class="badge badge-online">🟢 Online</span></td>
+                <td><b>${name}</b></td>
+                <td>${area}</td>
+                <td>${mobile}<br><small style="color:#94a3b8;">${hardware}</small></td>
+                <td>${plan}<br><small style="color:#4ade80;">Active</small></td>
+                <td style="color:#4ade80; font-weight:bold;">-19.0 dBm</td>
+                <td>
+                    <button class="btn-whatsapp" onclick="sendWhatsApp('${mobile}', '${name}', '599')"><i class="fa-brands fa-whatsapp"></i> Bill</button>
+                    <button class="btn-recharge" onclick="renewCustomer(this)">Renew</button>
+                    <button class="btn-delete" onclick="deleteCustomer(this)"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            `;
+
+            tbody.appendChild(newRow);
+            updateStats();
+            closeAddModal();
+            alert('🎉 New Customer Added Successfully!');
+        }
+
+        function deleteCustomer(btn) {
+            if(confirm('Are you sure you want to delete this customer?')) {
+                btn.closest('tr').remove();
+                updateStats();
+            }
+        }
+
+        function renewCustomer(btn) {
+            const row = btn.closest('tr');
+            const statusBadge = row.querySelector('td span');
+            statusBadge.className = 'badge badge-online';
+            statusBadge.innerHTML = '🟢 Online';
+            alert('⚡ Service Renewed Successfully!');
+            updateStats();
+        }
+
+        function updateStats() {
+            const rows = document.querySelectorAll('#customerTable tbody tr');
+            document.getElementById('val-total').innerText = rows.length;
+            
+            let onlineCount = 0;
+            let offlineCount = 0;
+            
+            rows.forEach(r => {
+                if(r.innerText.includes('Online')) onlineCount++;
+                if(r.innerText.includes('Cut Out')) offlineCount++;
+            });
+
+            document.getElementById('val-online').innerText = onlineCount;
+            document.getElementById('val-offline').innerText = offlineCount;
         }
     </script>
 </body>
-</html>
+</html>l
