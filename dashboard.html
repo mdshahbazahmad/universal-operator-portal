@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>एडवांस ऑपरेटर डैशबोर्ड - ईगल नेटवर्क एसबीजेड</title>
+    <title>अल्ट्रा-एडवांस ऑपरेटर डैशबोर्ड - ईगल नेटवर्क एसबीजेड</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #f4f7fe; color: #2b3674; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar */
+        /* Sidebar Navigation */
         .sidebar { width: 260px; background: #0b1437; color: white; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar-top h2 { color: #ff6b00; font-size: 20px; margin-bottom: 30px; text-align: center; }
-        .menu-item { padding: 12px 15px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.3s; font-size: 15px; }
-        .menu-item:hover, .menu-item.active { background: #ff6b00; color: white; }
+        .menu-item { padding: 12px 15px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.3s; font-size: 14px; }
+        .menu-item:hover, .menu-item.active { background: #ff6b00; color: white; font-weight: bold; }
 
-        /* Main Area */
+        /* Main Content Area */
         .main-content { flex: 1; padding: 25px; overflow-y: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h2 { font-size: 22px; color: #1b2559; }
         
-        /* Stats Cards Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 25px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card h4 { font-size: 13px; color: #707ebe; margin-bottom: 8px; text-transform: uppercase; }
-        .card h2 { font-size: 24px; color: #1b2559; font-weight: bold; }
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #ff6b00; }
+        .card h4 { font-size: 12px; color: #707ebe; margin-bottom: 6px; text-transform: uppercase; }
+        .card h2 { font-size: 22px; color: #1b2559; font-weight: bold; }
 
-        /* Controls & Filters Bar */
+        /* Controls & Search Bar */
         .controls-bar { background: white; padding: 15px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-wrap: wrap; }
-        .filter-group { display: flex; gap: 12px; align-items: center; }
-        .select-input, .search-input { padding: 9px 14px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 14px; outline: none; }
+        .filter-group { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .select-input, .search-input { padding: 10px 14px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 14px; outline: none; }
+        .search-input { min-width: 250px; }
         .btn-primary-sm { background: #ff6b00; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .btn-primary-sm:hover { background: #e05e00; }
 
@@ -38,29 +40,37 @@
         .badge-offline { background: #fce8e6; color: #c5221f; }
         .badge-warning { background: #fef7e0; color: #b06000; }
 
-        /* Table Area */
+        /* Table Design */
         .table-container { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 14px 15px; border-bottom: 1px solid #f0f4f8; font-size: 14px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #f0f4f8; font-size: 13px; }
         th { background: #f8f9fa; color: #1b2559; font-weight: bold; }
         tr.customer-row { cursor: pointer; transition: background 0.2s; }
         tr.customer-row:hover { background: #f8fbff; }
 
-        /* Action Icons */
-        .btn-whatsapp { background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .btn-recharge { background: #0066cc; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        /* Action Buttons */
+        .btn-whatsapp { background: #25D366; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-recharge { background: #0066cc; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-disconnect { background: #ee5d50; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
-        /* Customer Profile Modal Popup */
+        /* Modals (Popups) */
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: white; width: 90%; max-width: 650px; border-radius: 18px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; animation: popIn 0.3s ease; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 20px; cursor: pointer; color: #888; }
+        .modal-card { background: white; width: 90%; max-width: 650px; border-radius: 18px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; animation: popIn 0.3s ease; max-height: 90vh; overflow-y: auto; }
+        @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 22px; cursor: pointer; color: #888; }
+        
+        /* Modal Profile Content */
         .profile-header { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .profile-avatar { width: 60px; height: 60px; background: #ff6b00; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; }
-        .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px; margin-bottom: 20px; }
+        .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; margin-bottom: 20px; }
         .profile-box { background: #f8f9fa; padding: 12px; border-radius: 10px; }
-        .profile-box label { font-size: 12px; color: #707ebe; display: block; font-weight: bold; }
-        .profile-box span { font-weight: bold; color: #1b2559; font-size: 15px; }
+        .profile-box label { font-size: 11px; color: #707ebe; display: block; font-weight: bold; }
+        .profile-box span { font-weight: bold; color: #1b2559; font-size: 14px; }
+        
+        /* Form inputs for Modal */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #1b2559; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -68,14 +78,14 @@
     <div class="sidebar">
         <div class="sidebar-top">
             <h2><i class="fa-solid fa-satellite-dish"></i> ईगल नेटवर्क SBZ</h2>
-            <div class="menu-item active"><i class="fa-solid fa-chart-line"></i> डैशबोर्ड</div>
+            <div class="menu-item active"><i class="fa-solid fa-chart-line"></i> डैशबोर्ड Overview</div>
             <div class="menu-item"><i class="fa-solid fa-users"></i> कनेक्शन लिस्ट</div>
-            <div class="menu-item"><i class="fa-solid fa-plug-circle-exclamation"></i> कट-आउट / फॉल्ट लिस्ट</div>
-            <div class="menu-item"><i class="fa-solid fa-receipt"></i> रिचार्ज व बिलिंग</div>
+            <div class="menu-item"><i class="fa-solid fa-plug-circle-exclamation"></i> फॉल्ट / तार कटी अलर्ट</div>
+            <div class="menu-item"><i class="fa-solid fa-receipt"></i> बिलिंग व रसीद</div>
             <div class="menu-item"><i class="fa-solid fa-headset"></i> शिकायतें (Tickets)</div>
         </div>
         <div>
-            <div class="menu-item" style="color: #ff4d4d;"><i class="fa-solid fa-right-from-bracket"></i> लॉगआउट</div>
+            <a href="index.html" style="text-decoration:none;"><div class="menu-item" style="color: #ff4d4d;"><i class="fa-solid fa-right-from-bracket"></i> लॉगआउट</div></a>
         </div>
     </div>
 
@@ -83,27 +93,27 @@
         <div class="header">
             <div>
                 <h2>यूनिवर्सल ऑपरेटर कंट्रोल सेंटर</h2>
-                <p style="font-size: 13px; color: #666;">लाइव नेटवर्क मॉनिटरिंग एवं कस्टमर मैनेजमेंट</p>
+                <p style="font-size: 13px; color: #666;">केबल TV एवं वाई-फाई नेटवर्क लाइव मॉनिटरिंग</p>
             </div>
-            <div><strong>ऑपरेटर:</strong> राहुल ब्रॉडबैंड (आईडी: SBZ-104)</div>
+            <div><strong>ऑपरेटर:</strong> राहुल ब्रॉडबैंड (ID: SBZ-104)</div>
         </div>
 
         <div class="stats-grid">
             <div class="card">
-                <h4>कुल कस्टमर</h4>
-                <h2>250</h2>
+                <h4>कुल कनेक्शन</h4>
+                <h2 id="totalCount">3</h2>
             </div>
-            <div class="card">
+            <div class="card" style="border-left-color: #137333;">
                 <h4>🟢 लाइव (Online)</h4>
-                <h2 style="color: #137333;">215</h2>
+                <h2 style="color: #137333;">1</h2>
             </div>
-            <div class="card">
-                <h4>🔴 सिग्नल डाउन / तार कटी</h4>
-                <h2 style="color: #c5221f;">25</h2>
+            <div class="card" style="border-left-color: #c5221f;">
+                <h4>🔴 सिग्नल डाउन (Offline)</h4>
+                <h2 style="color: #c5221f;">1</h2>
             </div>
-            <div class="card">
-                <h4>🟡 लो सिग्नल (dBm Alert)</h4>
-                <h2 style="color: #b06000;">10</h2>
+            <div class="card" style="border-left-color: #b06000;">
+                <h4>🟡 लो सिग्नल (Alert)</h4>
+                <h2 style="color: #b06000;">1</h2>
             </div>
             <div class="card">
                 <h4>आज का कलेक्शन</h4>
@@ -113,43 +123,43 @@
 
         <div class="controls-bar">
             <div class="filter-group">
-                <input type="text" class="search-input" placeholder="🔍 नाम/मोबाइल/STB से खोजें...">
+                <input type="text" id="searchInput" class="search-input" onkeyup="filterTable()" placeholder="🔍 नाम / मोबाइल / STB / MAC से खोजें...">
                 
-                <select class="select-input">
+                <select id="areaFilter" class="select-input" onchange="filterTable()">
                     <option value="">सभी एरिया / गली चुनें</option>
-                    <option value="1">गली नंबर 1 (मेन मार्केट)</option>
-                    <option value="2">गली नंबर 2 (शिव मंदिर पास)</option>
-                    <option value="3">सेक्टर 4 (ब्लॉक A)</option>
+                    <option value="गली नंबर 1">गली नंबर 1</option>
+                    <option value="गली नंबर 2">गली नंबर 2</option>
+                    <option value="सेक्टर 4">सेक्टर 4</option>
                 </select>
 
-                <select class="select-input">
-                    <option value="">सभी स्टेटस</option>
-                    <option value="online">🟢 सिर्फ ऑनलाइन</option>
-                    <option value="offline">🔴 सिर्फ ऑफलाइन (तार कटी)</option>
-                    <option value="expired">वैधता समाप्त (Expired)</option>
+                <select id="statusFilter" class="select-input" onchange="filterTable()">
+                    <option value="">सभी नेटवर्क स्टेटस</option>
+                    <option value="Online">🟢 सिर्फ ऑनलाइन</option>
+                    <option value="Cut Out">🔴 सिर्फ ऑफलाइन (तार कटी)</option>
+                    <option value="Weak Signal">🟡 लो सिग्नल</option>
                 </select>
             </div>
 
-            <button class="btn-primary-sm" onclick="alert('नया कनेक्शन जोड़ने का फ़ॉर्म खुला')">
+            <button class="btn-primary-sm" onclick="openAddModal()">
                 <i class="fa-solid fa-user-plus"></i> नया कनेक्शन जोड़ें
             </button>
         </div>
 
         <div class="table-container">
-            <table>
+            <table id="customerTable">
                 <thead>
                     <tr>
-                        <th>लाइव नेटवर्क</th>
+                        <th>नेटवर्क स्थिति</th>
                         <th>ग्राहक का नाम</th>
                         <th>एरिया / गली</th>
-                        <th>मोबाइल व STB/MAC No.</th>
-                        <th>प्लान व एक्सपायरी</th>
-                        <th>सिग्नल (dBm)</th>
-                        <th>एक्शन</th>
+                        <th>मोबाइल व Hardware ID</th>
+                        <th>प्लान व वैधता</th>
+                        <th>सिग्नल पावर (dBm)</th>
+                        <th>Quick Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="customer-row" onclick="openProfile('रमेश कुमार', '9876543210', 'गली नंबर 1', '₹599 (50 Mbps)', '-18.5 dBm (Good)', '🟢 Online', 'Active')">
+                    <tr class="customer-row" onclick="openProfile('रमेश कुमार', '9876543210', 'गली नंबर 1', 'Wi-Fi Fibernet', '₹599 (50 Mbps)', '-18.5 dBm (Good)', '🟢 Online', '30 Aug 2026', '4A:8B:12:34')">
                         <td><span class="badge badge-online">🟢 Online</span></td>
                         <td><b>रमेश कुमार</b></td>
                         <td>गली नंबर 1</td>
@@ -157,25 +167,25 @@
                         <td>₹599 (50 Mbps)<br><small style="color:green;">Exp: 30 Aug 2026</small></td>
                         <td style="color:green; font-weight:bold;">-18.5 dBm</td>
                         <td onclick="event.stopPropagation();">
-                            <button class="btn-whatsapp" onclick="sendWhatsApp('9876543210', 'रमेश कुमार')"><i class="fa-brands fa-whatsapp"></i> बिल</button>
-                            <button class="btn-recharge">रिचार्ज</button>
+                            <button class="btn-whatsapp" title="व्हाट्सएप पर बिल भेजें" onclick="sendWhatsApp('9876543210', 'रमेश कुमार', '599')"><i class="fa-brands fa-whatsapp"></i> बिल</button>
+                            <button class="btn-recharge" onclick="quickRecharge('रमेश कुमार')">रिन्यू</button>
                         </td>
                     </tr>
 
-                    <tr class="customer-row" onclick="openProfile('संजय वर्मा', '9876543211', 'गली नंबर 2', '₹399 (TV Dish)', 'No Signal (0.0)', '🔴 Offline (Wire Cut?)', 'Expired')">
+                    <tr class="customer-row" onclick="openProfile('संजय वर्मा', '9876543211', 'गली नंबर 2', 'Cable TV Dish', '₹399 (TV Dish)', 'No Signal (Loss)', '🔴 Cut Out', '15 Aug 2026', 'STB-10087654')">
                         <td><span class="badge badge-offline">🔴 Cut Out</span></td>
                         <td><b>संजय वर्मा</b></td>
                         <td>गली नंबर 2</td>
-                        <td>9876543211<br><small style="color:#777;">STB: 1008765432</small></td>
+                        <td>9876543211<br><small style="color:#777;">STB: 10087654</small></td>
                         <td>₹399 (TV Dish)<br><small style="color:red;">Expired (15 Aug)</small></td>
-                        <td style="color:red; font-weight:bold;">Loss of Signal</td>
+                        <td style="color:red; font-weight:bold;">Signal Loss ⚠️</td>
                         <td onclick="event.stopPropagation();">
-                            <button class="btn-whatsapp" onclick="sendWhatsApp('9876543211', 'संजय वर्मा')"><i class="fa-brands fa-whatsapp"></i> बिल</button>
-                            <button class="btn-recharge">रिचार्ज</button>
+                            <button class="btn-whatsapp" title="व्हाट्सएप पर बिल भेजें" onclick="sendWhatsApp('9876543211', 'संजय वर्मा', '399')"><i class="fa-brands fa-whatsapp"></i> बिल</button>
+                            <button class="btn-recharge" onclick="quickRecharge('संजय वर्मा')">रिन्यू</button>
                         </td>
                     </tr>
 
-                    <tr class="customer-row" onclick="openProfile('विकास गुप्ता', '9876543212', 'गली नंबर 2', '₹799 (100 Mbps)', '-29.2 dBm (Weak)', '🟡 Low Signal', 'Active')">
+                    <tr class="customer-row" onclick="openProfile('विकास गुप्ता', '9876543212', 'गली नंबर 2', 'Wi-Fi Fibernet', '₹799 (100 Mbps)', '-29.2 dBm (Weak)', '🟡 Weak Signal', '28 Aug 2026', '8C:3D:99:11')">
                         <td><span class="badge badge-warning">🟡 Weak Signal</span></td>
                         <td><b>विकास गुप्ता</b></td>
                         <td>गली नंबर 2</td>
@@ -183,8 +193,8 @@
                         <td>₹799 (100 Mbps)<br><small style="color:green;">Exp: 28 Aug 2026</small></td>
                         <td style="color:#b06000; font-weight:bold;">-29.2 dBm ⚠️</td>
                         <td onclick="event.stopPropagation();">
-                            <button class="btn-whatsapp" onclick="sendWhatsApp('9876543212', 'विकास गुप्ता')"><i class="fa-brands fa-whatsapp"></i> बिल</button>
-                            <button class="btn-recharge">रिचार्ज</button>
+                            <button class="btn-whatsapp" title="व्हाट्सएप पर बिल भेजें" onclick="sendWhatsApp('9876543212', 'विकास गुप्ता', '799')"><i class="fa-brands fa-whatsapp"></i> बिल</button>
+                            <button class="btn-recharge" onclick="quickRecharge('विकास गुप्ता')">रिन्यू</button>
                         </td>
                     </tr>
                 </tbody>
@@ -198,7 +208,7 @@
             <div class="profile-header">
                 <div class="profile-avatar" id="modalInitials">RK</div>
                 <div>
-                    <h3 id="modalName">कस्टमर का नाम</h3>
+                    <h3 id="modalName">कस्टमर विवरण</h3>
                     <p id="modalStatusBadge" style="font-size: 13px; margin-top: 3px;"></p>
                 </div>
             </div>
@@ -206,53 +216,100 @@
             <div class="profile-grid">
                 <div class="profile-box">
                     <label>मोबाइल नंबर</label>
-                    <span id="modalMobile">9876543210</span>
+                    <span id="modalMobile">---</span>
                 </div>
                 <div class="profile-box">
                     <label>लोकेशन / पता</label>
-                    <span id="modalAddress">गली नंबर 1</span>
+                    <span id="modalAddress">---</span>
+                </div>
+                <div class="profile-box">
+                    <label>कनेक्शन प्रकार</label>
+                    <span id="modalType">---</span>
+                </div>
+                <div class="profile-box">
+                    <label>STB / MAC ID</label>
+                    <span id="modalHardware">---</span>
                 </div>
                 <div class="profile-box">
                     <label>एक्टिव प्लान</label>
-                    <span id="modalPlan">₹599 - 50 Mbps</span>
+                    <span id="modalPlan">---</span>
                 </div>
                 <div class="profile-box">
-                    <label>ऑप्टिकल फ़ाइबर सिग्नल पावर</label>
-                    <span id="modalSignal">-18.5 dBm</span>
+                    <label>ऑप्टिकल फ़ाइबर सिग्नल (dBm)</label>
+                    <span id="modalSignal">---</span>
                 </div>
             </div>
 
-            <h4 style="margin-bottom: 10px; color: #1b2559;">हाल का रिचार्ज इतिहास (Billing History)</h4>
-            <table style="font-size: 12px; margin-bottom: 15px;">
+            <h4 style="margin-bottom: 10px; color: #1b2559;">हाल का रिचार्ज व पेमेंट हिस्ट्री</h4>
+            <table style="font-size: 12px; margin-bottom: 15px; width:100%;">
                 <thead>
-                    <tr><th>तारीख</th><th>राशि</th><th>पेमेंट मोड</th><th>स्टेटस</th></tr>
+                    <tr><th>तारीख</th><th>राशि</th><th>पेमेंट माध्यम</th><th>स्टेटस</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>01 जुलाई 2026</td><td>₹599</td><td>UPI (Online)</td><td style="color:green;">सफल</td></tr>
-                    <tr><td>01 जून 2026</td><td>₹599</td><td>Cash to Agent</td><td style="color:green;">सफल</td></tr>
+                    <tr><td>01 जुलाई 2026</td><td>₹ 599</td><td>UPI / Online App</td><td style="color:green; font-weight:bold;">सफल (Success)</td></tr>
+                    <tr><td>01 जून 2026</td><td>₹ 599</td><td>Cash to Agent</td><td style="color:green; font-weight:bold;">सफल (Success)</td></tr>
                 </tbody>
             </table>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="btn-whatsapp" id="modalWhatsappBtn"><i class="fa-brands fa-whatsapp"></i> व्हाट्सएप रसीद भेजें</button>
-                <button class="btn-primary-sm" onclick="closeProfile()">बंद करें</button>
+                <button class="btn-whatsapp" id="modalWhatsappBtn"><i class="fa-brands fa-whatsapp"></i> व्हाट्सएप बिल रसीद भेजें</button>
+                <button class="btn-disconnect" onclick="alert('कनेक्शन अस्थायी रूप से बंद कर दिया गया है।')">कट-ऑफ (Disconnect)</button>
             </div>
         </div>
     </div>
 
+    <div id="addModal" class="modal-overlay">
+        <div class="modal-card">
+            <span class="close-modal" onclick="closeAddModal()">&times;</span>
+            <h3 style="margin-bottom: 15px; color: #1b2559;"><i class="fa-solid fa-user-plus"></i> नया ग्राहक / कनेक्शन जोड़ें</h3>
+            
+            <form onsubmit="event.preventDefault(); addNewCustomer();">
+                <div class="form-group">
+                    <label>ग्राहक का नाम *</label>
+                    <input type="text" id="newCustName" class="form-control" placeholder="उदा. राजेश कुमार" required>
+                </div>
+                <div class="form-group">
+                    <label>मोबाइल नंबर *</label>
+                    <input type="tel" id="newCustMobile" class="form-control" placeholder="उदा. 9876543210" required>
+                </div>
+                <div class="form-group">
+                    <label>एरिया / गली *</label>
+                    <input type="text" id="newCustArea" class="form-control" placeholder="उदा. गली नंबर 3" required>
+                </div>
+                <div class="form-group">
+                    <label>कनेक्शन प्रकार</label>
+                    <select id="newCustType" class="form-control">
+                        <option value="Wi-Fi Fibernet">Wi-Fi Broadband (Fibernet)</option>
+                        <option value="Cable TV Dish">Cable TV (Dish)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>STB Number या Router MAC Address</label>
+                    <input type="text" id="newCustHardware" class="form-control" placeholder="उदा. 4A:8B:XX:YY या STB-1234">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-disconnect" onclick="closeAddModal()">रद्द करें</button>
+                    <button type="submit" class="btn-primary-sm">सेव करें (Save)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Open Profile Modal Function
-        function openProfile(name, mobile, address, plan, signal, status, validity) {
+        // Open Customer Detail Modal
+        function openProfile(name, mobile, address, type, plan, signal, status, exp, hardware) {
             document.getElementById('modalName').innerText = name;
             document.getElementById('modalMobile').innerText = mobile;
             document.getElementById('modalAddress').innerText = address;
+            document.getElementById('modalType').innerText = type;
+            document.getElementById('modalHardware').innerText = hardware;
             document.getElementById('modalPlan').innerText = plan;
             document.getElementById('modalSignal').innerText = signal;
             document.getElementById('modalStatusBadge').innerText = "नेटवर्क स्थिति: " + status;
             document.getElementById('modalInitials').innerText = name.charAt(0);
             
             document.getElementById('modalWhatsappBtn').onclick = function() {
-                sendWhatsApp(mobile, name);
+                sendWhatsApp(mobile, name, '599');
             };
 
             document.getElementById('profileModal').style.display = 'flex';
@@ -262,11 +319,79 @@
             document.getElementById('profileModal').style.display = 'none';
         }
 
-        // Send Direct WhatsApp Bill/Reminder
-        function sendWhatsApp(mobile, name) {
-            const message = `नमस्ते ${name} जी! आपकी राहुल ब्रॉडबैंड/केबल सेवा का बिल तैयार है। कृपया समय पर भुगतान करें। धन्यवाद!`;
+        // Add Customer Modal Control
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        // Send WhatsApp Reminder/Bill
+        function sendWhatsApp(mobile, name, amount) {
+            const message = `नमस्ते ${name} जी! आपकी राहुल ब्रॉडबैंड/केबल टीवी सेवा का ₹${amount} का बिल रिन्यूअल के लिए तैयार है। कृपया समय पर भुगतान करके निर्बाध सेवा का आनंद लें। धन्यवाद!`;
             const url = `https://wa.me/91${mobile}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
+        }
+
+        // Quick Recharge Action
+        function quickRecharge(name) {
+            alert(name + " का रिचार्ज सफल रहा! 30 दिनों की वैधता आगे बढ़ा दी गई है।");
+        }
+
+        // Live Search and Filter Functionality
+        function filterTable() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const areaVal = document.getElementById('areaFilter').value.toLowerCase();
+            const statusVal = document.getElementById('statusFilter').value.toLowerCase();
+            
+            const rows = document.querySelectorAll('#customerTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const matchesSearch = text.includes(searchVal);
+                const matchesArea = areaVal === "" || text.includes(areaVal);
+                const matchesStatus = statusVal === "" || text.includes(statusVal);
+
+                if (matchesSearch && matchesArea && matchesStatus) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        // Add New Customer Logic
+        function addNewCustomer() {
+            const name = document.getElementById('newCustName').value;
+            const mobile = document.getElementById('newCustMobile').value;
+            const area = document.getElementById('newCustArea').value;
+            const type = document.getElementById('newCustType').value;
+            const hardware = document.getElementById('newCustHardware').value || 'N/A';
+
+            const tbody = document.querySelector('#customerTable tbody');
+            const newRow = document.createElement('tr');
+            newRow.className = 'customer-row';
+            newRow.onclick = function() {
+                openProfile(name, mobile, area, type, '₹499 (Starter)', '-19.0 dBm', '🟢 Online', '30 Days', hardware);
+            };
+
+            newRow.innerHTML = `
+                <td><span class="badge badge-online">🟢 Online</span></td>
+                <td><b>${name}</b></td>
+                <td>${area}</td>
+                <td>${mobile}<br><small style="color:#777;">ID: ${hardware}</small></td>
+                <td>₹499 (Starter Plan)<br><small style="color:green;">Exp: 30 Days Left</small></td>
+                <td style="color:green; font-weight:bold;">-19.0 dBm</td>
+                <td onclick="event.stopPropagation();">
+                    <button class="btn-whatsapp" onclick="sendWhatsApp('${mobile}', '${name}', '499')"><i class="fa-brands fa-whatsapp"></i> बिल</button>
+                    <button class="btn-recharge" onclick="quickRecharge('${name}')">रिन्यू</button>
+                </td>
+            `;
+
+            tbody.appendChild(newRow);
+            closeAddModal();
+            alert("नया ग्राहक (" + name + ") सफलतापूर्वक जोड़ दिया गया है!");
         }
     </script>
 </body>
