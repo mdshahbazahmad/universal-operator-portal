@@ -1,212 +1,526 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ईगल नेटवर्क एसबीजेड - यूनिवर्सल ऑपरेटर पोर्टल</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Universal Operator Portal - Next-Gen Cable & Fiber Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.3s ease;
+        }
+
         body {
-            height: 100vh;
+            min-height: 100vh;
+            background: #090d16;
+            color: #f8fafc;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('path/to/image_0.png') no-repeat center center fixed;
-            background-size: cover;
-            color: #2b3674;
-            overflow: hidden;
-        }
-
-        body > * {
+            flex-direction: column;
             position: relative;
-            z-index: 1;
+            overflow-x: hidden;
         }
 
-        .header-text {
-            position: absolute;
-            top: 20px;
+        /* Subtly Blended Background Image Container */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff6b00;
-            z-index: 2;
-        }
-
-        .auth-container {
-            position: relative;
-            width: 90%;
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            transition: all 0.3s ease-in-out;
-            z-index: 1;
-        }
-
-        .auth-container.fade-out {
-            opacity: 0;
-            transform: scale(0.9);
+            height: 100%;
+            background-image: url('backgroundpng.jpeg'); /* Your background image */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.12; /* Subtle glass layer effect */
+            filter: blur(8px);
+            z-index: 0;
             pointer-events: none;
         }
 
-        .auth-header {
-            text-align: center;
+        /* Gradient Glow Effects */
+        .glow-1 {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+        }
+
+        .glow-2 {
+            position: fixed;
+            bottom: -10%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+        }
+
+        /* Header Navigation */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 8%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #38bdf8;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Language Selector Dropdown */
+        .lang-selector {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .lang-selector select {
+            background: transparent;
+            border: none;
+            color: #f8fafc;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .lang-selector select option {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        /* Main Section Container */
+        main {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            padding: 40px 8%;
+            gap: 60px;
+        }
+
+        /* Hero Text Content */
+        .hero-text {
+            max-width: 580px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            color: #38bdf8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.2rem;
+            line-height: 1.15;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 35px;
+        }
+
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e1;
+            font-size: 0.98rem;
+        }
+
+        .feature-item i {
+            color: #10b981;
+        }
+
+        /* Form Glass Card */
+        .auth-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 440px;
+            justify-self: end;
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px;
+            border-radius: 12px;
             margin-bottom: 30px;
         }
-        .auth-header h2 {
-            color: #0b1437;
-            font-size: 26px;
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
         }
-        .auth-header p {
-            font-size: 14px;
-            color: #ff6b00;
-            font-weight: bold;
-            margin-top: 5px;
+
+        .tab-btn.active {
+            background: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
-            font-size: 14px;
-            font-weight: bold;
             margin-bottom: 8px;
-            color: #1b2559;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d0d7de;
-            border-radius: 10px;
-            outline: none;
-            font-size: 15px;
-            transition: border-color 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            border-color: #ff6b00;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            font-weight: 500;
         }
 
-        .btn-primary {
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-submit {
             width: 100%;
             padding: 14px;
-            background: #ff6b00;
-            color: white;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
             border: none;
-            border-radius: 10px;
-            font-weight: bold;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 16px;
-            box-shadow: 0 5px 10px rgba(255, 107, 0, 0.3);
-            transition: background 0.3s, box-shadow 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
         }
-        .btn-primary:hover {
-            background: #e05e00;
-            box-shadow: 0 7px 15px rgba(255, 107, 0, 0.4);
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
         }
-        
-        .toggle-link {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #0066cc;
-            cursor: pointer;
-            font-weight: bold;
+
+        /* RTL (Urdu Language Support) */
+        [dir="rtl"] {
+            font-family: 'Noto Nastaliq Urdu', 'Plus Jakarta Sans', sans-serif;
         }
-        .toggle-link:hover {
-            text-decoration: underline;
+        [dir="rtl"] .input-wrapper i {
+            left: auto;
+            right: 16px;
+        }
+        [dir="rtl"] .input-wrapper input {
+            padding: 14px 45px 14px 16px;
+        }
+
+        @media (max-width: 968px) {
+            main {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .auth-card {
+                justify-self: center;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="header-text">ईगल नेटवर्क एसबीजेड</div>
+    <div class="bg-overlay"></div>
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
 
-    <div id="authContainer" class="auth-container">
-        <div class="auth-header">
-            <h2><i class="fa-solid fa-network-wired"></i> ऑपरेटर लॉगिन (Login)</h2>
-            <p>POWERED BY EAGLE NETWORK SBZ</p>
+    <header>
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-network-wired"></i></div>
+            <span id="txt-logo">Universal Portal</span>
         </div>
-        
-        <form onsubmit="event.preventDefault(); goToDashboard();">
-            <div class="form-group">
-                <label>रजिस्टर्ड मोबाइल नंबर</label>
-                <input type="tel" id="loginMobile" placeholder="9876543210" required>
+
+        <div class="lang-selector">
+            <i class="fa-solid fa-globe" style="color:#38bdf8;"></i>
+            <select id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="en" selected>English</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="ur">اردو (Urdu)</option>
+            </select>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-text">
+            <div class="badge">
+                <i class="fa-solid fa-bolt"></i>
+                <span id="txt-badge">Built for Cable & Wi-Fi Operators</span>
             </div>
-            <div class="form-group">
-                <label>पासवर्ड</label>
-                <input type="password" id="loginPassword" placeholder="******" required>
-            </div>
+            <h1 id="txt-title">Manage Your Entire Cable & Broadband Empire</h1>
+            <p id="txt-desc">All-in-one portal to streamline customer billing, automate payments, resolve signal faults, and manage your local network easily.</p>
             
-            <button type="submit" class="btn-primary">डैशबोर्ड में प्रवेश करें</button>
-        </form>
-        
-        <div class="toggle-link" onclick="toggleForm()">
-            नया ऑपरेटर? साइन अप करें
+            <div class="features-list">
+                <div class="feature-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="feat-1">Automated Multi-Operator Billing & Invoicing</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="feat-2">Dedicated Customer Mobile App Support</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="feat-3">Instant Cable Cut & Signal Fault Alerts</span>
+                </div>
+            </div>
         </div>
-    </div>
+
+        <div class="auth-card">
+            <div class="tab-buttons">
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Register Operator</button>
+            </div>
+
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label id="lbl-login-email">Mobile / Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="text" placeholder="e.g. 9876543210" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-login-pass">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-login-submit">Login to Portal</button>
+            </form>
+
+            <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label id="lbl-reg-name">Operator / Business Name</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-building"></i>
+                        <input type="text" placeholder="e.g. Star Fibernet" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-reg-phone">Mobile Number</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" placeholder="9876543210" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-reg-pass">Create Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-reg-submit">Create Operator Account</button>
+            </form>
+        </div>
+    </main>
 
     <script>
-        // डैशबोर्ड फ़ाइल खोलें
-        function goToDashboard() {
+        const translations = {
+            en: {
+                dir: 'ltr',
+                logo: 'Universal Portal',
+                badge: 'Built for Cable & Wi-Fi Operators',
+                title: 'Manage Your Entire Cable & Broadband Empire',
+                desc: 'All-in-one portal to streamline customer billing, automate payments, resolve signal faults, and manage your local network easily.',
+                feat1: 'Automated Multi-Operator Billing & Invoicing',
+                feat2: 'Dedicated Customer Mobile App Support',
+                feat3: 'Instant Cable Cut & Signal Fault Alerts',
+                tabLogin: 'Sign In',
+                tabRegister: 'Register Operator',
+                lblLoginEmail: 'Mobile / Email Address',
+                lblLoginPass: 'Password',
+                btnLoginSubmit: 'Login to Portal',
+                lblRegName: 'Operator / Business Name',
+                lblRegPhone: 'Mobile Number',
+                lblRegPass: 'Create Password',
+                btnRegSubmit: 'Create Operator Account'
+            },
+            hi: {
+                dir: 'ltr',
+                logo: 'यूनिवर्सल पोर्टल',
+                badge: 'केबल और वाई-फाई ऑपरेटरों के लिए निर्मित',
+                title: 'अपने पूरे केबल और ब्रॉडबैंड नेटवर्क को मैनेज करें',
+                desc: 'ग्राहक बिलिंग, ऑटोमैटिक भुगतान, सिग्नल फॉल्ट सुलझाने और अपने लोकल नेटवर्क को आसानी से संचालित करने का ऑल-इन-वन पोर्टल।',
+                feat1: 'ऑटोमैटिक मल्टी-ऑपरेटर बिलिंग और रसीद',
+                feat2: 'ग्राहकों के लिए विशेष मोबाइल ऐप सपोर्ट',
+                feat3: 'केबल कटने और सिग्नल फ़ॉल्ट का तुरंत अलर्ट',
+                tabLogin: 'साइन इन करें',
+                tabRegister: 'नया ऑपरेटर जोड़ें',
+                lblLoginEmail: 'मोबाइल नंबर / ईमेल आईडी',
+                lblLoginPass: 'पासवर्ड',
+                btnLoginSubmit: 'डैशबोर्ड में लॉगिन करें',
+                lblRegName: 'ऑपरेटर / कंपनी का नाम',
+                lblRegPhone: 'मोबाइल नंबर',
+                lblRegPass: 'पासवर्ड बनाएं',
+                btnRegSubmit: 'ऑपरेटर अकाउंट बनाएं'
+            },
+            ur: {
+                dir: 'rtl',
+                logo: 'یونیورسل پورٹل',
+                badge: 'کیبل اور وائی فائی آپریٹرز کے لیے خاص',
+                title: 'اپنے کیبل اور براڈ بینڈ نیٹ ورک کا مکمل انتظام کریں',
+                desc: 'کسٹمر بلنگ، خودکار ادائیگیاں، سگنل کی خرابیوں کو حل کرنے اور اپنے مقامی نیٹ ورک کو آسانی سے چلانے کا بہترین پورٹل۔',
+                feat1: 'خودکار بلنگ اور رسیدیں',
+                feat2: 'کسٹمرز کے لیے خصوصی موبائل ایپ',
+                feat3: 'کیبل کٹنے اور سگنل کی خرابی کا فوری الرٹ',
+                tabLogin: 'سائن ان کریں',
+                tabRegister: 'نیا آپریٹر رجسٹر کریں',
+                lblLoginEmail: 'موبائل نمبر / ای میل',
+                lblLoginPass: 'پاسورڈ',
+                btnLoginSubmit: 'پورٹل میں لاگ ان کریں',
+                lblRegName: 'آپریٹر / کمپنی کا نام',
+                lblRegPhone: 'موبائل نمبر',
+                lblRegPass: 'پاسورڈ بنائیں',
+                btnRegSubmit: 'نیا اکاؤنٹ بنائیں'
+            }
+        };
+
+        function changeLanguage(lang) {
+            const data = translations[lang];
+            document.documentElement.dir = data.dir;
+
+            document.getElementById('txt-logo').innerText = data.logo;
+            document.getElementById('txt-badge').innerText = data.badge;
+            document.getElementById('txt-title').innerText = data.title;
+            document.getElementById('txt-desc').innerText = data.desc;
+            document.getElementById('feat-1').innerText = data.feat1;
+            document.getElementById('feat-2').innerText = data.feat2;
+            document.getElementById('feat-3').innerText = data.feat3;
+
+            document.getElementById('tab-login').innerText = data.tabLogin;
+            document.getElementById('tab-register').innerText = data.tabRegister;
+            document.getElementById('lbl-login-email').innerText = data.lblLoginEmail;
+            document.getElementById('lbl-login-pass').innerText = data.lblLoginPass;
+            document.getElementById('btn-login-submit').innerText = data.btnLoginSubmit;
+
+            document.getElementById('lbl-reg-name').innerText = data.lblRegName;
+            document.getElementById('lbl-reg-phone').innerText = data.lblRegPhone;
+            document.getElementById('lbl-reg-pass').innerText = data.lblRegPass;
+            document.getElementById('btn-reg-submit').innerText = data.btnRegSubmit;
+        }
+
+        function switchTab(tab) {
+            if(tab === 'login') {
+                document.getElementById('form-login').style.display = 'block';
+                document.getElementById('form-register').style.display = 'none';
+                document.getElementById('tab-login').classList.add('active');
+                document.getElementById('tab-register').classList.remove('active');
+            } else {
+                document.getElementById('form-login').style.display = 'none';
+                document.getElementById('form-register').style.display = 'block';
+                document.getElementById('tab-register').classList.add('active');
+                document.getElementById('tab-login').classList.remove('active');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            // Redirect straight to Dashboard
             window.location.href = 'dashboard.html';
         }
 
-        function toggleForm() {
-            const container = document.getElementById('authContainer');
-            container.classList.add('fade-out');
-
-            setTimeout(() => {
-                const headerH2 = container.querySelector('.auth-header h2');
-                const form = container.querySelector('form');
-                const toggleLink = container.querySelector('.toggle-link');
-
-                if (headerH2.innerText.includes('लॉगिन')) {
-                    // SWITCH TO SIGNUP
-                    headerH2.innerHTML = '<i class="fa-solid fa-user-plus"></i> ऑपरेटर रजिस्ट्रेशन (Sign Up)';
-                    toggleLink.innerText = 'पहले से अकाउंट है? लॉगिन करें';
-                    
-                    form.innerHTML = `
-                        <div class="form-group">
-                            <label>ऑपरेटर का पूरा नाम</label>
-                            <input type="text" placeholder="आपका नाम" required>
-                        </div>
-                        <div class="form-group">
-                            <label>मोबाइल नंबर</label>
-                            <input type="tel" placeholder="9876543210" required>
-                        </div>
-                        <div class="form-group">
-                            <label>पासवर्ड बनाएं</label>
-                            <input type="password" placeholder="******" required>
-                        </div>
-                        <button type="submit" class="btn-primary">अकाउंट बनाएं और पोर्टल शुरू करें</button>
-                    `;
-                } else {
-                    // SWITCH TO LOGIN
-                    headerH2.innerHTML = '<i class="fa-solid fa-network-wired"></i> ऑपरेटर लॉगिन (Login)';
-                    toggleLink.innerText = 'नया ऑपरेटर? साइन अप करें';
-                    
-                    form.innerHTML = `
-                        <div class="form-group">
-                            <label>रजिस्टर्ड मोबाइल नंबर</label>
-                            <input type="tel" id="loginMobile" placeholder="9876543210" required>
-                        </div>
-                        <div class="form-group">
-                            <label>पासवर्ड</label>
-                            <input type="password" id="loginPassword" placeholder="******" required>
-                        </div>
-                        <button type="submit" class="btn-primary">डैशबोर्ड में प्रवेश करें</button>
-                    `;
-                }
-                
-                container.classList.remove('fade-out');
-            }, 300);
+        function handleRegister(e) {
+            e.preventDefault();
+            alert('Operator Account Registered Successfully! Redirecting to Dashboard...');
+            window.location.href = 'dashboard.html';
         }
     </script>
-
 </body>
 </html>
