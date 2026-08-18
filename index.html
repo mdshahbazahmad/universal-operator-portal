@@ -8,32 +8,22 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        /* Image Background Configuration
-           Applying the image as a background and lightening it for readability.
-           Note: Replace 'path/to/image_0.png' with the actual server path to the image.
-        */
         body {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Using a combination of image and linear-gradient to lighten the background.
-               A solid white/light overlay is applied to fade the image details. */
             background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('path/to/image_0.png') no-repeat center center fixed;
             background-size: cover;
             color: #2b3674;
             overflow: hidden;
         }
 
-        /* Ensure all elements within body are in a stacked context 
-           to respect opacity settings.
-        */
         body > * {
             position: relative;
             z-index: 1;
         }
 
-        /* Eagle Network SBZ Text at the very top, outside the white box */
         .header-text {
             position: absolute;
             top: 20px;
@@ -41,16 +31,15 @@
             text-align: center;
             font-size: 24px;
             font-weight: bold;
-            color: #ff6b00; /* Distinct SBZ orange */
-            z-index: 2; /* To sit above potential overlays */
+            color: #ff6b00;
+            z-index: 2;
         }
 
-        /* Authentication Container (The primary white box) */
         .auth-container {
             position: relative;
             width: 90%;
             max-width: 500px;
-            background: rgba(255, 255, 255, 0.95); /* Nearly opaque white for forms */
+            background: rgba(255, 255, 255, 0.95);
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
@@ -58,7 +47,6 @@
             z-index: 1;
         }
 
-        /* Container Fade Animation */
         .auth-container.fade-out {
             opacity: 0;
             transform: scale(0.9);
@@ -75,7 +63,7 @@
         }
         .auth-header p {
             font-size: 14px;
-            color: #ff6b00; /* SBZ orange for emphasis */
+            color: #ff6b00;
             font-weight: bold;
             margin-top: 5px;
         }
@@ -103,11 +91,10 @@
             border-color: #ff6b00;
         }
 
-        /* The buttons - designed to be bold, clean, and clear */
         .btn-primary {
             width: 100%;
             padding: 14px;
-            background: #ff6b00; /* Solid SBZ orange */
+            background: #ff6b00;
             color: white;
             border: none;
             border-radius: 10px;
@@ -133,7 +120,6 @@
         .toggle-link:hover {
             text-decoration: underline;
         }
-
     </style>
 </head>
 <body>
@@ -146,7 +132,7 @@
             <p>POWERED BY EAGLE NETWORK SBZ</p>
         </div>
         
-        <form onsubmit="event.preventDefault(); alert('Login successful!');">
+        <form onsubmit="event.preventDefault(); goToDashboard();">
             <div class="form-group">
                 <label>रजिस्टर्ड मोबाइल नंबर</label>
                 <input type="tel" id="loginMobile" placeholder="9876543210" required>
@@ -165,24 +151,25 @@
     </div>
 
     <script>
+        // डैशबोर्ड फ़ाइल खोलें
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
         function toggleForm() {
-            // Animate transition between forms
             const container = document.getElementById('authContainer');
             container.classList.add('fade-out');
 
             setTimeout(() => {
                 const headerH2 = container.querySelector('.auth-header h2');
                 const form = container.querySelector('form');
-                const submitBtn = container.querySelector('.btn-primary');
                 const toggleLink = container.querySelector('.toggle-link');
 
-                if (submitBtn.innerText === 'डैशबोर्ड में प्रवेश करें') {
-                    // Switch to SIGNUP
+                if (headerH2.innerText.includes('लॉगिन')) {
+                    // SWITCH TO SIGNUP
                     headerH2.innerHTML = '<i class="fa-solid fa-user-plus"></i> ऑपरेटर रजिस्ट्रेशन (Sign Up)';
-                    submitBtn.innerText = 'अकाउंट बनाएं और पोर्टल शुरू करें';
                     toggleLink.innerText = 'पहले से अकाउंट है? लॉगिन करें';
                     
-                    // Modify form for signup - Simplified example
                     form.innerHTML = `
                         <div class="form-group">
                             <label>ऑपरेटर का पूरा नाम</label>
@@ -199,12 +186,10 @@
                         <button type="submit" class="btn-primary">अकाउंट बनाएं और पोर्टल शुरू करें</button>
                     `;
                 } else {
-                    // Switch to LOGIN
+                    // SWITCH TO LOGIN
                     headerH2.innerHTML = '<i class="fa-solid fa-network-wired"></i> ऑपरेटर लॉगिन (Login)';
-                    submitBtn.innerText = 'डैशबोर्ड में प्रवेश करें';
                     toggleLink.innerText = 'नया ऑपरेटर? साइन अप करें';
                     
-                    // Reset form for login
                     form.innerHTML = `
                         <div class="form-group">
                             <label>रजिस्टर्ड मोबाइल नंबर</label>
@@ -219,7 +204,7 @@
                 }
                 
                 container.classList.remove('fade-out');
-            }, 300); // Animation duration
+            }, 300);
         }
     </script>
 
