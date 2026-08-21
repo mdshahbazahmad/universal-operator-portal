@@ -533,5 +533,26 @@
 <footer style="text-align: center; padding: 15px 10px; font-size: 13px; color: #94a3b8; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: auto;">
     <p>Powered by <strong style="color: #38bdf8; font-weight: 600;">Eagle Network SBZ</strong></p>
 </footer>
+<!-- Firebase SDK Services -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // आपका कॉपी किया हुआ कॉन्फ़िगरेशन कोड
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+    authDomain: "universal-portal-dashboard.firebaseapp.com",
+    projectId: "universal-portal-dashboard",
+    storageBucket: "universal-portal-dashboard.firebasestorage.app",
+    messagingSenderId: "403036962443",
+    appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+  };
+
+  // Firebase Initialize
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
 </body>
 </html>
