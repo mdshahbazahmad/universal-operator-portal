@@ -291,6 +291,62 @@
           });
       }
 
+       // Re-authenticate the operator before changing their password.
+       function handleChangePassword() {
+           const user = auth.currentUser;
+           if (!user) {
+               alert("Your session has expired. Please sign in again.");
+               window.location.href = "index.html";
+               return;
+           }
+
+           if (!user.email) {
+               alert("Password changes are only available for email/password accounts.");
+               return;
+           }
+
+           const currentPassword = prompt("Enter your current password:");
+           if (!currentPassword) {
+               alert("Current password is required.");
+               return;
+           }
+
+           const newPassword = prompt("Enter your new password (at least 6 characters):");
+           if (!newPassword || newPassword.length < 6) {
+               alert("New password must be at least 6 characters long.");
+               return;
+           }
+
+           const credential = firebase.auth.EmailAuthProvider.credential(
+               user.email,
+               currentPassword
+           );
+
+           user.reauthenticateWithCredential(credential)
+               .then(() => user.updatePassword(newPassword))
+               .then(() => {
+                   alert("Password changed successfully. Please use your new password next time you sign in.");
+               })
+               .catch((error) => {
+                   if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+                       alert("The current password is incorrect.");
+                   } else if (error.code === "auth/requires-recent-login") {
+                       alert("For security, please log out and sign in again before changing your password.");
+                   } else {
+                       alert("Password change failed: " + error.message);
+                   }
+               });
+       }
+
+       // Make the password action available from the existing Settings panel.
+       const changePasswordButton = document.createElement("button");
+       changePasswordButton.type = "button";
+       changePasswordButton.className = "btn-add";
+       changePasswordButton.style.marginTop = "12px";
+       changePasswordButton.innerHTML = '<i class="fa-solid fa-key"></i> Change Password';
+       changePasswordButton.addEventListener("click", handleChangePassword);
+       document.getElementById("settings-form").appendChild(changePasswordButton);
+
       function loadSubscribers(userId) {
           db.collection("subscribers").where("operatorId", "==", userId)
             .onSnapshot((snapshot) => {
