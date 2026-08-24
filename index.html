@@ -751,31 +751,69 @@
                 });
         }
 
-        // Real Register Function
+        // Send a Firebase password-reset email for an existing operator.
+        function handleForgotPassword() {
+            const email = prompt("Please enter your registered email address:");
+            if (!email || !email.trim()) {
+                alert("Email address is required.");
+                return;
+            }
+
+            auth.sendPasswordResetEmail(email.trim())
+                .then(() => {
+                    alert("A password reset link has been sent to " + email.trim() + ". Please check your inbox and spam folder.");
+                })
+                .catch((error) => {
+                    alert("Password reset failed: " + error.message);
+                });
+        }
+
+        // Add the reset action without changing the existing HTML form markup.
+        const forgotPasswordLink = document.createElement('button');
+        forgotPasswordLink.type = 'button';
+        forgotPasswordLink.innerText = 'Forgot Password?';
+        forgotPasswordLink.style.cssText = 'display:block;margin:14px auto 0;background:none;border:none;color:#38bdf8;font-size:.85rem;cursor:pointer;';
+        forgotPasswordLink.addEventListener('click', handleForgotPassword);
+        document.getElementById('form-login').appendChild(forgotPasswordLink);
+
+        // Register an operator, save their profile, and send Firebase's
+        // automatic email-verification notification.
         function handleRegister(e) {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-pass').value;
+
+            if (!name || !email || !password) {
+                alert("Please complete the operator name, email, and password fields.");
+                return;
+            }
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
-                    return db.collection("users").doc(user.uid).set({
-                        name: name,
-                        email: email,
-                        companyName: "Eagle Network SBZ",
-                        logoUrl: "https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg",
-                        role: "operator",
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    return Promise.all([
+                        db.collection("users").doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            companyName: "Eagle Network SBZ",
+                            logoUrl: "https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg",
+                            role: "operator",
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }),
+                        user.sendEmailVerification()
+                    ]);
                 })
                 .then(() => {
-                    alert("Account Created Successfully!");
+                    alert("Account created successfully. A verification email has been sent to " + email + ". Please verify it from your inbox.");
                     window.location.href = 'dashboard.html';
                 })
                 .catch((error) => {
-                    alert("Registration Error: " + error.message);
+                    if (error.code === 'auth/email-already-in-use') {
+                        alert("This email is already registered. Please sign in instead.");
+                    } else {
+                        alert("Registration failed: " + error.message);
+                    }
                 });
         }
     </script>
