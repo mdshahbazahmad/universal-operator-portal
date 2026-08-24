@@ -291,49 +291,32 @@
           });
       }
 
-       // Re-authenticate the operator before changing their password.
+       // Change Password in Settings (پاس ورڈ بدلنے کا آپشن)
        function handleChangePassword() {
            const user = auth.currentUser;
            if (!user) {
-               alert("Your session has expired. Please sign in again.");
-               window.location.href = "index.html";
+               alert("आप लॉगिन नहीं हैं। कृपया फिर से लॉगिन करें।");
                return;
            }
 
-           if (!user.email) {
-               alert("Password changes are only available for email/password accounts.");
-               return;
-           }
-
-           const currentPassword = prompt("Enter your current password:");
-           if (!currentPassword) {
-               alert("Current password is required.");
-               return;
-           }
-
-           const newPassword = prompt("Enter your new password (at least 6 characters):");
+           const newPassword = prompt("अपना नया पासवर्ड (New Password) दर्ज करें (कम से कम 6 अक्षर):");
            if (!newPassword || newPassword.length < 6) {
-               alert("New password must be at least 6 characters long.");
+               alert("पासवर्ड कम से कम 6 अक्षरों का होना चाहिए!");
                return;
            }
 
-           const credential = firebase.auth.EmailAuthProvider.credential(
-               user.email,
-               currentPassword
-           );
-
-           user.reauthenticateWithCredential(credential)
-               .then(() => user.updatePassword(newPassword))
+           user.updatePassword(newPassword)
                .then(() => {
-                   alert("Password changed successfully. Please use your new password next time you sign in.");
+                   return auth.sendPasswordResetEmail(user.email);
+               })
+               .then(() => {
+                   alert("🔐 आपका पासवर्ड सफलतापूर्वक बदल दिया गया है!\n\nसुरक्षा के लिए आपके रजिस्टर्ड Gmail (" + user.email + ") पर alert भेज दिया गया है।");
                })
                .catch((error) => {
-                   if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
-                       alert("The current password is incorrect.");
-                   } else if (error.code === "auth/requires-recent-login") {
-                       alert("For security, please log out and sign in again before changing your password.");
+                   if (error.code === 'auth/requires-recent-login') {
+                       alert("सुरक्षा कारणों से पासवर्ड बदलने के लिए एक बार लॉगआउट करके दोबारा लॉगिन करें।");
                    } else {
-                       alert("Password change failed: " + error.message);
+                       alert("Error: " + error.message);
                    }
                });
        }
