@@ -415,6 +415,63 @@
       }
 
       function handleLogout() { auth.signOut().then(() => window.location.href = "index.html"); }
-    </script>
+     </script>
+
+     <!-- Live AI Help Widget Setup -->
+     <script>
+         (function () {
+             const helpButton = document.createElement("button");
+             helpButton.type = "button";
+             helpButton.className = "help-btn";
+             helpButton.innerHTML = '<i class="fa-solid fa-headset"></i> AI Help';
+             helpButton.style.cssText = [
+                 "position:fixed",
+                 "right:24px",
+                 "bottom:24px",
+                 "z-index:10000",
+                 "display:flex",
+                 "align-items:center",
+                 "gap:8px",
+                 "padding:12px 18px",
+                 "border:1px solid rgba(56,189,248,.45)",
+                 "border-radius:999px",
+                 "background:linear-gradient(135deg,#0ea5e9,#2563eb)",
+                 "color:#fff",
+                 "font-weight:700",
+                 "box-shadow:0 8px 24px rgba(37,99,235,.4)",
+                 "cursor:pointer"
+             ].join(";");
+             helpButton.addEventListener("click", openAiHelpChat);
+             document.body.appendChild(helpButton);
+         })();
+
+         const dashboardHelpButton = document.getElementById("nav-help");
+         if (dashboardHelpButton) {
+             dashboardHelpButton.onclick = function (event) {
+                 event.preventDefault();
+                 openAiHelpChat();
+             };
+         }
+
+         function openAiHelpChat() {
+             const userQuery = prompt("👋 नमस्ते! Eagle Network AI Support में आपका स्वागत है।\n\nआप हमसे सर्वर सिंक, पेमेंट, या कस्टमर रिचार्ज से जुड़ा कोई भी सवाल पूछ सकते हैं:");
+             if (!userQuery) return;
+
+             let response = "Eagle Network AI Support Bot:\n\n";
+             const q = userQuery.toLowerCase();
+
+             if (q.includes("recharge") || q.includes("रिचार्ज") || q.includes("कटगा") || q.includes("पैसे")) {
+                 response += "✅ भुगतान सुरक्षा एवं प्रक्रिया:\n• ग्राहक जो भी रिचार्ज करेगा, पूरा पैसा सीधे आपके (ऑपरेटर के) बैंक खाते में जमा होगा।\n• पोर्टल API के ज़रिए आपके मुख्य सर्वर को सिग्नल भेजेगा और केवल सर्वर की लागत (Margin) आपके वॉलेट से कटेगी।\n• आपका मुनाफा पूरी तरह सुरक्षित रहता है।";
+             } else if (q.includes("server") || q.includes("सर्वर") || q.includes("portal") || q.includes("पोर्टल")) {
+                 response += "✅ दो पोर्टल कैसे काम करेंगे?\n• हमारा यूनिवर्सल पोर्टल आपके मुख्य सर्वर (Mikrotik/Radius/OLT) को रिप्लेस नहीं करता।\n• यह 256-Bit SSL सुरक्षा के साथ API द्वारा आपके सर्वर से जुड़कर डेटा ऑटो-सिंक करता है।";
+             } else if (q.includes("data") || q.includes("सुरक्षा") || q.includes("security")) {
+                 response += "🔒 डेटा गोपनीयता एवं सुरक्षा:\n• आपका और आपके सभी ग्राहकों का डेटा 100% गोपनीय और एन्क्रिप्टेड है।\n• आपका डेटा केवल आपकी निजी संपत्ति है और किसी अन्य ऑपरेटर से साझा नहीं किया जाता।";
+             } else {
+                 response += "✅ Eagle Network Support:\n• हमारी प्रणाली 24x7 ऑटोमैटिक काम करती है।\n• सहायता के लिए ہمارے आधिकारिक WhatsApp या सपोर्ट नंबर पर भी संपर्क कर सकते हैं।";
+             }
+
+             alert(response);
+         }
+     </script>
 </body>
 </html>
