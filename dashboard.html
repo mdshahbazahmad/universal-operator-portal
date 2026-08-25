@@ -417,61 +417,37 @@
       function handleLogout() { auth.signOut().then(() => window.location.href = "index.html"); }
      </script>
 
-     <!-- Live AI Help Widget Setup -->
+     <!-- High-End Floating AI Chat Widget -->
+     <style>
+         #ai-chat-launcher { position:fixed; bottom:25px; right:25px; width:62px; height:62px; border:0; border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); color:#fff; box-shadow:0 8px 24px rgba(37,99,235,.4); display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; z-index:99999; transition:all .3s cubic-bezier(.175,.885,.32,1.275); }
+         #ai-chat-launcher:hover { transform:scale(1.1) rotate(5deg); box-shadow:0 12px 28px rgba(124,58,237,.5); }
+         .chat-badge { position:absolute; top:2px; right:2px; width:14px; height:14px; background:#10b981; border:2px solid #fff; border-radius:50%; }
+         #ai-chat-box { position:fixed; bottom:100px; right:25px; width:380px; max-width:90vw; height:520px; max-height:80vh; background:#fff; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,.2); display:none; flex-direction:column; overflow:hidden; z-index:99999; font-family:'Segoe UI',Tahoma,sans-serif; border:1px solid rgba(229,231,235,.8); animation:popupSlide .3s ease-out; }
+         @keyframes popupSlide { from { opacity:0; transform:translateY(20px) scale(.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+         .chat-header { background:linear-gradient(135deg,#1e293b,#0f172a); color:#fff; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
+         .chat-header-info { display:flex; align-items:center; gap:12px; } .avatar-ai { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#3b82f6,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:18px; }
+         .chat-title { font-size:15px; font-weight:700; margin:0; } .chat-subtitle { font-size:11px; color:#94a3b8; margin:0; } .close-chat-btn { background:none; border:0; color:#94a3b8; font-size:20px; cursor:pointer; } .close-chat-btn:hover { color:#fff; }
+         .chat-body { flex:1; padding:16px; background:#f8fafc; overflow-y:auto; display:flex; flex-direction:column; gap:12px; } .msg-bubble { max-width:85%; padding:12px 16px; border-radius:16px; font-size:13.5px; line-height:1.5; overflow-wrap:anywhere; }
+         .msg-bot { align-self:flex-start; background:#fff; color:#1e293b; border-bottom-left-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,.05); border:1px solid #e2e8f0; } .msg-user { align-self:flex-end; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border-bottom-right-radius:4px; } .typing-indicator { font-style:italic; font-size:11px; color:#64748b; padding:4px 8px; }
+         .quick-chips { display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#f1f5f9; border-top:1px solid #e2e8f0; } .chip { background:#fff; border:1px solid #cbd5e1; padding:6px 12px; border-radius:20px; font-size:11.5px; color:#334155; cursor:pointer; white-space:nowrap; } .chip:hover { background:#2563eb; color:#fff; border-color:#2563eb; }
+         .chat-footer { padding:12px; background:#fff; border-top:1px solid #e2e8f0; display:flex; gap:8px; } .chat-input { flex:1; border:1px solid #cbd5e1; border-radius:24px; padding:10px 16px; font-size:13px; outline:none; } .chat-input:focus { border-color:#2563eb; } .send-btn { background:#2563eb; color:#fff; border:0; width:38px; height:38px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; } .send-btn:hover { background:#1d4ed8; }
+     </style>
+     <button id="ai-chat-launcher" aria-label="Open AI support chat" onclick="toggleAiChat()"><i class="fa-solid fa-headset"></i><span class="chat-badge"></span></button>
+     <div id="ai-chat-box" role="dialog" aria-label="Eagle Network AI Assistant">
+         <div class="chat-header"><div class="chat-header-info"><div class="avatar-ai"><i class="fa-solid fa-robot"></i></div><div><p class="chat-title">Eagle Network AI Assistant</p><p class="chat-subtitle">🟢 Online | 24x7 Instant Support</p></div></div><button class="close-chat-btn" aria-label="Close chat" onclick="toggleAiChat()">×</button></div>
+         <div class="chat-body" id="chat-messages"><div class="msg-bubble msg-bot">👋 <b>नमस्ते ऑपरेटर/कस्टमर भाई!</b><br>मैं Eagle Network का 24x7 AI असिस्टेंट हूँ। आप मुझसे पोर्टल, रिचार्ज, सर्वर कनेक्शन या पैसे कटने से जुड़ा कोई भी सवाल पूछ सकते हैं।</div></div>
+         <div class="quick-chips"><button class="chip" onclick="sendQuickMessage('पैसे कहाँ कटेंगे और कहाँ जाएँगे?')">💰 पैसे का हिसाब</button><button class="chip" onclick="sendQuickMessage('दो पोर्टल कैसे काम करेंगे?')">🖥️ दो पोर्टल</button><button class="chip" onclick="sendQuickMessage('डेटा सुरक्षा और प्राइवेसी क्या है?')">🔒 डेटा सुरक्षा</button></div>
+         <div class="chat-footer"><input type="text" id="user-chat-input" class="chat-input" placeholder="अपना सवाल यहाँ लिखें..." onkeypress="handleKeyPress(event)"><button class="send-btn" aria-label="Send message" onclick="processUserChat()"><i class="fa-solid fa-paper-plane"></i></button></div>
+     </div>
      <script>
-         (function () {
-             const helpButton = document.createElement("button");
-             helpButton.type = "button";
-             helpButton.className = "help-btn";
-             helpButton.innerHTML = '<i class="fa-solid fa-headset"></i> AI Help';
-             helpButton.style.cssText = [
-                 "position:fixed",
-                 "right:24px",
-                 "bottom:24px",
-                 "z-index:10000",
-                 "display:flex",
-                 "align-items:center",
-                 "gap:8px",
-                 "padding:12px 18px",
-                 "border:1px solid rgba(56,189,248,.45)",
-                 "border-radius:999px",
-                 "background:linear-gradient(135deg,#0ea5e9,#2563eb)",
-                 "color:#fff",
-                 "font-weight:700",
-                 "box-shadow:0 8px 24px rgba(37,99,235,.4)",
-                 "cursor:pointer"
-             ].join(";");
-             helpButton.addEventListener("click", openAiHelpChat);
-             document.body.appendChild(helpButton);
-         })();
-
-         const dashboardHelpButton = document.getElementById("nav-help");
-         if (dashboardHelpButton) {
-             dashboardHelpButton.onclick = function (event) {
-                 event.preventDefault();
-                 openAiHelpChat();
-             };
-         }
-
-         function openAiHelpChat() {
-             const userQuery = prompt("👋 नमस्ते! Eagle Network AI Support में आपका स्वागत है।\n\nआप हमसे सर्वर सिंक, पेमेंट, या कस्टमर रिचार्ज से जुड़ा कोई भी सवाल पूछ सकते हैं:");
-             if (!userQuery) return;
-
-             let response = "Eagle Network AI Support Bot:\n\n";
-             const q = userQuery.toLowerCase();
-
-             if (q.includes("recharge") || q.includes("रिचार्ज") || q.includes("कटगा") || q.includes("पैसे")) {
-                 response += "✅ भुगतान सुरक्षा एवं प्रक्रिया:\n• ग्राहक जो भी रिचार्ज करेगा, पूरा पैसा सीधे आपके (ऑपरेटर के) बैंक खाते में जमा होगा।\n• पोर्टल API के ज़रिए आपके मुख्य सर्वर को सिग्नल भेजेगा और केवल सर्वर की लागत (Margin) आपके वॉलेट से कटेगी।\n• आपका मुनाफा पूरी तरह सुरक्षित रहता है।";
-             } else if (q.includes("server") || q.includes("सर्वर") || q.includes("portal") || q.includes("पोर्टल")) {
-                 response += "✅ दो पोर्टल कैसे काम करेंगे?\n• हमारा यूनिवर्सल पोर्टल आपके मुख्य सर्वर (Mikrotik/Radius/OLT) को रिप्लेस नहीं करता।\n• यह 256-Bit SSL सुरक्षा के साथ API द्वारा आपके सर्वर से जुड़कर डेटा ऑटो-सिंक करता है।";
-             } else if (q.includes("data") || q.includes("सुरक्षा") || q.includes("security")) {
-                 response += "🔒 डेटा गोपनीयता एवं सुरक्षा:\n• आपका और आपके सभी ग्राहकों का डेटा 100% गोपनीय और एन्क्रिप्टेड है।\n• आपका डेटा केवल आपकी निजी संपत्ति है और किसी अन्य ऑपरेटर से साझा नहीं किया जाता।";
-             } else {
-                 response += "✅ Eagle Network Support:\n• हमारी प्रणाली 24x7 ऑटोमैटिक काम करती है।\n• सहायता के लिए ہمارے आधिकारिक WhatsApp या सपोर्ट नंबर पर भी संपर्क कर सकते हैं।";
-             }
-
-             alert(response);
-         }
+         function toggleAiChat() { const box=document.getElementById("ai-chat-box"); box.style.display=box.style.display==="flex"?"none":"flex"; if(box.style.display==="flex") document.getElementById("user-chat-input").focus(); }
+         function handleKeyPress(e) { if(e.key==="Enter") processUserChat(); }
+         function sendQuickMessage(text) { document.getElementById("user-chat-input").value=text; processUserChat(); }
+         function processUserChat() { const input=document.getElementById("user-chat-input"), query=input.value.trim(); if(!query)return; appendMessage(query,"user"); input.value=""; const typing=document.createElement("div"); typing.className="typing-indicator"; typing.id="typing-indicator"; typing.innerText="AI सोच रहा है..."; document.getElementById("chat-messages").appendChild(typing); scrollChatToBottom(); setTimeout(()=>{ document.getElementById("typing-indicator")?.remove(); appendMessage(generateAiResponse(query),"bot"); },600); }
+         function appendMessage(text,sender) { const msg=document.createElement("div"); msg.className=`msg-bubble msg-${sender}`; if(sender==="user")msg.textContent=text;else msg.innerHTML=text; document.getElementById("chat-messages").appendChild(msg); scrollChatToBottom(); }
+         function scrollChatToBottom() { const body=document.getElementById("chat-messages"); body.scrollTop=body.scrollHeight; }
+         function generateAiResponse(q) { const input=q.toLowerCase(); if(input.includes("पैसे")||input.includes("कटेंगे")||input.includes("रिचार्ज")||input.includes("payment")||input.includes("recharge")||input.includes("मुनाफा")) return `💵 <b>रिचार्ज एवं पेमेंट की स्पष्ट प्रक्रिया:</b><br><br><b>1. ग्राहक भुगतान:</b> कस्टमर ऐप से जो भी ₹500/₹600 का रिचार्ज करेगा, 100% पैसा <b>सीधे आपके बैंक खाते/पेमेंट गेटवे</b> में आएगा।<br><b>2. सर्वर कटौती:</b> हमारा यूनिवर्सल पोर्टल आपके मुख्य सर्वर को API सिग्नल देगा। मुख्य सर्वर आपके वॉलेट से केवल अपनी लागत (जैसे ₹150) काटेगा।<br><b>3. आपका मुनाफा:</b> ₹500 - ₹150 = <b>₹350 का शुद्ध मुनाफा</b> सीधे आपके पास रहेगा!`; if(input.includes("दो पोर्टल")||input.includes("मुख्य")||input.includes("server")||input.includes("mikrotik")||input.includes("radius")||input.includes("अलग")) return `🖥️ <b>दो अलग पोर्टल कैसे काम करते हैं?</b><br><br>• आपका मुख्य पोर्टल (Mikrotik / Radius / OLT) बैकएंड सर्वर की तरह इंटरनेट कंट्रोल करता है।<br>• हमारा <b>यूनिवर्सल पोर्टल</b> फ्रंटएंड ऐप/वेबसाइट है जो ग्राहकों को दिखता है।<br>• दोनों पोर्टल आपस में <b>API ब्रिज</b> से जुड़े रहते हैं।`; if(input.includes("डेटा")||input.includes("सुरक्षा")||input.includes("security")||input.includes("data")||input.includes("गोपनीय")) return `🔒 <b>डेटा एवं सुरक्षा गारंटी:</b><br><br>• पूरा नेटवर्क <b>256-Bit SSL/TLS एन्क्रिप्शन</b> से सुरक्षित है।<br>• आपके ग्राहकों और वित्तीय लेन-देन का डेटा 100% गोपनीय है और केवल आपकी संपत्ति है।`; if(input.includes("ऐप")||input.includes("app")||input.includes("डाउनलोड")||input.includes("कस्टमर")) return `📱 <b>कस्टमर ऐप की सुविधा:</b><br><br>• ग्राहक आपकी ब्रांडेड ऐप से 24x7 रिचार्ज कर सकते हैं, सिग्नल फॉल्ट की शिकायत दर्ज कर सकते हैं और बिल डाउनलोड कर सकते हैं।<br>• ऐप में केवल आपकी कंपनी का नाम, लोगो और बैनर दिखेगा।`; return `🤖 <b>Eagle Network Support:</b><br><br>आपकी सेवा के लिए हमारा सिस्टम 24x7 एक्टिव है।<br><br>क्या आप इनमें से कुछ पूछना चाहते हैं?<br>• <b>'पैसे कहाँ जाएँगे'</b><br>• <b>'सर्वर सिंक कैसे होगा'</b> <br>• <b>'कस्टमर ऐप कैसे काम करेगी'</b>`; }
+         const dashboardHelpButton=document.getElementById("nav-help"); if(dashboardHelpButton) dashboardHelpButton.onclick=function(event){event.preventDefault();toggleAiChat();};
      </script>
 </body>
 </html>
