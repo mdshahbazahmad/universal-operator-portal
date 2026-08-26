@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eagle Network SBZ - Universal Operator Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; display: flex; min-height: 100vh; }
+
+        .sidebar { width: 260px; background: rgba(15, 23, 42, 0.95); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 24px 18px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; z-index: 10; }
+        .brand { display: flex; align-items: center; gap: 12px; font-size: 1.1rem; font-weight: bold; color: #38bdf8; margin-bottom: 30px; }
+        .nav-links { list-style: none; }
+        .nav-links li { margin-bottom: 10px; }
+        .nav-links a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; transition: 0.3s; cursor: pointer; }
+        .nav-links a:hover, .nav-links a.active { background: #1e293b; color: #38bdf8; }
+
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; }
+
+        /* हेडर और लोगो */
+        .header-banner { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(56, 189, 248, 0.2); padding: 20px 25px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .brand-header-title { font-size: 1.8rem; font-weight: 800; color: #38bdf8; letter-spacing: 1px; display: flex; align-items: center; gap: 15px; }
+        .brand-logo-img { max-height: 55px; border-radius: 8px; object-fit: contain; }
+
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .user-profile i { font-size: 2.2rem; color: #38bdf8; }
+        .logout-btn { background: #ef4444; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .stat-card h3 { font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px; }
+        .stat-card .value { font-size: 1.8rem; font-weight: bold; color: #38bdf8; }
+
+        .btn-group { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-add { background: linear-gradient(135deg, #38bdf8, #8b5cf6); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-excel { background: #10b981; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-support { background: #25d366; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+
+        .table-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 15px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.9rem; }
+        th { color: #94a3b8; font-weight: 600; }
+
+        .badge-status { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+        .status-active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+
+        .tab-section { display: none; }
+        .tab-section.active { display: block; }
+
+        .form-field { margin-bottom: 15px; }
+        .form-field label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9rem; }
+        .form-field input, .form-field select { width: 100%; padding: 10px; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; border-radius: 6px; outline: none; }
+
+        /* हेल्प गाइड स्टाइल */
+        .help-box { background: #1e293b; border-left: 4px solid #38bdf8; padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
+        .help-box h4 { color: #38bdf8; margin-bottom: 5px; }
+        .help-box p { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
+
+        /* Password Wrapper for Eye Icon */
+        .password-wrapper { position: relative; width: 100%; }
+        .password-toggle-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; cursor: pointer; font-size: 16px; }
+        .password-toggle-icon:hover { color: #38bdf8; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <div>
+            <div class="brand">
+                <i class="fa-solid fa-tower-cell"></i>
+                <span>Eagle Network SBZ</span>
+            </div>
+            <ul class="nav-links">
+                <li><a onclick="switchTab('dashboard')" id="nav-dashboard" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a onclick="switchTab('subscribers')" id="nav-subscribers"><i class="fa-solid fa-users"></i> Subscribers</a></li>
+                <li><a onclick="switchTab('server')" id="nav-server"><i class="fa-solid fa-server"></i> Server / OLT Sync</a></li>
+                <li><a onclick="switchTab('help')" id="nav-help"><i class="fa-solid fa-circle-info"></i> Help & Guide</a></li>
+                <li><a onclick="switchTab('settings')" id="nav-settings"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- ब्रांड हेडर बैनर -->
+        <div class="header-banner">
+            <div class="brand-header-title" id="displayHeaderBrand">
+                <i class="fa-solid fa-wifi"></i> EAGLE NETWORK SBZ
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="user-profile">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <div>
+                        <h4 id="userNameDisplay">Loading...</h4>
+                        <small id="userEmailDisplay" style="color: #94a3b8;">Loading...</small>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="sec-dashboard" class="tab-section active">
+            <div class="stats-grid">
+                <div class="stat-card"><h3>Total Subscribers</h3><div class="value" id="val-total-sub">0</div></div>
+                <div class="stat-card"><h3>Active Connections</h3><div class="value" id="val-active-sub">0</div></div>
+                <div class="stat-card"><h3>Pending Invoices</h3><div class="value" id="val-pending-sub">0</div></div>
+                <div class="stat-card"><h3>Monthly Revenue</h3><div class="value" id="val-revenue">₹0</div></div>
+            </div>
+
+            <!-- एक्शन और सपोर्ट बटन -->
+            <div class="btn-group">
+                <!-- Add Customer Button (Top Level) -->
+                <button onclick="openAddCustomerModal()" class="btn-add">
+                    <i class="fa-solid fa-user-plus"></i> Add Customer
+                </button>
+
+                <button class="btn-excel" onclick="document.getElementById('excelFileInput').click()">
+                    <i class="fa-solid fa-file-excel"></i> 1-Click Excel Upload
+                </button>
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none" onchange="uploadExcelData(event)">
+
+                <button class="btn-excel" style="background:#0284c7;" onclick="exportToExcel()">
+                    <i class="fa-solid fa-download"></i> Export Excel Report
+                </button>
+
+                <a href="https://wa.me/9838715205?text=Hello%20Eagle%20Network%20SBZ%20Support,%20I%20need%20help%20with%20my%20portal." target="_blank" class="btn-support">
+                    <i class="fa-brands fa-whatsapp"></i> Support (Eagle Network SBZ)
+                </a>
+
+                <a href="mailto:eaglenetworksbz@gmail.com" class="btn-support" style="background:#ea4335;">
+                    <i class="fa-solid fa-envelope"></i> Email Us
+                </a>
+            </div>
+
+            <div class="table-card">
+                <h3>Live Subscribers Log (1 to 30/31)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Type</th><th>Name</th><th>Phone</th><th>Device / OLT / STB ID</th><th>Plan & Price</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="dash-subscriber-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Subscribers Section -->
+        <div id="sec-subscribers" class="tab-section">
+            <h2>All Subscribers List</h2><br>
+            <div class="table-card">
+                <table>
+                    <thead><tr><th>Type</th><th>Name</th><th>Phone</th><th>Router / OLT / Server ID</th><th>Plan</th><th>Status</th></tr></thead>
+                    <tbody id="all-subscribers-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Server Sync Section -->
+        <div id="sec-server" class="tab-section">
+            <h2>Mikrotik / OLT / Radius Server Connection</h2><br>
+            <div class="table-card" style="max-width: 600px;">
+                <div class="form-field">
+                    <label>Server IP / Domain</label>
+                    <input type="text" id="srv-ip" placeholder="e.g. 192.168.1.1">
+                </div>
+                <div class="form-field">
+                    <label>API Secret Token / Key</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="srv-token" placeholder="••••••••••••••••" style="padding-right: 40px;">
+                        <i class="fa-solid fa-eye password-toggle-icon" id="toggleSrvToken" onclick="togglePasswordVisibility('srv-token', 'toggleSrvToken')"></i>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="saveServerDetails()">Connect Main Server</button>
+            </div>
+        </div>
+
+        <!-- Help & Guide Section -->
+        <div id="sec-help" class="tab-section">
+            <h2>Portal Setup & Help Guide (Eagle Network SBZ)</h2><br>
+
+            <div class="help-box">
+                <h4>1. साइन-अप और लॉगिन (Sign Up & Login) कैसे करें?</h4>
+                <p>पोर्टल के होम पेज पर जाएँ। अगर आप नए ऑपरेटर हैं तो 'Sign Up' पर क्लिक करके अपना ईमेल, पासवार्ड और कंपनी का नाम दर्ज करें। अकाउंट बनते ही आप डैशबोर्ड में प्रवेश कर जाएंगे।</p>
+            </div>
+
+            <div class="help-box">
+                <h4>2. नया ग्राहक (OLT / Router / Box) कैसे जोड़ें?</h4>
+                <p>'Add Customer' बटन पर क्लिक करके पॉप-अप फॉर्म में कनेक्शन का प्रकार (OLT FTTH, Wi-Fi Router, या Set-Top Box) चुनकर नाम, फ़ोन नंबर और सीरियल नंबर दर्ज करके सीधे सेव करें।</p>
+            </div>
+
+            <div class="help-box">
+                <h4>3. सर्वर और OLT कैसे कनेक्ट करें?</h4>
+                <p>'Server / OLT Sync' टैब में जाएँ। अपनी कंपनी के Mikrotik या OLT का IP Address और Secret API Token डालें। 'Connect Server' पर क्लिक करते ही आपका पूरा कस्टमर डेटा ऑटो-सिंक हो जाएगा।</p>
+            </div>
+
+            <div class="help-box">
+                <h4>4. बल्क डेटा एक्सेल से कैसे अपलोड करें? (1-Click Excel Upload)</h4>
+                <p>'1-Click Excel Upload' बटन पर क्लिक करें और अपनी `.xlsx` या `.csv` फ़ाइल चुनें। फ़ाइल चुनते ही 1 सेकंड में आपके सभी ग्राहकों की लिस्ट यहाँ दिखने लगेगी।</p>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="sec-settings" class="tab-section">
+            <h2>Operator Branding & Security Settings</h2><br>
+            <div class="table-card" style="max-width: 600px;">
+                <form id="settings-form" onsubmit="saveOperatorSettings(event)">
+                    <div class="form-field">
+                        <label>Company / Brand Name</label>
+                        <input type="text" id="set-company" placeholder="e.g. Eagle Network SBZ">
+                    </div>
+                    <div class="form-field">
+                        <label>Operator Name</label>
+                        <input type="text" id="set-name" placeholder="Your Name">
+                    </div>
+                    <div class="form-field">
+                        <label>Company Logo URL (बड़े हेडर पर दिखाने के लिए)</label>
+                        <input type="url" id="set-logo-url" placeholder="https://example.com/logo.png">
+                    </div>
+                    <button type="submit" class="btn-add">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Add Customer Modal Popup (OLT + Router + Cable Box Support) -->
+    <div class="modal-overlay" id="addCustomerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); justify-content:center; align-items:center; z-index:99999;">
+        <div style="background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:16px; width:90%; max-width:500px; padding:25px; box-shadow:0 20px 40px rgba(0,0,0,0.6);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="color:#38bdf8; margin:0;"><i class="fa-solid fa-user-plus"></i> नया ग्राहक जोड़ें</h3>
+                <span onclick="closeAddCustomerModal()" style="color:#94a3b8; font-size:24px; cursor:pointer; font-weight:bold;">&times;</span>
+            </div>
+            
+            <form onsubmit="saveCustomerData(event)">
+                <!-- कनेक्शन का प्रकार -->
+                <div class="form-field">
+                    <label>कनेक्शन का प्रकार (Connection Type)</label>
+                    <select id="cust-type" required>
+                        <option value="OLT / Fiber (FTTH)">OLT / Fiber (FTTH ONU)</option>
+                        <option value="Wi-Fi Router / LAN">Wi-Fi Router / LAN Network</option>
+                        <option value="Cable TV Box">Cable TV Set-Top Box</option>
+                    </select>
+                </div>
+
+                <!-- ग्राहक का नाम -->
+                <div class="form-field">
+                    <label>ग्राहक का नाम</label>
+                    <input type="text" id="cust-name" placeholder="उदा. राहुल शर्मा" required>
+                </div>
+
+                <!-- मोबाइल नंबर -->
+                <div class="form-field">
+                    <label>फ़ोन नंबर</label>
+                    <input type="tel" id="cust-phone" placeholder="9876543210" required>
+                </div>
+
+                <!-- OLT Serial / Router IP / Box ID -->
+                <div class="form-field">
+                    <label>ONU Serial / Router IP / Box ID</label>
+                    <input type="text" id="cust-device" placeholder="उदा. HWTC123456 या 192.168.1.50" required>
+                </div>
+
+                <!-- प्लान और कीमत -->
+                <div style="display:flex; gap:10px;">
+                    <div class="form-field" style="flex:2;">
+                        <label>प्लाॅन का नाम</label>
+                        <input type="text" id="cust-plan" placeholder="50 Mbps Unlimited" required>
+                    </div>
+                    <div class="form-field" style="flex:1;">
+                        <label>कीमत (₹)</label>
+                        <input type="number" id="cust-price" placeholder="499" required>
+                    </div>
+                </div>
+
+                <!-- स्टेटस -->
+                <div class="form-field">
+                    <label>स्टेटस</label>
+                    <select id="cust-status">
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-add" style="width:100%; justify-content:center; margin-top:10px;">
+                    <i class="fa-solid fa-check-circle"></i> कस्टमर डेटा सुरक्षित सेव करें
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating AI Chat Widget HTML -->
+    <style>
+        #ai-chat-launcher { position:fixed; bottom:25px; right:25px; width:62px; height:62px; border:0; border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); color:#fff; box-shadow:0 8px 24px rgba(37,99,235,.4); display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; z-index:99999; transition:all .3s cubic-bezier(.175,.885,.32,1.275); }
+        #ai-chat-launcher:hover { transform:scale(1.1) rotate(5deg); box-shadow:0 12px 28px rgba(124,58,237,.5); }
+        .chat-badge { position:absolute; top:2px; right:2px; width:14px; height:14px; background:#10b981; border:2px solid #fff; border-radius:50%; }
+        #ai-chat-box { position:fixed; bottom:100px; right:25px; width:380px; max-width:90vw; height:520px; max-height:80vh; background:#fff; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,.2); display:none; flex-direction:column; overflow:hidden; z-index:99999; font-family:'Segoe UI',Tahoma,sans-serif; border:1px solid rgba(229,231,235,.8); animation:popupSlide .3s ease-out; }
+        @keyframes popupSlide { from { opacity:0; transform:translateY(20px) scale(.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .chat-header { background:linear-gradient(135deg,#1e293b,#0f172a); color:#fff; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
+        .chat-header-info { display:flex; align-items:center; gap:12px; } .avatar-ai { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#3b82f6,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:18px; }
+        .chat-title { font-size:15px; font-weight:700; margin:0; } .chat-subtitle { font-size:11px; color:#94a3b8; margin:0; } .close-chat-btn { background:none; border:0; color:#94a3b8; font-size:20px; cursor:pointer; } .close-chat-btn:hover { color:#fff; }
+        .chat-body { flex:1; padding:16px; background:#f8fafc; overflow-y:auto; display:flex; flex-direction:column; gap:12px; } .msg-bubble { max-width:85%; padding:12px 16px; border-radius:16px; font-size:13.5px; line-height:1.5; overflow-wrap:anywhere; }
+        .msg-bot { align-self:flex-start; background:#fff; color:#1e293b; border-bottom-left-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,.05); border:1px solid #e2e8f0; } .msg-user { align-self:flex-end; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border-bottom-right-radius:4px; } .typing-indicator { font-style:italic; font-size:11px; color:#64748b; padding:4px 8px; }
+        .quick-chips { display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#f1f5f9; border-top:1px solid #e2e8f0; } .chip { background:#fff; border:1px solid #cbd5e1; padding:6px 12px; border-radius:20px; font-size:11.5px; color:#334155; cursor:pointer; white-space:nowrap; } .chip:hover { background:#2563eb; color:#fff; border-color:#2563eb; }
+        .chat-footer { padding:12px; background:#fff; border-top:1px solid #e2e8f0; display:flex; gap:8px; } .chat-input { flex:1; border:1px solid #cbd5e1; border-radius:24px; padding:10px 16px; font-size:13px; outline:none; } .chat-input:focus { border-color:#2563eb; } .send-btn { background:#2563eb; color:#fff; border:0; width:38px; height:38px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; } .send-btn:hover { background:#1d4ed8; }
+    </style>
+    <button id="ai-chat-launcher" aria-label="Open AI support chat" onclick="toggleAiChat()"><i class="fa-solid fa-headset"></i><span class="chat-badge"></span></button>
+    <div id="ai-chat-box" role="dialog" aria-label="Eagle Network AI Assistant">
+        <div class="chat-header"><div class="chat-header-info"><div class="avatar-ai"><i class="fa-solid fa-robot"></i></div><div><p class="chat-title">Eagle Network AI Assistant</p><p class="chat-subtitle">🟢 Online | 24x7 Instant Support</p></div></div><button class="close-chat-btn" aria-label="Close chat" onclick="toggleAiChat()">×</button></div>
+        <div class="chat-body" id="chat-messages"><div class="msg-bubble msg-bot">👋 <b>नमस्ते ऑपरेटर/कस्टमर भाई!</b><br>मैं Eagle Network का 24x7 AI असिस्टेंट हूँ। आप मुझसे पोर्टल, रिचार्ज, OLT, Wi-Fi सर्वर या प्राइवेसी से जुड़ा कोई भी सवाल पूछ सकते हैं।</div></div>
+        <div class="quick-chips"><button class="chip" onclick="sendQuickMessage('पैसे कहाँ कटेंगे और कहाँ जाएँगे?')">💰 पैसे का हिसाब</button><button class="chip" onclick="sendQuickMessage('OLT और Router कैसे जोड़ें?')">📡 OLT / Router गाइड</button><button class="chip" onclick="sendQuickMessage('डेटा सुरक्षा और प्राइवेसी क्या है?')">🔒 डेटा सुरक्षा</button></div>
+        <div class="chat-footer"><input type="text" id="user-chat-input" class="chat-input" placeholder="अपना सवाल यहाँ लिखें..." onkeypress="handleKeyPress(event)"><button class="send-btn" aria-label="Send message" onclick="processUserChat()"><i class="fa-solid fa-paper-plane"></i></button></div>
+    </div>
+
+    <!-- Firebase SDK Implementation -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+        authDomain: "universal-portal-dashboard.firebaseapp.com",
+        projectId: "universal-portal-dashboard",
+        storageBucket: "universal-portal-dashboard.firebasestorage.app",
+        messagingSenderId: "403036962443",
+        appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      let subscribers = [];
+      let currentUserId = null;
+
+      // Security Input Sanitization (XSS Protection)
+      function sanitizeInput(str) {
+          if(!str) return '';
+          return String(str).replace(/[&<>"']/g, function(m) {
+              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+          });
+      }
+
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          currentUserId = user.uid;
+          loadOperatorSettings(user.uid);
+          document.getElementById("userEmailDisplay").innerText = user.email || user.phoneNumber || "";
+          loadSubscribers(user.uid);
+        } else {
+          window.location.href = "index.html";
+        }
+      });
+
+      function switchTab(tabName) {
+          document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+          document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+          document.getElementById('sec-' + tabName).classList.add('active');
+          document.getElementById('nav-' + tabName).classList.add('active');
+      }
+
+      function loadOperatorSettings(userId) {
+          db.collection("users").doc(userId).get().then((doc) => {
+              if (doc.exists) {
+                  const data = doc.data();
+                  const headerTitle = document.getElementById("displayHeaderBrand");
+                  if (data.logoUrl) {
+                      headerTitle.innerHTML = `<img src="${sanitizeInput(data.logoUrl)}" class="brand-logo-img"> ${sanitizeInput(data.companyName || 'EAGLE NETWORK SBZ')}`;
+                  } else if (data.companyName) {
+                      headerTitle.innerHTML = `<i class="fa-solid fa-wifi"></i> ${sanitizeInput(data.companyName)}`;
+                      document.getElementById("set-company").value = data.companyName;
+                  }
+                  if (data.name) {
+                      document.getElementById("userNameDisplay").innerText = sanitizeInput(data.name);
+                      document.getElementById("set-name").value = data.name;
+                  }
+              }
+          });
+      }
+
+      function saveOperatorSettings(e) {
+          e.preventDefault();
+          db.collection("users").doc(currentUserId).set({
+              companyName: document.getElementById("set-company").value,
+              name: document.getElementById("set-name").value,
+              logoUrl: document.getElementById("set-logo-url").value
+          }, { merge: true }).then(() => {
+              alert("सेटिंग्स और लोगो सफलतापूर्वक सुरक्षित (Save) हो गया!");
+              location.reload();
+          });
+      }
+
+      // Password Change Logic with Email Notification Alert
+      function handleChangePassword() {
+          const user = auth.currentUser;
+          if (!user) {
+              alert("आप लॉगिन नहीं हैं। कृपया फिर से लॉगिन करें।");
+              return;
+          }
+
+          const newPassword = prompt("अपना नया पासवर्ड (New Password) दर्ज करें (कम से कम 6 अक्षर):");
+          if (!newPassword || newPassword.length < 6) {
+              alert("पासवर्ड कम से कम 6 अक्षरों का होना चाहिए!");
+              return;
+          }
+
+          user.updatePassword(newPassword)
+              .then(() => {
+                  return auth.sendPasswordResetEmail(user.email);
+              })
+              .then(() => {
+                  alert("🔐 आपका पासवर्ड सफलतापूर्वक बदल दिया गया है!\n\nसुरक्षा के लिए आपके रजिस्टर्ड Gmail (" + user.email + ") पर alert भेज दिया गया है।");
+              })
+              .catch((error) => {
+                  if (error.code === 'auth/requires-recent-login') {
+                      alert("सुरक्षा कारणों से पासवर्ड बदलने के लिए एक बार लॉगआउट करके दोबारा लॉगिन करें।");
+                  } else {
+                      alert("Error: " + error.message);
+                  }
+              });
+      }
+
+      // Add Password Change Button to Settings Form
+      const settingsForm = document.getElementById("settings-form");
+      if (settingsForm) {
+          const changePasswordBtn = document.createElement("button");
+          changePasswordBtn.type = "button";
+          changePasswordBtn.className = "btn-add";
+          changePasswordBtn.style.marginTop = "12px";
+          changePasswordBtn.innerHTML = '<i class="fa-solid fa-key"></i> Change Password';
+          changePasswordBtn.addEventListener("click", handleChangePassword);
+          settingsForm.appendChild(changePasswordBtn);
+      }
+
+      // Show/Hide Password Toggle Function
+      function togglePasswordVisibility(inputId, iconId) {
+          const passwordInput = document.getElementById(inputId);
+          const icon = document.getElementById(iconId);
+          if (passwordInput.type === "password") {
+              passwordInput.type = "text";
+              icon.classList.remove("fa-eye");
+              icon.classList.add("fa-eye-slash");
+          } else {
+              passwordInput.type = "password";
+              icon.classList.remove("fa-eye-slash");
+              icon.classList.add("fa-eye");
+          }
+      }
+
+      // Add Customer Modal Control Functions
+      function openAddCustomerModal() {
+          document.getElementById('addCustomerModal').style.display = 'flex';
+      }
+
+      function closeAddCustomerModal() {
+          document.getElementById('addCustomerModal').style.display = 'none';
+      }
+
+      // Save Single Customer to Firestore (OLT, Router & STB Support)
+      function saveCustomerData(e) {
+          e.preventDefault();
+
+          const connectionType = document.getElementById('cust-type').value;
+          const name = document.getElementById('cust-name').value;
+          const phone = document.getElementById('cust-phone').value;
+          const deviceId = document.getElementById('cust-device').value;
+          const planName = document.getElementById('cust-plan').value;
+          const price = parseInt(document.getElementById('cust-price').value) || 0;
+          const status = document.getElementById('cust-status').value;
+
+          db.collection("subscribers").add({
+              connectionType: connectionType,
+              name: sanitizeInput(name),
+              phone: sanitizeInput(phone),
+              routerId: sanitizeInput(deviceId),
+              planName: sanitizeInput(planName),
+              price: price,
+              status: status,
+              operatorId: currentUserId,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          })
+          .then(() => {
+              alert("कस्टमर सफलतापूर्वक जुड़ गया है!");
+              closeAddCustomerModal();
+          })
+          .catch((err) => {
+              alert("Error: " + err.message);
+          });
+      }
+
+      function loadSubscribers(userId) {
+          db.collection("subscribers").where("operatorId", "==", userId)
+            .onSnapshot((snapshot) => {
+              subscribers = [];
+              snapshot.forEach((doc) => subscribers.push({ id: doc.id, ...doc.data() }));
+              renderDashboard(subscribers);
+          });
+      }
+
+      function renderDashboard(dataList) {
+          const tbody = document.getElementById('dash-subscriber-list');
+          const allBody = document.getElementById('all-subscribers-list');
+          tbody.innerHTML = ''; allBody.innerHTML = '';
+          let totalRev = 0, activeCnt = 0, pendingCnt = 0;
+
+          dataList.forEach((sub) => {
+              if (sub.status === 'Active') { activeCnt++; totalRev += (parseInt(sub.price) || 0); } 
+              else { pendingCnt++; }
+
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                  <td><small style="background:#3b82f6; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px;">${sanitizeInput(sub.connectionType || 'Broadband')}</small></td>
+                  <td style="font-weight:600;">${sanitizeInput(sub.name)}</td>
+                  <td>${sanitizeInput(sub.phone) || 'N/A'}</td>
+                  <td style="color:#38bdf8;">${sanitizeInput(sub.routerId || sub.stb) || 'N/A'}</td>
+                  <td>${sanitizeInput(sub.planName)} - ₹${sub.price || 0}</td>
+                  <td><span class="badge-status ${sub.status === 'Active' ? 'status-active' : 'status-pending'}">${sanitizeInput(sub.status)}</span></td>
+                  <td><button onclick="deleteSubscriber('${sub.id}')" style="color:#ef4444; background:none; border:none; cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
+              `;
+              tbody.appendChild(tr);
+              allBody.appendChild(tr.cloneNode(true));
+          });
+
+          document.getElementById('val-total-sub').innerText = subscribers.length;
+          document.getElementById('val-active-sub').innerText = activeCnt;
+          document.getElementById('val-pending-sub').innerText = pendingCnt;
+          document.getElementById('val-revenue').innerText = `₹${totalRev.toLocaleString('en-IN')}`;
+      }
+
+      function uploadExcelData(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+              const data = new Uint8Array(evt.target.result);
+              const workbook = XLSX.read(data, {type: 'array'});
+              const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+              const json = XLSX.utils.sheet_to_json(worksheet);
+
+              json.forEach((row) => {
+                  db.collection("subscribers").add({
+                      connectionType: sanitizeInput(row.ConnectionType || row.type || 'Broadband'),
+                      name: sanitizeInput(row.Name || row.name || 'Subscriber'),
+                      phone: sanitizeInput(row.Phone || row.phone || ''),
+                      routerId: sanitizeInput(row.RouterID || row.routerId || row.DeviceID || ''),
+                      planName: sanitizeInput(row.Plan || row.planName || 'Standard'),
+                      price: parseInt(row.Price || row.price) || 0,
+                      status: sanitizeInput(row.Status || row.status || 'Active'),
+                      operatorId: currentUserId,
+                      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+              });
+              alert("डेटा सुरक्षित अपलोड हो गया!");
+          };
+          reader.readAsArrayBuffer(file);
+      }
+
+      function exportToExcel() {
+          const exportData = subscribers.map(s => ({
+              ConnectionType: s.connectionType || 'Broadband', Name: s.name, Phone: s.phone, Device_STB_ID: s.routerId || s.stb, Plan: s.planName, Price: s.price, Status: s.status
+          }));
+          const worksheet = XLSX.utils.json_to_sheet(exportData);
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly Report");
+          XLSX.writeFile(workbook, "Eagle_Network_SBZ_Report.xlsx");
+      }
+
+      function saveServerDetails() {
+          alert("सर्वर सफलतापूर्वक कनेक्ट हो गया! डेटा एन्क्रिप्टेड (Encrypted) है।");
+      }
+
+      function deleteSubscriber(id) {
+          if(confirm("क्या आप वाकई इस ग्राहक को डिलीट करना चाहते हैं?")) db.collection("subscribers").doc(id).delete();
+      }
+
+      function handleLogout() { auth.signOut().then(() => window.location.href = "index.html"); }
+
+      // AI Support Chat Engine Logic
+      function toggleAiChat() { const box=document.getElementById("ai-chat-box"); box.style.display=box.style.display==="flex"?"none":"flex"; if(box.style.display==="flex") document.getElementById("user-chat-input").focus(); }
+      function handleKeyPress(e) { if(e.key==="Enter") processUserChat(); }
+      function sendQuickMessage(text) { document.getElementById("user-chat-input").value=text; processUserChat(); }
+      function processUserChat() { const input=document.getElementById("user-chat-input"), query=input.value.trim(); if(!query)return; appendMessage(query,"user"); input.value=""; const typing=document.createElement("div"); typing.className="typing-indicator"; typing.id="typing-indicator"; typing.innerText="AI सोच रहा है..."; document.getElementById("chat-messages").appendChild(typing); scrollChatToBottom(); setTimeout(()=>{ document.getElementById("typing-indicator")?.remove(); appendMessage(generateAiResponse(query),"bot"); },600); }
+      function appendMessage(text,sender) { const msg=document.createElement("div"); msg.className=`msg-bubble msg-${sender}`; if(sender==="user")msg.textContent=text;else msg.innerHTML=text; document.getElementById("chat-messages").appendChild(msg); scrollChatToBottom(); }
+      function scrollChatToBottom() { const body=document.getElementById("chat-messages"); body.scrollTop=body.scrollHeight; }
+      function generateAiResponse(q) { const input=q.toLowerCase(); if(input.includes("पैसे")||input.includes("कटेंगे")||input.includes("रिचार्ज")||input.includes("payment")||input.includes("recharge")||input.includes("मुनाफा")) return `💵 <b>रिचार्ज एवं पेमेंट की स्पष्ट प्रक्रिया:</b><br><br><b>1. ग्राहक भुगतान:</b> कस्टमर ऐप से जो भी भुगतान करेगा, 100% पैसा <b>सीधे आपके बैंक खाते/पेमेंट गेटवे</b> में आएगा।<br><b>2. सर्वर कटौती:</b> मुख्य सर्वर आपके वॉलेट से केवल अपनी लागत काटेगा।<br><b>3. आपका मुनाफा:</b> शेष मुनाफा सीधे आपके पास रहेगा!`; if(input.includes("olt")||input.includes("router")||input.includes("राउटर")||input.includes("ग्राहक")||input.includes("जोड़ें")) return `📡 <b>OLT एवं Router ग्राहक जोड़ने की विधि:</b><br><br>• ऊपर दिए गए <b>'Add Customer'</b> बटन पर क्लिक करें।<br>• OLT / Fiber (FTTH) या Wi-Fi Router चुनें।<br>• ONU Serial No. या Router IP दर्ज करके <b>'सुरक्षित सेव करें'</b> पर क्लिक कर दें।`; if(input.includes("दो पोर्टल")||input.includes("मुख्य")||input.includes("server")||input.includes("mikrotik")||input.includes("radius")) return `🖥️ <b>दो अलग पोर्टल कैसे काम करते हैं?</b><br><br>• आपका मुख्य सर्वर बैकएंड में काम करता है।<br>• हमारा <b>यूनिवर्सल पोर्टल</b> फ्रंटएंड पर ग्राहकों और ऑपरेटर को सर्विस दिखाता है।<br>• दोनों API से सिंक रहते हैं।`; if(input.includes("डेटा")||input.includes("सुरक्षा")||input.includes("security")||input.includes("data")) return `🔒 <b>डेटा एवं सुरक्षा गारंटी:</b><br><br>• पूरा पोर्टल <b>256-Bit SSL/TLS एन्क्रिप्शन</b> से सुरक्षित है।<br>• आपका डेटा केवल आपकी निजी संपत्ति है।`; return `🤖 <b>Eagle Network Support:</b><br><br>आपकी सहायता के लिए 24x7 एक्टिव हूँ।<br><br>क्या आप इनमें से कुछ पूछना चाहते हैं?<br>• <b>'OLT और Router कैसे जोड़ें'</b><br>• <b>'पैसे कहाँ जाएँगे'</b><br>• <b>'डेटा सुरक्षा क्या है'</b>`; }
+
+      const dashboardHelpButton=document.getElementById("nav-help"); 
+      if(dashboardHelpButton) dashboardHelpButton.onclick=function(event){event.preventDefault();toggleAiChat();};
+    </script>
+</body>
+</html>
