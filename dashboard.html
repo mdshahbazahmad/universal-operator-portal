@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
+    <!-- Add Customer Button -->
+<button onclick="openAddCustomerModal()" style="padding:10px 18px; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+    <i class="fa-solid fa-plus"></i> Add Customer
+</button>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eagle Network SBZ - Universal Operator Portal</title>
@@ -449,5 +453,51 @@
          function generateAiResponse(q) { const input=q.toLowerCase(); if(input.includes("पैसे")||input.includes("कटेंगे")||input.includes("रिचार्ज")||input.includes("payment")||input.includes("recharge")||input.includes("मुनाफा")) return `💵 <b>रिचार्ज एवं पेमेंट की स्पष्ट प्रक्रिया:</b><br><br><b>1. ग्राहक भुगतान:</b> कस्टमर ऐप से जो भी ₹500/₹600 का रिचार्ज करेगा, 100% पैसा <b>सीधे आपके बैंक खाते/पेमेंट गेटवे</b> में आएगा।<br><b>2. सर्वर कटौती:</b> हमारा यूनिवर्सल पोर्टल आपके मुख्य सर्वर को API सिग्नल देगा। मुख्य सर्वर आपके वॉलेट से केवल अपनी लागत (जैसे ₹150) काटेगा।<br><b>3. आपका मुनाफा:</b> ₹500 - ₹150 = <b>₹350 का शुद्ध मुनाफा</b> सीधे आपके पास रहेगा!`; if(input.includes("दो पोर्टल")||input.includes("मुख्य")||input.includes("server")||input.includes("mikrotik")||input.includes("radius")||input.includes("अलग")) return `🖥️ <b>दो अलग पोर्टल कैसे काम करते हैं?</b><br><br>• आपका मुख्य पोर्टल (Mikrotik / Radius / OLT) बैकएंड सर्वर की तरह इंटरनेट कंट्रोल करता है।<br>• हमारा <b>यूनिवर्सल पोर्टल</b> फ्रंटएंड ऐप/वेबसाइट है जो ग्राहकों को दिखता है।<br>• दोनों पोर्टल आपस में <b>API ब्रिज</b> से जुड़े रहते हैं।`; if(input.includes("डेटा")||input.includes("सुरक्षा")||input.includes("security")||input.includes("data")||input.includes("गोपनीय")) return `🔒 <b>डेटा एवं सुरक्षा गारंटी:</b><br><br>• पूरा नेटवर्क <b>256-Bit SSL/TLS एन्क्रिप्शन</b> से सुरक्षित है।<br>• आपके ग्राहकों और वित्तीय लेन-देन का डेटा 100% गोपनीय है और केवल आपकी संपत्ति है।`; if(input.includes("ऐप")||input.includes("app")||input.includes("डाउनलोड")||input.includes("कस्टमर")) return `📱 <b>कस्टमर ऐप की सुविधा:</b><br><br>• ग्राहक आपकी ब्रांडेड ऐप से 24x7 रिचार्ज कर सकते हैं, सिग्नल फॉल्ट की शिकायत दर्ज कर सकते हैं और बिल डाउनलोड कर सकते हैं।<br>• ऐप में केवल आपकी कंपनी का नाम, लोगो और बैनर दिखेगा।`; return `🤖 <b>Eagle Network Support:</b><br><br>आपकी सेवा के लिए हमारा सिस्टम 24x7 एक्टिव है।<br><br>क्या आप इनमें से कुछ पूछना चाहते हैं?<br>• <b>'पैसे कहाँ जाएँगे'</b><br>• <b>'सर्वर सिंक कैसे होगा'</b> <br>• <b>'कस्टमर ऐप कैसे काम करेगी'</b>`; }
          const dashboardHelpButton=document.getElementById("nav-help"); if(dashboardHelpButton) dashboardHelpButton.onclick=function(event){event.preventDefault();toggleAiChat();};
      </script>
+<!-- Smart Add Customer Modal (OLT + Router Support) -->
+<div class="modal-overlay" id="addCustomerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); justify-content:center; align-items:center; z-index:99999;">
+    <div style="background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:16px; width:90%; max-width:500px; padding:25px; box-shadow:0 20px 40px rgba(0,0,0,0.6);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="color:#38bdf8; margin:0;"><i class="fa-solid fa-user-plus"></i> नया कस्टमर जोड़ें (OLT / Router)</h3>
+            <span onclick="closeAddCustomerModal()" style="color:#94a3b8; font-size:24px; cursor:pointer;">&times;</span>
+        </div>
+        
+        <form onsubmit="saveCustomerData(event)">
+            <!-- कनेक्शन टाइप चुनें -->
+            <div style="margin-bottom:12px;">
+                <label style="color:#94a3b8; font-size:12px; display:block; margin-bottom:4px;">कनेक्शन टाइप</label>
+                <select id="cust-type" style="width:100%; padding:10px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff;">
+                    <option value="OLT / Fiber (FTTH)">OLT / Fiber (FTTH)</option>
+                    <option value="Wi-Fi Router / LAN">Wi-Fi Router / LAN</option>
+                </select>
+            </div>
+
+            <!-- कस्टमर नाम -->
+            <div style="margin-bottom:12px;">
+                <label style="color:#94a3b8; font-size:12px; display:block; margin-bottom:4px;">ग्राहक का नाम</label>
+                <input type="text" id="cust-name" placeholder="उदा. राहुल शर्मा" required style="width:100%; padding:10px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff;">
+            </div>
+
+            <!-- मोबाइल नंबर -->
+            <div style="margin-bottom:12px;">
+                <label style="color:#94a3b8; font-size:12px; display:block; margin-bottom:4px;">मोबाइल नंबर</label>
+                <input type="tel" id="cust-phone" placeholder="9876543210" required style="width:100%; padding:10px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff;">
+            </div>
+
+            <!-- OLT Serial Number / Router IP -->
+            <div style="margin-bottom:12px;">
+                <label style="color:#94a3b8; font-size:12px; display:block; margin-bottom:4px;">ONU Serial / Router IP या MAC</label>
+                <input type="text" id="cust-device" placeholder="उदा. HWTC123456 या 192.168.1.50" required style="width:100%; padding:10px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff;">
+            </div>
+
+            <!-- प्लान -->
+            <div style="margin-bottom:16px;">
+                <label style="color:#94a3b8; font-size:12px; display:block; margin-bottom:4px;">इंटरनेट / टीवी प्लान</label>
+                <input type="text" id="cust-plan" placeholder="50 Mbps Unlimited (₹499)" required style="width:100%; padding:10px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff;">
+            </div>
+
+            <button type="submit" style="width:100%; padding:12px; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">कस्टमर सेव करें</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
