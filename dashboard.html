@@ -499,5 +499,42 @@
         </form>
     </div>
 </div>
+// पॉप-अप खोलने का फंक्शन
+function openAddCustomerModal() {
+    document.getElementById('addCustomerModal').style.display = 'flex';
+}
+
+// पॉप-अप बंद करने का फंक्शन
+function closeAddCustomerModal() {
+    document.getElementById('addCustomerModal').style.display = 'none';
+}
+
+// फ़ायरबेस Firestore में OLT / Router कस्टमर सेव करने का फंक्शन
+function saveCustomerData(e) {
+    e.preventDefault();
+
+    const connectionType = document.getElementById('cust-type').value;
+    const name = document.getElementById('cust-name').value;
+    const phone = document.getElementById('cust-phone').value;
+    const deviceId = document.getElementById('cust-device').value;
+    const plan = document.getElementById('cust-plan').value;
+
+    db.collection("subscribers").add({
+        connectionType: connectionType,
+        name: name,
+        phone: phone,
+        deviceId: deviceId,
+        plan: plan,
+        status: "Online",
+        createdAt: new Date()
+    })
+    .then(() => {
+        alert("कस्टमर सफलतापूर्वक जुड़ गया है!");
+        closeAddCustomerModal();
+    })
+    .catch((err) => {
+        alert("त्रुटि: " + err.message);
+    });
+}
 </body>
 </html>
