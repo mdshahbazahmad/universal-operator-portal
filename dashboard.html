@@ -366,6 +366,104 @@
             </form>
         </div>
     </div>
+    <!-- Plans & Pricing Management Section -->
+        <div id="sec-plans" class="tab-section" style="display: none;">
+            <h2>Plans & Pricing Management (WiFi & OTT Setup Box)</h2><br>
+
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <!-- Left Box: Add New Plan Form -->
+                <div class="table-card" style="flex: 1; min-width: 320px;">
+                    <h3 style="color: #38bdf8; margin-bottom: 15px;"><i class="fa-solid fa-plus-circle"></i> Create New Plan</h3>
+                    
+                    <form id="create-plan-form" onsubmit="saveNewPlan(event)">
+                        <div class="form-field">
+                            <label>Plan Category (कैटेगरी चुनें)</label>
+                            <select id="plan-type" onchange="togglePlanFields()" style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid rgba(255,255,255,0.2);">
+                                <option value="wifi">WiFi Internet Plan</option>
+                                <option value="ott">OTT / Setup Box Plan</option>
+                                <option value="addon">Add-On Single Channel (₹15 / ₹20)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Plan Name (प्ला का नाम)</label>
+                            <input type="text" id="plan-name" placeholder="e.g. Starter 50 Mbps or Gold OTT Pack" required>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-field" style="flex: 1;">
+                                <label>Price (मूल्य ₹)</label>
+                                <input type="number" id="plan-price" placeholder="499" required>
+                            </div>
+                            <div class="form-field" style="flex: 1;">
+                                <label>Validity (वैधता - दिन)</label>
+                                <input type="number" id="plan-validity" placeholder="30" value="30" required>
+                            </div>
+                        </div>
+
+                        <!-- WiFi Dynamic Fields -->
+                        <div id="wifi-fields">
+                            <div class="form-field">
+                                <label>Speed (गति - Mbps)</label>
+                                <input type="text" id="plan-speed" placeholder="e.g. 50 Mbps / 100 Mbps">
+                            </div>
+                        </div>
+
+                        <!-- OTT / Setup Box Dynamic Fields -->
+                        <div id="ott-fields" style="display: none;">
+                            <div class="form-field">
+                                <label>Setup Box Type</label>
+                                <select id="plan-quality" style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid rgba(255,255,255,0.2);">
+                                    <option value="SD">SD Quality Pack</option>
+                                    <option value="HD">HD High Quality Pack</option>
+                                    <option value="4K">4K Ultra HD Pack</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label>Included OTT Apps & Channel Description</label>
+                                <textarea id="plan-desc" rows="3" placeholder="e.g. Disney+ Hotstar, Zee5, SonyLIV + 350 SD Channels included" style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid rgba(255,255,255,0.2);"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Add-On Channel Dynamic Fields -->
+                        <div id="addon-fields" style="display: none;">
+                            <div class="form-field">
+                                <label>Channel Category / Type</label>
+                                <input type="text" id="plan-addon-cat" placeholder="e.g. Sports, News, Movies, Entertainment">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-add" style="width:100%; justify-content:center; padding: 12px; margin-top: 10px; background: linear-gradient(135deg, #38bdf8, #0284c7);">
+                            <i class="fa-solid fa-floppy-disk"></i> Add & Publish Plan (प्ला सेव करें)
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right Box: Live Plans List Table -->
+                <div class="table-card" style="flex: 1.5; min-width: 350px;">
+                    <h3 style="color: #38bdf8; margin-bottom: 15px;"><i class="fa-solid fa-boxes-stacked"></i> Active Plans List (ऐप में दिखने वाले सक्रिय प्लान)</h3>
+                    
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Plan Details</th>
+                                    <th>Price</th>
+                                    <th>Validity</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plans-table-body">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #94a3b8;">लोड हो रहा है...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <!-- Floating AI Chat Widget HTML -->
     <style>
