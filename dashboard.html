@@ -435,24 +435,83 @@
           document.getElementById('nav-' + tabName).classList.add('active');
       }
 
-      function loadOperatorSettings(userId) {
-          db.collection("users").doc(userId).get().then((doc) => {
-              if (doc.exists) {
-                  const data = doc.data();
-                  const headerTitle = document.getElementById("displayHeaderBrand");
-                  if (data.logoUrl) {
-                      headerTitle.innerHTML = `<img src="${sanitizeInput(data.logoUrl)}" class="brand-logo-img"> ${sanitizeInput(data.companyName || 'EAGLE NETWORK SBZ')}`;
-                  } else if (data.companyName) {
-                      headerTitle.innerHTML = `<i class="fa-solid fa-wifi"></i> ${sanitizeInput(data.companyName)}`;
-                      document.getElementById("set-company").value = data.companyName;
-                  }
-                  if (data.name) {
-                      document.getElementById("userNameDisplay").innerText = sanitizeInput(data.name);
-                      document.getElementById("set-name").value = data.name;
-                  }
-              }
-          });
-      }
+      // 1. ऑटो-जनरेट UPI Dynamic QR Code
+function generateDynamicUpiQr() {
+    const upi1 = document.getElementById("set-upi1").value.trim();
+    const qrImg = document.getElementById("upi-qr-image");
+    const placeholderText = document.getElementById("qr-placeholder-text");
+
+    if (upi1.length > 3 && upi1.includes("@")) {
+        // NPCI / UPI Standard URI Syntax format
+        const upiPayUrl = `upi://pay?pa=${encodeURIComponent(upi1)}&pn=Operator&cu=INR`;
+        // Reliable Google Chart API for instant zero-lag QR Generation
+        const qrApiUrl = `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(upiPayUrl)}&choe=UTF-8`;
+        
+        qrImg.src = qrApiUrl;
+        qrImg.style.display = "block";
+        placeholderText.style.display = "none";
+    } else {
+        qrImg.style.display = "none";
+        placeholderText.style.display = "inline";
+    }
+}
+
+// 2. लोड करने पर सेव की गई बैंक और UPI डिटेल्स फ़ेच (Fetch) करना
+function loadOperatorSettings(userId) {
+    db.collection("users").doc(userId).get().then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            
+            // कंपनी/ब्रांड लोड करना
+            if (data.companyName) document.getElementById("set-company").value = data.companyName;
+            if (data.name) document.getElementById("set-name").value = data.name;
+            if (data.logoUrl) document.getElementById("set-logo-url").value = data.logoUrl;
+
+            // UPI & Bank Details लोड करना
+            if (data.upi1) {
+                document.getElementById("set-upi1").value = data.upi1;
+                generateDynamicUpiQr(); // Load dynamic QR Code
+            }
+            if (data.upi2) document.getElementById("set-upi2").value = data.upi2;
+            if (data.bankHolder) document.getElementById("set-bank-holder").value = data.bankHolder;
+            if (data.bankName) document.getElementById("set-bank-name").value = data.bankName;
+            if (data.bankAcc) document.getElementById("set-bank-acc").value = data.bankAcc;
+            if (data.bankIfsc) document.getElementById("set-bank-ifsc").value = data.bankIfsc;
+        }
+    });
+}
+
+// 3. Bank & UPI डिटेल्स को Firestore में सुरक्षित सेव करना
+function saveBankAndUpiSettings(e) {
+    e.preventDefault();
+    if (!currentUserId) {
+        alert("User session not found. Please log in again.");
+        return;
+    }
+
+    const upi1Val = document.getElementById("set-upi1").value.trim();
+    const upi2Val = document.getElementById("set-upi2").value.trim();
+    const bankHolderVal = document.getElementById("set-bank-holder").value.trim();
+    const bankNameVal = document.getElementById("set-bank-name").value.trim();
+    const bankAccVal = document.getElementById("set-bank-acc").value.trim();
+    const bankIfscVal = document.getElementById("set-bank-ifsc").value.trim();
+
+    db.collection("users").doc(currentUserId).set({
+        upi1: sanitizeInput(upi1Val),
+        upi2: sanitizeInput(upi2Val),
+        bankHolder: sanitizeInput(bankHolderVal),
+        bankName: sanitizeInput(bankNameVal),
+        bankAcc: sanitizeInput(bankAccVal),
+        bankIfsc: sanitizeInput(bankIfscVal),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true })
+    .then(() => {
+        alert("✅ बैंक खाता, UPI और QR कोड सेटिंग्स सफलतापूर्वक सुरक्षित (Save) हो गई हैं!");
+    })
+    .catch((error) => {
+        alert("❌ Error: " + error.message);
+    });
+}
 
       function saveOperatorSettings(e) {
           e.preventDefault();
