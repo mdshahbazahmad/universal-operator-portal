@@ -842,6 +842,138 @@
 
       const dashboardHelpButton=document.getElementById("nav-help"); 
       if(dashboardHelpButton) dashboardHelpButton.onclick=function(event){event.preventDefault();toggleAiChat();};
+    // 1. फ़ॉर्म में सेलेक्टेड कैटेगरी (WiFi / OTT / Add-on) के हिसाब से फ़ील्ड्स दिखाना/छिपाना
+      function togglePlanFields() {
+          const type = document.getElementById("plan-type").value;
+          const wifiFields = document.getElementById("wifi-fields");
+          const ottFields = document.getElementById("ott-fields");
+          const addonFields = document.getElementById("addon-fields");
+
+          wifiFields.style.display = (type === "wifi") ? "block" : "none";
+          ottFields.style.display = (type === "ott") ? "block" : "none";
+          addonFields.style.display = (type === "addon") ? "block" : "none";
+      }
+
+      // 2. ऑपरेटर के बनाए गए सभी प्लान्स को Firestore से लोड करके टेबल में दिखाना
+      function loadOperatorPlans() {
+          if (!currentUserId) return;
+
+          db.collection("users").doc(currentUserId).collection("plans")
+          .orderBy("createdAt", "desc")
+          .onSnapshot((snapshot) => {
+              const tbody = document.getElementById("plans-table-body");
+              tbody.innerHTML = "";
+
+              if (snapshot.empty) {
+                  tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 15px;">अभी कोई प्लान नहीं बना है। ऊपर दिए फ़ॉर्म से नया प्लान जोड़ें।</td></tr>`;
+                  return;
+              }
+
+              snapshot.forEach((doc) => {
+                  const plan = doc.data();
+                  const planId = doc.id;
+                  let badgeColor = "#0284c7"; // Blue for WiFi
+                  let typeLabel = "WiFi";
+
+                  if (plan.type === "ott") {
+                      badgeColor = "#e11d48"; // Red/Pink for OTT
+                      typeLabel = "OTT / DTH";
+                  } else if (plan.type === "addon") {
+                      badgeColor = "#16a34a"; // Green for Addon
+                      typeLabel = "Add-On";
+                  }
+
+                  let extraInfo = "";
+                  if (plan.type === "wifi") {
+                      extraInfo = `<small style="color:#94a3b8;">Speed: ${sanitizeInput(plan.speed || 'N/A')}</small>`;
+                  } else if (plan.type === "ott") {
+                      extraInfo = `<small style="color:#94a3b8;">[${sanitizeInput(plan.quality)}] ${sanitizeInput(plan.desc || '')}</small>`;
+                  } else if (plan.type === "addon") {
+                      extraInfo = `<small style="color:#94a3b8;">Cat: ${sanitizeInput(plan.addonCat || 'Channel')}</small>`;
+                  }
+
+                  const tr = document.createElement("tr");
+                  tr.innerHTML = `
+                      <td><span style="background:${badgeColor}; color:white; padding: 3px 8px; border-radius:4px; font-size:0.75rem;">${typeLabel}</span></td>
+                      <td>
+                          <strong>${sanitizeInput(plan.name)}</strong><br>
+                          ${extraInfo}
+                      </td>
+                      <td style="color:#10b981; font-weight:bold;">₹${plan.price}</td>
+                      <td>${plan.validity} Days</td>
+                      <td>
+                          <button onclick="deletePlan('${planId}')" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                              <i class="fa-solid fa-trash"></i> Delete
+                          </button>
+                      </td>
+                  `;
+                  tbody.appendChild(tr);
+              });
+          });
+      }
+
+      // 3. नया प्लान सेव करना (Save Plan in Firebase sub-collection)
+      function saveNewPlan(e) {
+          e.preventDefault();
+          if (!currentUserId) {
+              alert("यूज़र सेशन नहीं मिला। कृपया दोबारा लॉगिन करें।");
+              return;
+          }
+
+          const type = document.getElementById("plan-type").value;
+          const name = document.getElementById("plan-name").value.trim();
+          const price = parseFloat(document.getElementById("plan-price").value);
+          const validity = parseInt(document.getElementById("plan-validity").value);
+
+          let planData = {
+              type: type,
+              name: sanitizeInput(name),
+              price: price,
+              validity: validity,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          if (type === "wifi") {
+              planData.speed = sanitizeInput(document.getElementById("plan-speed").value.trim());
+          } else if (type === "ott") {
+              planData.quality = document.getElementById("plan-quality").value;
+              planData.desc = sanitizeInput(document.getElementById("plan-desc").value.trim());
+          } else if (type === "addon") {
+              planData.addonCat = sanitizeInput(document.getElementById("plan-addon-cat").value.trim());
+          }
+
+          db.collection("users").doc(currentUserId).collection("plans").add(planData)
+          .then(() => {
+              alert("✅ नया प्लान सफलतापूर्वक लाइव हो गया है!");
+              document.getElementById("create-plan-form").reset();
+              togglePlanFields();
+          })
+          .catch((error) => {
+              alert("❌ Error saving plan: " + error.message);
+          });
+      }
+
+      // 4. प्लान डिलीट करना (Delete Plan)
+      function deletePlan(planId) {
+          if (confirm("क्या आप वाकई इस प्लान को मिटाना (Delete) चाहते हैं?")) {
+              db.collection("users").doc(currentUserId).collection("plans").doc(planId).delete()
+              .then(() => {
+                  alert("Plan deleted successfully.");
+              })
+              .catch((error) => {
+                  alert("Error deleting plan: " + error.message);
+              });
+          }
+      }
+
+      // 5. switchTab फ़ंक्शन को अपडेट करें ताकि 'Manage Plans' पर क्लिक करते ही टेबल लोड हो जाए
+      const originalSwitchTab = switchTab;
+      switchTab = function(tabId) {
+          originalSwitchTab(tabId);
+          if (tabId === 'sec-plans') {
+              loadOperatorPlans();
+          }
+      };
     </script>
 </body>
 </html>
