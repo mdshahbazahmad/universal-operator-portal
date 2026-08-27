@@ -205,14 +205,86 @@
         </div>
 
         <!-- Settings Section -->
-        <div id="sec-settings" class="tab-section">
-            <h2>Operator Branding & Security Settings</h2><br>
-            <div class="table-card" style="max-width: 600px;">
-                <form id="settings-form" onsubmit="saveOperatorSettings(event)">
-                    <div class="form-field">
-                        <label>Company / Brand Name</label>
-                        <input type="text" id="set-company" placeholder="e.g. Eagle Network SBZ">
+        <!-- Settings Section (Updated with Banking, Dual UPI & Auto QR Generator) -->
+<div id="sec-settings" class="tab-section">
+    <h2>Operator Branding & Payment Settings</h2><br>
+    
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <!-- Left Box: Profile & Branding Details -->
+        <div class="table-card" style="flex: 1; min-width: 300px;">
+            <h3 style="color: #38bdf8; margin-bottom: 15px;"><i class="fa-solid fa-id-card"></i> Operator Branding</h3>
+            <form id="settings-form" onsubmit="saveOperatorSettings(event)">
+                <div class="form-field">
+                    <label>Company / Brand Name</label>
+                    <input type="text" id="set-company" placeholder="e.g. Eagle Network SBZ">
+                </div>
+                <div class="form-field">
+                    <label>Operator Name</label>
+                    <input type="text" id="set-name" placeholder="Your Name">
+                </div>
+                <div class="form-field">
+                    <label>Company Logo URL</label>
+                    <input type="url" id="set-logo-url" placeholder="https://example.com/logo.png">
+                </div>
+                <button type="submit" class="btn-add" style="width:100%; justify-content:center;">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Branding Settings
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Box: Bank Details, Dual UPI & Instant Dynamic QR -->
+        <div class="table-card" style="flex: 1; min-width: 300px;">
+            <h3 style="color: #38bdf8; margin-bottom: 15px;"><i class="fa-solid fa-building-columns"></i> Bank & UPI Collection Settings</h3>
+            <form id="payment-settings-form" onsubmit="saveBankAndUpiSettings(event)">
+                
+                <!-- Dual UPI Configuration -->
+                <div class="form-field">
+                    <label><i class="fa-solid fa-mobile-screen-button"></i> Primary UPI ID (GPay / PhonePe - UPI 1)</label>
+                    <input type="text" id="set-upi1" placeholder="e.g. username@ybl or 9838715205@paytm" oninput="generateDynamicUpiQr()">
+                </div>
+                <div class="form-field">
+                    <label><i class="fa-solid fa-mobile-screen-button"></i> Secondary UPI ID (Paytm / Other Bank - UPI 2)</label>
+                    <input type="text" id="set-upi2" placeholder="e.g. operator@icici">
+                </div>
+
+                <!-- Instant Dynamic QR Preview Box -->
+                <div id="qr-preview-box" style="text-align: center; background: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed rgba(56, 189, 248, 0.4);">
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 8px;">Auto-Generated Payment QR Code Preview</p>
+                    <img id="upi-qr-image" src="" alt="Enter Primary UPI to Generate QR" style="max-width: 150px; display: none; border-radius: 8px; border: 2px solid #fff; margin: 0 auto;">
+                    <span id="qr-placeholder-text" style="color: #64748b; font-size: 0.8rem;">(Primary UPI ID 1 डालने पर यहाँ QR Code खुद बन जाएगा)</span>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 15px 0;">
+
+                <!-- Bank Account Details -->
+                <h4 style="color: #e2e8f0; font-size: 0.95rem; margin-bottom: 10px;"><i class="fa-solid fa-piggy-bank"></i> Direct Bank Account Details</h4>
+                <div class="form-field">
+                    <label>Account Holder Name</label>
+                    <input type="text" id="set-bank-holder" placeholder="e.g. Eagle Network Services">
+                </div>
+                <div class="form-field">
+                    <label>Bank Name</label>
+                    <input type="text" id="set-bank-name" placeholder="e.g. State Bank of India">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-field" style="flex: 1;">
+                        <label>Account Number</label>
+                        <input type="text" id="set-bank-acc" placeholder="9180XXXXXX21">
                     </div>
+                    <div class="form-field" style="flex: 1;">
+                        <label>IFSC Code</label>
+                        <input type="text" id="set-bank-ifsc" placeholder="SBIN000XXXX">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-add" style="width:100%; justify-content:center; background: linear-gradient(135deg, #10b981, #059669);">
+                    <i class="fa-solid fa-check-circle"></i> Save Bank & UPI Details
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
                     <div class="form-field">
                         <label>Operator Name</label>
                         <input type="text" id="set-name" placeholder="Your Name">
