@@ -160,3 +160,64 @@ function testMikrotikConnection() {
         alert("Mikrotik Signal Status: " + response.message);
     });
 }
+/**
+ * Step 2: Automatic Payment Webhook Listener & Auto-Recharge Trigger Engine
+ */
+
+// 1. Automatic Webhook Response Listener
+function handlePaymentWebhook(gatewayResponse) {
+    console.log("[Webhook Received] Payment Confirmation Signal:", gatewayResponse);
+
+    // Validate Payment Status
+    if (gatewayResponse && gatewayResponse.status === "captured" || gatewayResponse.status === "SUCCESS") {
+        const userId = gatewayResponse.customer_stb_id || gatewayResponse.notes.stb_id;
+        const profileName = gatewayResponse.server_plan_id || gatewayResponse.notes.plan_id;
+
+        console.log(`[Auto-Recharge Triggered] User: ${userId} | Profile: ${profileName}`);
+
+        // Trigger Mikrotik Server Activation Engine Automatically
+        if (typeof activateMikrotikUser === "function") {
+            activateMikrotikUser(userId, profileName).then(result => {
+                showNotification(`✅ Auto-Recharge Successful! User ${userId} activated on Server.`);
+            });
+        } else {
+            console.error("[Webhook Error] Mikrotik API Engine not found!");
+        }
+    } else {
+        console.warn("[Webhook Warning] Payment failed or incomplete signal.");
+    }
+}
+
+// 2. Helper UI Notification Box for Dashboard
+function showNotification(msg) {
+    const notifyBox = document.createElement("div");
+    notifyBox.style.cssText = `
+        position: fixed; 
+        bottom: 20px; 
+        right: 20px; 
+        background: #10b981; 
+        color: white; 
+        padding: 12px 20px; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+        z-index: 9999;
+        font-weight: 600;
+    `;
+    notifyBox.innerText = msg;
+    document.body.appendChild(notifyBox);
+
+    setTimeout(() => {
+        notifyBox.remove();
+    }, 4000);
+}
+
+// 3. Test Function for Webhook Auto-Recharge Simulation
+function testAutoRechargeWebhook() {
+    const mockPaymentData = {
+        status: "captured",
+        customer_stb_id: document.getElementById("sub-stb") ? document.getElementById("sub-stb").value : "SBZ-109283",
+        server_plan_id: document.getElementById("plan-server-id") ? document.getElementById("plan-server-id").value : "100Mbps_Plan"
+    };
+
+    handlePaymentWebhook(mockPaymentData);
+}
