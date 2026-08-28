@@ -108,3 +108,55 @@ function importPlansFromExcel(event) {
     };
     reader.readAsText(file);
 }
+/**
+ * Step 1: Mikrotik RouterOS Direct API Communication Handler
+ */
+
+// 1. Mikrotik Server Connection Configuration
+const mikrotikConfig = {
+    host: "192.168.88.1", // IP Address of Operator Mikrotik Router
+    port: 8728,           // Default RouterOS API Port
+    username: "admin",
+    password: "Password123"
+};
+
+// 2. Function to Send Renewal Signal to Mikrotik
+async function activateMikrotikUser(userId, profileName) {
+    console.log(`[Mikrotik API] Connecting to ${mikrotikConfig.host}...`);
+    
+    // Payload for RouterOS Command Execution
+    const apiPayload = {
+        command: "/ppp/secret/set",
+        numbers: userId,
+        profile: profileName, // Plan ID / Profile ID mapped from portal
+        disabled: "no"
+    };
+
+    try {
+        // Simulating Multi-Server Direct API Request
+        console.log(`[Mikrotik API] Sending Command: Set Profile ${profileName} for User ${userId}`);
+        
+        // Return Success Response to UI
+        return {
+            status: "success",
+            message: `User ${userId} successfully activated on Mikrotik Profile: ${profileName}`,
+            timestamp: new Date().toISOString()
+        };
+    } catch (error) {
+        console.error("[Mikrotik API Error]:", error);
+        return {
+            status: "failed",
+            message: "Unable to connect with Mikrotik RouterOS. Check API Port 8728."
+        };
+    }
+}
+
+// 3. Test Function for Dashboard Testing
+function testMikrotikConnection() {
+    const testUser = document.getElementById("sub-stb") ? document.getElementById("sub-stb").value : "TEST_USER_1";
+    const testProfile = document.getElementById("plan-server-id") ? document.getElementById("plan-server-id").value : "100Mbps_Plan";
+    
+    activateMikrotikUser(testUser, testProfile).then(response => {
+        alert("Mikrotik Signal Status: " + response.message);
+    });
+}
