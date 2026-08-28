@@ -1140,5 +1140,32 @@
 
 <script src="server-integration.js"></script>
   <script src="weather-widget.js"></script>
+  <!-- 💡 Modular Features Auto-Loader (बिना मुख्य कोड को छेड़े) -->
+<script src="server-integration.js"></script>
+<script src="weather-widget.js"></script>
+
+<script>
+    // यह फ़ंक्शन सुनिश्चित करेगा कि डैशबोर्ड पूरी तरह लोड होने के बाद ही सारे नए फ़ीचर्स स्क्रीन पर दिखें
+    window.addEventListener("DOMContentLoaded", function() {
+        console.log("Loading all external features...");
+        
+        // 1. Weather Widget Call
+        if (typeof injectWeatherWidget === "function") {
+            injectWeatherWidget();
+            startLiveClock();
+            fetchLiveWeatherAndLocation();
+        }
+
+        // 2. Multi-Server & Plan ID Fields Call
+        if (typeof injectServerFields === "function") {
+            injectServerFields();
+        }
+
+        // 3. Excel Import/Export Buttons Call
+        if (typeof injectExcelSyncButtons === "function") {
+            injectExcelSyncButtons();
+        }
+    });
+</script>
   </body>
 </html>
