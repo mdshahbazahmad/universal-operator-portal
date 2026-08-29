@@ -1450,108 +1450,13 @@
     document.body.appendChild(modal);
   }
 </script>
-  <!-- Move Bottom Button to Top & Add Log Out Button -->
+  <!-- Clean Auto-Sync Button inside Dashboard Action Area -->
 <script>
   window.addEventListener("load", function() {
-    setTimeout(function() {
-      // 1. नीचे बने हुए बटन को ऊपर 'Action Area' में शिफ्ट करना
-      const bottomBtn = document.getElementById("btn-auto-connect-server") || document.querySelector("button[onclick*='Main Server Connected']");
-      const topActionArea = document.querySelector(".page-header") || document.querySelector("header") || document.querySelector(".header-top") || document.querySelector(".btn-add")?.parentElement;
-
-      if (bottomBtn && topActionArea) {
-        topActionArea.appendChild(bottomBtn); // बटन बिना डिलीट हुए ऊपर शिफ्ट हो गया
-      }
-
-      // 2. बाएँ साइडबार में Log Out का अलग बटन जोड़ना
-      const sidebar = document.querySelector(".sidebar ul") || document.querySelector(".sidebar") || document.querySelector("nav");
-      if (sidebar && !document.getElementById("nav-logout-btn")) {
-        const logoutNavItem = document.createElement("li");
-        logoutNavItem.id = "nav-logout-btn";
-        logoutNavItem.style.cssText = "margin-top: 15px; list-style: none;";
-        logoutNavItem.innerHTML = `
-          <a href="javascript:void(0)" onclick="if(confirm('क्या आप सच में Log Out करना चाहते हैं?')) { alert('✅ Logged Out Successfully!'); window.location.reload(); }" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: #ef4444; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Log Out</span>
-          </a>
-        `;
-        sidebar.appendChild(logoutNavItem);
-      }
-    }, 1000); // 1 सेकंड का इंतज़ार ताकि नीचे का बटन पूरी तरह लोड हो जाए
+    // 1. Remove non-working duplicate sidebar logout if exists
+    const duplicateLogout = document.getElementById("nav-logout-btn");
+    if (duplicateLogout) duplicateLogout.remove();
   });
-</script>
-  <!-- Final Fixed Engine - Login Guard & Sidebar Logout Fix -->
-<script>
-  (function() {
-    function cleanAndFixPortal() {
-      // 1. अगर यूज़र Login Screen पर है, तो सारे extra बटन और पट्टी तुरंत छुपा दें
-      const isLoginPage = document.querySelector("#login-form") || document.querySelector("input[type='password']") || document.querySelector("form");
-      const isDashboardOpen = document.querySelector(".sidebar") && document.querySelector(".btn-add");
-
-      if (!isDashboardOpen) {
-        // लॉगिन पेज पर कोई extra बटन या नीचे की पट्टी न दिखे
-        const serverBar = document.getElementById("multi-brand-server-bar");
-        if (serverBar) serverBar.style.display = "none";
-
-        const autoBtn = document.getElementById("btn-auto-connect-server");
-        if (autoBtn) autoBtn.remove();
-
-        const extraFloatingBtns = document.querySelectorAll("div[style*='position: fixed'][style*='bottom'], button[style*='position: fixed']");
-        extraFloatingBtns.forEach(el => {
-          if (!el.querySelector("i.fa-robot") && !el.classList.contains("ai-bot")) {
-            el.remove();
-          }
-        });
-        return; // लॉगिन पेज का काम खत्म
-      }
-
-      // 2. जब यूज़र Dashboard में अंदर आ जाए, तब सर्वर बार दिखाएँ
-      const serverBar = document.getElementById("multi-brand-server-bar");
-      if (serverBar) serverBar.style.display = "flex";
-
-      // 3. Auto-Sync बटन को डैशबोर्ड के अंदर 'Export Excel Report' के ठीक बगल में लगाएँ
-      const excelBtn = Array.from(document.querySelectorAll("button")).find(b => b.textContent.includes("Export Excel"));
-      if (excelBtn && excelBtn.parentElement && !document.getElementById("btn-auto-connect-server")) {
-        const autoBtn = document.createElement("button");
-        autoBtn.id = "btn-auto-connect-server";
-        autoBtn.className = "btn-add";
-        autoBtn.style.cssText = "background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 4px;";
-        autoBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Auto-Sync Main Server`;
-        autoBtn.onclick = function() {
-          alert("🔄 Main Server Connected! Auto-fetching subscribers & active plans...");
-        };
-        excelBtn.parentElement.appendChild(autoBtn);
-      }
-
-      // 4. नीचे वाले फालतू डार्क Logout बटन को हटाएँ
-      const bottomLogoutBtns = document.querySelectorAll("div[style*='position: fixed'][style*='bottom'], button[style*='position: fixed']");
-      bottomLogoutBtns.forEach(el => {
-        if (!el.querySelector("i.fa-robot") && !el.classList.contains("ai-bot")) {
-          el.remove();
-        }
-      });
-
-      // 5. साइडबार वाले हल्के Logout बटन को 100% वर्किंग बनाएँ
-      const sidebarLogout = document.getElementById("nav-logout-btn") || Array.from(document.querySelectorAll("a, li")).find(el => el.textContent.includes("Log Out"));
-      if (sidebarLogout) {
-        sidebarLogout.onclick = function(e) {
-          e.preventDefault();
-          if (confirm("क्या आप सच में Log Out करना चाहते हैं?")) {
-            sessionStorage.clear();
-            localStorage.clear();
-            window.location.reload();
-          }
-        };
-      }
-    }
-
-    // ऑटो-रन
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", cleanAndFixPortal);
-    } else {
-      cleanAndFixPortal();
-    }
-    window.addEventListener("load", cleanAndFixPortal);
-  })();
 </script>
   </body>
 </html>
