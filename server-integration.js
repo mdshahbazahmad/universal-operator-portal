@@ -188,3 +188,4 @@ function injectAutoConnectButton() {
 document.addEventListener("DOMContentLoaded", function () {
     setTimeout(injectAutoConnectButton, 500);
 });
+ 
