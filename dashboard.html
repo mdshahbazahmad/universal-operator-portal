@@ -1479,5 +1479,46 @@
     }, 1000); // 1 सेकंड का इंतज़ार ताकि नीचे का बटन पूरी तरह लोड हो जाए
   });
 </script>
+  <!-- Master Dashboard Lock & Button Fix Engine -->
+<script>
+  (function() {
+    function applyDashboardFixes() {
+      // 1. केवल Dashboard के अंदर ही यह कोड चले (Login Page पर न चले)
+      const excelBtn = document.querySelector("button[onclick*='Excel']") || document.querySelector("button[onclick*='excel']") || document.querySelector(".btn-add");
+      
+      if (!excelBtn) return; // अगर Dashboard नहीं खुला है तो यहीं रुक जाओ
+
+      // 2. लॉगिन पेज या एक्स्ट्रा फ्लोटिंग बंपर बटन (नीचे बाएँ वाला Logout) तुरंत हटाएँ
+      const bottomFloatingBtns = document.querySelectorAll("div[style*='position: fixed'][style*='bottom'], button[style*='position: fixed']");
+      bottomFloatingBtns.forEach(el => {
+        if (!el.querySelector("i.fa-robot") && !el.classList.contains("ai-bot")) {
+          el.remove();
+        }
+      });
+
+      // 3. Auto-Sync Button को ठीक Excel Button के बगल में ऊपर जोड़ना
+      const parentContainer = excelBtn.parentElement;
+      if (parentContainer && !document.getElementById("btn-auto-connect-server")) {
+        const autoBtn = document.createElement("button");
+        autoBtn.id = "btn-auto-connect-server";
+        autoBtn.className = "btn-add";
+        autoBtn.style.cssText = "background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 4px;";
+        autoBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Auto-Sync Main Server`;
+        autoBtn.onclick = function() {
+          alert("🔄 Main Server Connected! Auto-fetching subscribers & active plans...");
+        };
+        parentContainer.appendChild(autoBtn);
+      }
+    }
+
+    // Page Load और DOM Ready दोनों पर सुरक्षित रन करें
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", applyDashboardFixes);
+    } else {
+      applyDashboardFixes();
+    }
+    window.addEventListener("load", applyDashboardFixes);
+  })();
+</script>
   </body>
 </html>
