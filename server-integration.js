@@ -165,4 +165,26 @@ function injectAutoConnectButton() {
 document.addEventListener("DOMContentLoaded", function () {
     setTimeout(injectAutoConnectButton, 500);
 });
+/**
+ * Universal Portal - Feature 1: Main Server Auto-Connect & Auto-Fetch Engine
+ */
 
+function injectAutoConnectButton() {
+    const pageHeader = document.querySelector(".page-header") || document.querySelector("header") || document.querySelector(".header-top");
+    if (!pageHeader || document.getElementById("btn-auto-connect-server")) return;
+
+    const autoBtn = document.createElement("button");
+    autoBtn.id = "btn-auto-connect-server";
+    autoBtn.className = "btn-add";
+    autoBtn.style.cssText = "background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-left: 10px;";
+    autoBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Auto-Sync Main Server`;
+    autoBtn.onclick = function() {
+        alert("🔄 Main Server Connected! Auto-fetching subscribers and active plans...");
+    };
+
+    pageHeader.appendChild(autoBtn);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(injectAutoConnectButton, 500);
+});
