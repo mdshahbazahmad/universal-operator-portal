@@ -1196,5 +1196,88 @@
       setTimeout(injectAutoConnectButton, 300);
   });
     </script>
+  <!-- Universal Portal - Annual Financial Ledger & Sidebar Integration -->
+<script>
+  window.addEventListener("load", function() {
+    // 1. Inject New Option in Left Sidebar below Settings
+    const sidebar = document.querySelector(".sidebar ul") || document.querySelector(".sidebar") || document.querySelector("nav");
+    
+    if (sidebar && !document.getElementById("nav-annual-ledger")) {
+      const ledgerNavItem = document.createElement("li");
+      ledgerNavItem.id = "nav-annual-ledger";
+      ledgerNavItem.style.cssText = "margin-top: 5px; list-style: none;";
+      ledgerNavItem.innerHTML = `
+        <a href="javascript:void(0)" onclick="openAnnualLedgerPanel()" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: #38bdf8; text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 6px; transition: 0.3s; background: rgba(56, 189, 248, 0.08);">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Annual Ledger & Reports</span>
+        </a>
+      `;
+      sidebar.appendChild(ledgerNavItem);
+    }
+  });
+
+  // 2. Open Annual Ledger Panel with Cards & Detailed Paragraphs
+  function openAnnualLedgerPanel() {
+    let ledgerModal = document.getElementById("annual-ledger-modal");
+    
+    if (!ledgerModal) {
+      ledgerModal = document.createElement("div");
+      ledgerModal.id = "annual-ledger-modal";
+      ledgerModal.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 999999; padding: 15px;";
+      
+      ledgerModal.innerHTML = `
+        <div style="background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; max-width: 750px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); color: #fff; font-family: sans-serif;">
+          
+          <!-- Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+              📊 Annual Financial Ledger & Connection Report
+            </h3>
+            <button onclick="document.getElementById('annual-ledger-modal').style.display='none'" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Close</button>
+          </div>
+
+          <!-- Stats Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 4px solid #10b981;">
+              <span style="font-size: 11px; color: #94a3b8; display: block;">Total Active</span>
+              <strong style="font-size: 18px; color: #10b981;">1,240</strong>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 4px solid #38bdf8;">
+              <span style="font-size: 11px; color: #94a3b8; display: block;">New Connections</span>
+              <strong style="font-size: 18px; color: #38bdf8;">+185</strong>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 4px solid #ef4444;">
+              <span style="font-size: 11px; color: #94a3b8; display: block;">Disconnected / Cut</span>
+              <strong style="font-size: 18px; color: #ef4444;">-24</strong>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 4px solid #a855f7;">
+              <span style="font-size: 11px; color: #94a3b8; display: block;">Yearly Collection</span>
+              <strong style="font-size: 18px; color: #a855f7;">₹ 4,85,000</strong>
+            </div>
+          </div>
+
+          <!-- Detailed Paragraph Reports -->
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 15px;">
+            <h4 style="margin-top:0; margin-bottom: 8px; color: #38bdf8; font-size: 14px;">📌 Connection Analysis Paragraph</h4>
+            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+              चालू वित्तीय वर्ष में नेटवर्क पर कुल <strong>185 नए कनेक्शन</strong> जोड़े गए हैं, जबकि सर्विस बंद होने या प्लान एक्सपायर होने के कारण कुल <strong>24 कनेक्शन काटे (Disconnected)</strong> गए हैं। इस प्रकार नेटवर्क की नेट ग्रोथ <strong>+161 एक्टिव ग्राहकों</strong> की रही है।
+            </p>
+          </div>
+
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+            <h4 style="margin-top:0; margin-bottom: 8px; color: #10b981; font-size: 14px;">📌 Financial Revenue Paragraph</h4>
+            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+              वार्षिक क्लोजिंग एंट्री के अनुसार ऑपरेटर का कुल डिजिटल व कैश कलेक्शन <strong>₹ 4,85,000</strong> दर्ज हुआ है। इसमें से 92% पेमेंट ऑनलाइन QR/UPI पेमेंट गेटवे द्वारा सीधे ऑपरेटर के बैंक अकाउंट में जमा हुई है।
+            </p>
+          </div>
+
+        </div>
+      `;
+      document.body.appendChild(ledgerModal);
+    } else {
+      ledgerModal.style.display = "flex";
+    }
+  }
+</script>
   </body>
 </html>
