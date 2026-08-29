@@ -1479,26 +1479,38 @@
     }, 1000); // 1 सेकंड का इंतज़ार ताकि नीचे का बटन पूरी तरह लोड हो जाए
   });
 </script>
-  <!-- Master Dashboard Lock & Button Fix Engine -->
+  <!-- Final Fixed Engine - Login Guard & Sidebar Logout Fix -->
 <script>
   (function() {
-    function applyDashboardFixes() {
-      // 1. केवल Dashboard के अंदर ही यह कोड चले (Login Page पर न चले)
-      const excelBtn = document.querySelector("button[onclick*='Excel']") || document.querySelector("button[onclick*='excel']") || document.querySelector(".btn-add");
-      
-      if (!excelBtn) return; // अगर Dashboard नहीं खुला है तो यहीं रुक जाओ
+    function cleanAndFixPortal() {
+      // 1. अगर यूज़र Login Screen पर है, तो सारे extra बटन और पट्टी तुरंत छुपा दें
+      const isLoginPage = document.querySelector("#login-form") || document.querySelector("input[type='password']") || document.querySelector("form");
+      const isDashboardOpen = document.querySelector(".sidebar") && document.querySelector(".btn-add");
 
-      // 2. लॉगिन पेज या एक्स्ट्रा फ्लोटिंग बंपर बटन (नीचे बाएँ वाला Logout) तुरंत हटाएँ
-      const bottomFloatingBtns = document.querySelectorAll("div[style*='position: fixed'][style*='bottom'], button[style*='position: fixed']");
-      bottomFloatingBtns.forEach(el => {
-        if (!el.querySelector("i.fa-robot") && !el.classList.contains("ai-bot")) {
-          el.remove();
-        }
-      });
+      if (!isDashboardOpen) {
+        // लॉगिन पेज पर कोई extra बटन या नीचे की पट्टी न दिखे
+        const serverBar = document.getElementById("multi-brand-server-bar");
+        if (serverBar) serverBar.style.display = "none";
 
-      // 3. Auto-Sync Button को ठीक Excel Button के बगल में ऊपर जोड़ना
-      const parentContainer = excelBtn.parentElement;
-      if (parentContainer && !document.getElementById("btn-auto-connect-server")) {
+        const autoBtn = document.getElementById("btn-auto-connect-server");
+        if (autoBtn) autoBtn.remove();
+
+        const extraFloatingBtns = document.querySelectorAll("div[style*='position: fixed'][style*='bottom'], button[style*='position: fixed']");
+        extraFloatingBtns.forEach(el => {
+          if (!el.querySelector("i.fa-robot") && !el.classList.contains("ai-bot")) {
+            el.remove();
+          }
+        });
+        return; // लॉगिन पेज का काम खत्म
+      }
+
+      // 2. जब यूज़र Dashboard में अंदर आ जाए, तब सर्वर बार दिखाएँ
+      const serverBar = document.getElementById("multi-brand-server-bar");
+      if (serverBar) serverBar.style.display = "flex";
+
+      // 3. Auto-Sync बटन को डैशबोर्ड के अंदर 'Export Excel Report' के ठीक बगल में लगाएँ
+      const excelBtn = Array.from(document.querySelectorAll("button")).find(b => b.textContent.includes("Export Excel"));
+      if (excelBtn && excelBtn.parentElement && !document.getElementById("btn-auto-connect-server")) {
         const autoBtn = document.createElement("button");
         autoBtn.id = "btn-auto-connect-server";
         autoBtn.className = "btn-add";
@@ -1507,17 +1519,38 @@
         autoBtn.onclick = function() {
           alert("🔄 Main Server Connected! Auto-fetching subscribers & active plans...");
         };
-        parentContainer.appendChild(autoBtn);
+        excelBtn.parentElement.appendChild(autoBtn);
+      }
+
+      // 4. नीचे वाले फालतू डार्क Logout बटन को हटाएँ
+      const bottomLogoutBtns = document.querySelectorAll("div[style*='position: fixed'][style*='bottom'], button[style*='position: fixed']");
+      bottomLogoutBtns.forEach(el => {
+        if (!el.querySelector("i.fa-robot") && !el.classList.contains("ai-bot")) {
+          el.remove();
+        }
+      });
+
+      // 5. साइडबार वाले हल्के Logout बटन को 100% वर्किंग बनाएँ
+      const sidebarLogout = document.getElementById("nav-logout-btn") || Array.from(document.querySelectorAll("a, li")).find(el => el.textContent.includes("Log Out"));
+      if (sidebarLogout) {
+        sidebarLogout.onclick = function(e) {
+          e.preventDefault();
+          if (confirm("क्या आप सच में Log Out करना चाहते हैं?")) {
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.reload();
+          }
+        };
       }
     }
 
-    // Page Load और DOM Ready दोनों पर सुरक्षित रन करें
+    // ऑटो-रन
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", applyDashboardFixes);
+      document.addEventListener("DOMContentLoaded", cleanAndFixPortal);
     } else {
-      applyDashboardFixes();
+      cleanAndFixPortal();
     }
-    window.addEventListener("load", applyDashboardFixes);
+    window.addEventListener("load", cleanAndFixPortal);
   })();
 </script>
   </body>
