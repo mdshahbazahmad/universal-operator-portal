@@ -1450,5 +1450,34 @@
     document.body.appendChild(modal);
   }
 </script>
+  <!-- Move Bottom Button to Top & Add Log Out Button -->
+<script>
+  window.addEventListener("load", function() {
+    setTimeout(function() {
+      // 1. नीचे बने हुए बटन को ऊपर 'Action Area' में शिफ्ट करना
+      const bottomBtn = document.getElementById("btn-auto-connect-server") || document.querySelector("button[onclick*='Main Server Connected']");
+      const topActionArea = document.querySelector(".page-header") || document.querySelector("header") || document.querySelector(".header-top") || document.querySelector(".btn-add")?.parentElement;
+
+      if (bottomBtn && topActionArea) {
+        topActionArea.appendChild(bottomBtn); // बटन बिना डिलीट हुए ऊपर शिफ्ट हो गया
+      }
+
+      // 2. बाएँ साइडबार में Log Out का अलग बटन जोड़ना
+      const sidebar = document.querySelector(".sidebar ul") || document.querySelector(".sidebar") || document.querySelector("nav");
+      if (sidebar && !document.getElementById("nav-logout-btn")) {
+        const logoutNavItem = document.createElement("li");
+        logoutNavItem.id = "nav-logout-btn";
+        logoutNavItem.style.cssText = "margin-top: 15px; list-style: none;";
+        logoutNavItem.innerHTML = `
+          <a href="javascript:void(0)" onclick="if(confirm('क्या आप सच में Log Out करना चाहते हैं?')) { alert('✅ Logged Out Successfully!'); window.location.reload(); }" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: #ef4444; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Log Out</span>
+          </a>
+        `;
+        sidebar.appendChild(logoutNavItem);
+      }
+    }, 1000); // 1 सेकंड का इंतज़ार ताकि नीचे का बटन पूरी तरह लोड हो जाए
+  });
+</script>
   </body>
 </html>
