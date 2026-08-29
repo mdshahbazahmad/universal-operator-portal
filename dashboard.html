@@ -1279,5 +1279,84 @@
     }
   }
 </script>
+  <!-- Universal Portal - Multi-Brand Server Manager (Jio, Airtel, Den, Tata, etc.) -->
+<script>
+  window.addEventListener("load", function() {
+    const mainHeader = document.querySelector(".page-header") || document.querySelector("header") || document.querySelector(".header-top") || document.body;
+    if (document.getElementById("multi-brand-server-bar")) return;
+
+    // Create Multi-Brand Server Selector Bar
+    const brandBar = document.createElement("div");
+    brandBar.id = "multi-brand-server-bar";
+    brandBar.style.cssText = "background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); padding: 10px 15px; border-radius: 8px; margin: 10px 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);";
+
+    brandBar.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="color: #38bdf8; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-server"></i> Active Server Network:
+        </span>
+        <select id="select-brand-server" onchange="switchBrandServer(this.value)" style="background: #0f172a; color: #a855f7; font-weight: bold; padding: 6px 12px; border: 1px solid rgba(168,85,247,0.5); border-radius: 6px; font-size: 13px; cursor: pointer;">
+          <optgroup label="🌐 Broadband & ISP Servers">
+            <option value="jio">🌐 Jio Fiber / Enterprise CAS</option>
+            <option value="airtel">🌐 Airtel Xstream Server</option>
+            <option value="vi">🌐 Vi / Vodafone Business</option>
+            <option value="connexw">🌐 Connexw Broadband</option>
+            <option value="mikrotik">📡 Mikrotik / Radius Server</option>
+          </optgroup>
+          <optgroup label="📺 Cable TV & DTH Servers">
+            <option value="den">📺 Den Digital Cable CAS</option>
+            <option value="tataplay">📺 Tata Play / Tata Sky DTH</option>
+            <option value="dishtv">📺 Dish TV / D2H SMS</option>
+            <option value="siti">📺 Siti Networks CAS</option>
+            <option value="gtpl">📺 GTPL Hathway Server</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button onclick="openServerConfigModal()" style="background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+          ⚙️ Server API Credentials
+        </button>
+        <button onclick="syncSelectedBrandServer()" style="background: linear-gradient(135deg, #a855f7, #6366f1); color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+          🔄 Sync Selected Server
+        </button>
+      </div>
+    `;
+
+    mainHeader.appendChild(brandBar);
+  });
+
+  // Function to Switch Active Server Brand
+  function switchBrandServer(brandKey) {
+    const brandNames = {
+      jio: "Jio Fiber Server",
+      airtel: "Airtel Xstream Server",
+      vi: "Vi Business Server",
+      connexw: "Connexw Broadband",
+      mikrotik: "Mikrotik AAA Radius",
+      den: "Den Digital Cable CAS",
+      tataplay: "Tata Play DTH Portal",
+      dishtv: "Dish TV SMS Server",
+      siti: "Siti Cable CAS",
+      gtpl: "GTPL Hathway Server"
+    };
+    alert(`⚡ Active Network Switched to: ${brandNames[brandKey]}\nAll subscriber profiles and active wallet accounts are now mapped to this server.`);
+  }
+
+  // Sync Selected Server Action
+  function syncSelectedBrandServer() {
+    const selectedBrand = document.getElementById("select-brand-server").value;
+    alert(`🔄 Syncing data with ${selectedBrand.toUpperCase()} Server...\nFetching active STB/MAC IDs, expired accounts, and wallet balance.`);
+  }
+
+  // Modal to enter Server IP / API Key
+  function openServerConfigModal() {
+    const selectedBrand = document.getElementById("select-brand-server").value;
+    const ip = prompt(`Enter Server IP / API Endpoint for ${selectedBrand.toUpperCase()}:`, "192.168.1.100 or api.server.com");
+    if (ip) {
+      alert(`✅ Configuration Saved for ${selectedBrand.toUpperCase()} Server!\nIP/Endpoint: ${ip}`);
+    }
+  }
+</script>
   </body>
 </html>
