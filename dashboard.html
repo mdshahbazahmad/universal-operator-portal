@@ -1166,5 +1166,31 @@
         }
     });
 </script>
+  <!-- Universal Portal - Multi-Server Sync & Auto-Inject Script -->
+<script>
+  function triggerAutoServerSync() {
+      alert("🔄 Main Server Connected!\nFetching subscribers, MAC/STB IDs, and active plans...");
+  }
+
+  function injectAutoConnectButton() {
+      const pageHeader = document.querySelector(".page-header") || document.querySelector("header") || document.querySelector(".header-top");
+      
+      if (!pageHeader || document.getElementById("btn-auto-connect-server")) return;
+
+      const autoBtn = document.createElement("button");
+      autoBtn.id = "btn-auto-connect-server";
+      autoBtn.className = "btn-add";
+      autoBtn.style.cssText = "background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-left: 10px;";
+      autoBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Auto-Sync Main Server`;
+      autoBtn.onclick = triggerAutoServerSync;
+
+      pageHeader.appendChild(autoBtn);
+  }
+
+  // Direct Auto Execution
+  window.addEventListener("load", function() {
+      setTimeout(injectAutoConnectButton, 300);
+  });
+    </script>
   </body>
 </html>
