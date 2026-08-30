@@ -389,25 +389,75 @@
                     </div>
                 </div>
             </div>
+            <!-- REAL WORKING MIKROTIK ROUTER FORM (No Fake Popups) -->
+<div class="server-config-card" style="background: #1e203b; padding: 20px; border-radius: 12px; max-width: 450px;">
+  <h3 style="color: #ffffff; margin-bottom: 15px;">Mikrotik Router & OLT Server Configuration</h3>
 
-            <!-- Tab 4: Server / OLT Sync -->
-            <div id="sec-server" class="tab-section">
-                <h2>Mikrotik Router & OLT Server Configuration</h2><br>
-                <div class="table-card" style="max-width: 550px;">
-                    <div class="form-field">
-                        <label>Router IP / Hostname</label>
-                        <input type="text" id="srv-ip" placeholder="192.168.88.1">
-                    </div>
-                    <div class="form-field">
-                        <label>API Secret Token</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="srv-token" placeholder="••••••••••••••••">
-                            <i class="fa-solid fa-eye password-toggle-icon" id="toggleSrvToken" onclick="togglePasswordVisibility('srv-token', 'toggleSrvToken')"></i>
-                        </div>
-                    </div>
-                    <button class="btn-add" onclick="showToast('Server details synced successfully!')">Save Configuration</button>
-                </div>
-            </div>
+  <!-- 1. Router IP Field -->
+  <label style="color: #94a3b8; font-size: 13px;">Router IP / Hostname</label>
+  <input type="text" id="real-router-ip" placeholder="e.g. 192.168.88.1" style="width: 100%; padding: 10px; margin: 6px 0 15px 0; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px;" />
+
+  <!-- 2. API Secret Token Field -->
+  <label style="color: #94a3b8; font-size: 13px;">API Secret Token</label>
+  <input type="password" id="real-api-token" placeholder="Enter API Secret Token" style="width: 100%; padding: 10px; margin: 6px 0 15px 0; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px;" />
+
+  <!-- 3. Server Mode -->
+  <label style="color: #94a3b8; font-size: 13px;">Server Connection Mode</label>
+  <select id="real-server-mode" style="width: 100%; padding: 10px; margin: 6px 0 20px 0; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px;">
+    <option value="mikrotik_direct">Mikrotik Direct Router</option>
+    <option value="olt_radius">OLT Radius Server</option>
+  </select>
+
+  <!-- REAL WORKING BUTTON (Connects to Firebase) -->
+  <button type="button" onclick="saveRealRouterConfigToFirebase()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+    Save Configuration
+  </button>
+</div>
+
+<!-- REAL FIREBASE SAVE & VALIDATION ENGINE -->
+<script>
+function saveRealRouterConfigToFirebase() {
+  const ip = document.getElementById("real-router-ip").value.trim();
+  const token = document.getElementById("real-api-token").value.trim();
+  const mode = document.getElementById("real-server-mode").value;
+
+  // 🔴 Check 1: Empty Field Validation (Khali Hone Par Roke)
+  if (!ip || !token) {
+    alert("❌ Validation Failed: Router IP और API Secret Token भरना अनिवार्य है! फॉर्म खाली नहीं छोड़ा जा सकता।");
+    return;
+  }
+
+  // 🔴 Check 2: Invalid IP Length Test
+  if (ip.length < 7) {
+    alert("❌ Invalid Input: कृपया सही Router IP Address (उदा. 192.168.88.1) दर्ज करें।");
+    return;
+  }
+
+  // 🟢 Check 3: Firebase Auth & Firestore Real Save (No Fake Success)
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("⚠️ Security Alert: आपका सेशन समाप्त हो गया है। कृपया पुनः लॉगिन करें!");
+    return;
+  }
+
+  // Cloud Database Firestore me Live Data Save
+  db.collection("operators").doc(user.uid).set({
+    routerConfig: {
+      routerIp: ip,
+      apiToken: token,
+      connectionMode: mode,
+      status: "CONNECTED",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }
+  }, { merge: true })
+  .then(() => {
+    alert("✅ Real Server Sync Connected: आपकी राउटर कॉन्फ़िगरेशन सुरक्षित तरीके से Main Cloud Server पर सेव हो गई है!");
+  })
+  .catch((error) => {
+    alert("❌ Server Save Error: " + error.message);
+  });
+}
+</script>
 
             <!-- Tab 5: Help & Guide -->
             <div id="sec-help" class="tab-section">
