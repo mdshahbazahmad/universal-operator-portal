@@ -1357,105 +1357,22 @@
       alert(`✅ Configuration Saved for ${selectedBrand.toUpperCase()} Server!\nIP/Endpoint: ${ip}`);
     }
   }
-</script>
-  <!-- Universal Portal - Multi-Settings Modals & Alignment Cleanup Engine -->
+  <!-- Step 1 Layout Fix - Universal Portal -->
 <script>
-  window.addEventListener("load", function() {
-    // 1. Clean up Duplicate Floating Buttons on Bottom-Left
-    const extraFloatingBtns = document.querySelectorAll("div[style*='position: fixed'][style*='bottom: 20px']");
-    extraFloatingBtns.forEach(btn => {
-      if (!btn.querySelector("i.fa-robot")) {
-        btn.remove(); // Faltu bottom-left button delete
-      }
+  window.addEventListener("DOMContentLoaded", function() {
+    // 1. floating button ko side me set karna
+    const floatingBtns = document.querySelectorAll("div[style*='bottom']");
+    floatingBtns.forEach(btn => {
+      btn.style.position = "static";
+      btn.style.margin = "10px 0";
     });
 
-    // 2. Fix Server Bar Layout cleanly below Header
-    const serverBar = document.getElementById("multi-brand-server-bar");
-    if (serverBar) {
-      serverBar.style.position = "relative";
-      serverBar.style.margin = "15px 0";
-      serverBar.style.width = "100%";
-      serverBar.style.zIndex = "100";
+    // 2. Extra Logout & Sync Buttons Removal/Alignment
+    const header = document.querySelector(".header-top") || document.querySelector("header");
+    const autoSyncBtn = document.getElementById("btn-auto-connect-server");
+    if (header && autoSyncBtn) {
+      header.appendChild(autoSyncBtn);
     }
-  });
-
-  // 💳 1. UPI & Cash Receiver Settings Modal
-  function openUpiSettingsModal() {
-    openCustomModal("💳 UPI & Cash Payment Settings", `
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <label style="font-size:12px; color:#94a3b8;">Primary UPI ID (for Customer Payments)</label>
-        <input type="text" placeholder="e.g. operator@upi / 9876543210@ybl" style="width:100%; padding:8px; background:#0f172a; color:#10b981; border:1px solid rgba(16,185,129,0.4); border-radius:6px;">
-        
-        <label style="font-size:12px; color:#94a3b8;">Auto-Cash Receiver Mode</label>
-        <select style="width:100%; padding:8px; background:#0f172a; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:6px;">
-          <option>Direct Bank Transfer (QR / UPI)</option>
-          <option>Cash Collection via Technician App</option>
-        </select>
-        <button onclick="alert('✅ Payment Settings Saved!')" style="background:#10b981; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px;">Save Payment Settings</button>
-      </div>
-    `);
-  }
-
-  // 🌐 2. Multi-Server & Network Settings Modal
-  function openServerSettingsModal() {
-    openCustomModal("🌐 Server & Network API Settings", `
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <label style="font-size:12px; color:#94a3b8;">Select Network Provider</label>
-        <select id="modal-server-select" style="width:100%; padding:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(56,189,248,0.4); border-radius:6px;">
-          <option>Jio Fiber / Enterprise CAS</option>
-          <option>Airtel Xstream Server</option>
-          <option>Den Digital Cable CAS</option>
-          <option>Mikrotik AAA Radius</option>
-        </select>
-        
-        <label style="font-size:12px; color:#94a3b8;">Server IP / API Endpoint</label>
-        <input type="text" placeholder="e.g. 192.168.1.1 or api.den.com" style="width:100%; padding:8px; background:#0f172a; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:6px;">
-        <button onclick="alert('✅ Server API Config Saved!')" style="background:#38bdf8; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px;">Save Server Config</button>
-      </div>
-    `);
-  }
-
-  // 🖼️ 3. Branding & Logo Settings Modal
-  function openBrandingSettingsModal() {
-    openCustomModal("🖼️ Portal Branding & Logo Settings", `
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <label style="font-size:12px; color:#94a3b8;">Company / Brand Name</label>
-        <input type="text" placeholder="e.g. Kashi Fiber & Cable Network" style="width:100%; padding:8px; background:#0f172a; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:6px;">
-        
-        <label style="font-size:12px; color:#94a3b8;">Logo Image URL</label>
-        <input type="text" placeholder="https://yourdomain.com/logo.png" style="width:100%; padding:8px; background:#0f172a; color:#a855f7; border:1px solid rgba(168,85,247,0.4); border-radius:6px;">
-        <button onclick="alert('✅ Branding Updated Successfully!')" style="background:#a855f7; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px;">Update Branding</button>
-      </div>
-    `);
-  }
-
-  // Helper Engine to render Popups cleanly
-  function openCustomModal(title, contentHTML) {
-    let existingModal = document.getElementById("custom-separate-modal");
-    if (existingModal) existingModal.remove();
-
-    const modal = document.createElement("div");
-    modal.id = "custom-separate-modal";
-    modal.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.85); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:999999; padding:15px;";
-    
-    modal.innerHTML = `
-      <div style="background:#1e293b; border:1px solid rgba(56,189,248,0.3); border-radius:12px; max-width:500px; width:100%; padding:20px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5); color:#fff; font-family:sans-serif;">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:15px;">
-          <h3 style="margin:0; color:#38bdf8; font-size:16px;">${title}</h3>
-          <button onclick="document.getElementById('custom-separate-modal').remove()" style="background:#ef4444; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">✕</button>
-        </div>
-        ${contentHTML}
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-</script>
-  <!-- Clean Auto-Sync Button inside Dashboard Action Area -->
-<script>
-  window.addEventListener("load", function() {
-    // 1. Remove non-working duplicate sidebar logout if exists
-    const duplicateLogout = document.getElementById("nav-logout-btn");
-    if (duplicateLogout) duplicateLogout.remove();
   });
 </script>
   </body>
