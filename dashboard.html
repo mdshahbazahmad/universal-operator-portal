@@ -308,6 +308,18 @@
                     </table>
                 </div>
             </div>
+            <!-- ORIGINAL CUSTOMER SEARCH BAR -->
+<div style="margin-bottom: 15px; max-width: 400px;">
+  <div style="position: relative; display: flex; align-items: center;">
+    <input 
+      type="text" 
+      id="subscriber-search-input" 
+      onkeyup="filterSubscribersList()" 
+      placeholder="🔍 नाम, फोन नंबर या STB/MAC ID से खोजें..." 
+      style="width: 100%; padding: 10px 12px; background: #0f172a; color: #ffffff; border: 1px solid #334155; border-radius: 8px; font-size: 13px; outline: none;"
+    />
+  </div>
+</div>
 
             <!-- Tab 2: Subscribers View -->
             <div id="sec-subscribers" class="tab-section">
@@ -1504,5 +1516,30 @@ function executeRealServerSave() {
     }
 }
 </script>
+  <!-- REAL-TIME CUSTOMER SEARCH ENGINE -->
+<script>
+function filterSubscribersList() {
+  // 1. Get Search Input Value
+  var input = document.getElementById("subscriber-search-input");
+  var filter = input.value.toLowerCase().trim();
+  
+  // 2. Target Subscriber Table Rows
+  var tableBody = document.querySelector("#subscriber-table tbody") || document.querySelector("tbody");
+  if (!tableBody) return;
+  
+  var rows = tableBody.getElementsByTagName("tr");
+
+  // 3. Loop through all rows and hide those that don't match
+  for (var i = 0; i < rows.length; i++) {
+    var rowText = rows[i].innerText.toLowerCase();
+    
+    if (rowText.indexOf(filter) > -1) {
+      rows[i].style.display = ""; // Show matching row
+    } else {
+      rows[i].style.display = "none"; // Hide non-matching row
+    }
+  }
+}
+      </script>
   </body>
 </html>
