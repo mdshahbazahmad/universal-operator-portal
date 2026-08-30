@@ -1357,6 +1357,52 @@
       alert(`✅ Configuration Saved for ${selectedBrand.toUpperCase()} Server!\nIP/Endpoint: ${ip}`);
     }
   }
+    // Step 2: Universal Firebase Cloud Data Sync Engine
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    console.log("Logged in user UID:", user.uid);
+    // 1. Firebase Firestore se Operator ka Data Fetch karna
+    db.collection("operators").doc(user.uid).collection("customers")
+      .onSnapshot((snapshot) => {
+        let liveCustomerList = [];
+        snapshot.forEach((doc) => {
+          liveCustomerList.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // 2. Har Phone/Device par UI Table update karna
+        if (typeof renderCustomerTable === "function") {
+          renderCustomerTable(liveCustomerList);
+        } else {
+          localStorage.setItem("operator_customers", JSON.stringify(liveCustomerList));
+        }
+      }, (error) => {
+        console.error("Firebase Sync Error:", error);
+      });
+  } else {
+    // Agar login nahi hai to Login Page par bhejna
+    window.location.href = "index.html";
+  }
+});
+
+// 3. Customer Data Firebase Cloud me Safe Save karne ka Function
+function saveCustomerToCloud(customerData) {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("❌ Error: आपका सत्र समाप्त हो गया है, कृपया पुनः लॉगिन करें!");
+    return;
+  }
+
+  db.collection("operators").doc(user.uid).collection("customers").add({
+    ...customerData,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then(() => {
+    alert("✅ डेटा सुरक्षित तरीके से Cloud Database में सेव हो गया है!");
+  })
+  .catch((err) => {
+    alert("❌ Cloud Save Failed: " + err.message);
+  });
+    }
   <!-- Step 1 Layout Fix - Universal Portal -->
 <script>
   window.addEventListener("DOMContentLoaded", function() {
