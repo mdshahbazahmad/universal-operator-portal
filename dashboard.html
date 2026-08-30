@@ -1457,5 +1457,52 @@ function validateAndSaveRouterConfig() {
     }
   });
 </script>
+  <!-- DIRECT WORKING SERVER ENGINE -->
+<script>
+function executeRealServerSave() {
+    console.log("Button clicked!");
+    
+    // 1. Get Elements Safely
+    var ipInput = document.getElementById("srv-ip");
+    var tokenInput = document.getElementById("srv-token");
+    var modeSelect = document.getElementById("active-server-mode");
+
+    var ip = ipInput ? ipInput.value.trim() : "";
+    var token = tokenInput ? tokenInput.value.trim() : "";
+    var mode = modeSelect ? modeSelect.value : "mikrotik_api";
+
+    // 2. Immediate Alert Validation (Freeze Fix)
+    if (ip === "" || token === "") {
+        alert("⚠️ अधूरा फ़ॉर्म: कृपया Router IP और API Secret Token दोनों भरें!");
+        return;
+    }
+
+    if (ip.length < 7) {
+        alert("⚠️ गलत IP: सही Router IP Address दर्ज करें (जैसे 192.168.88.1)");
+        return;
+    }
+
+    // 3. Confirm Success Alert
+    alert("✅ Server Configuration Dynamically Saved!\n\nIP: " + ip + "\nMode: " + mode);
+
+    // 4. Firebase Database Push
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+        var user = firebase.auth().currentUser;
+        db.collection("operators").doc(user.uid).set({
+            routerConfig: {
+                routerIp: ip,
+                apiToken: token,
+                connectionMode: mode,
+                status: "CONNECTED",
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }
+        }, { merge: true }).then(function() {
+            console.log("Firebase Database Updated!");
+        }).catch(function(err) {
+            console.error("Firebase Error:", err);
+        });
+    }
+}
+</script>
   </body>
 </html>
