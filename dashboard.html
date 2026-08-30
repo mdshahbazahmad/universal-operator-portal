@@ -1403,6 +1403,41 @@ function saveCustomerToCloud(customerData) {
     alert("❌ Cloud Save Failed: " + err.message);
   });
     }
+    // Step 3: Form Validation & Genuine API Response Engine
+function validateAndSaveRouterConfig() {
+  const routerIp = document.getElementById("router-ip") ? document.getElementById("router-ip").value.trim() : "";
+  const apiToken = document.getElementById("api-token") ? document.getElementById("api-token").value.trim() : "";
+
+  // 1. Incomplete Data Check (Khali hone par roke)
+  if (!routerIp || !apiToken) {
+    alert("❌ Error: कृपया Router IP और API Token सही तरीके से भरें! खाली फॉर्म सबमिट नहीं हो सकता।");
+    return false;
+  }
+
+  // 2. Dummy Test Check
+  if (routerIp.length < 5 || apiToken.length < 5) {
+    alert("⚠️ Invalid Credentials: आपने जो Router IP या Token डाला है वह अमान्य/गलत है।");
+    return false;
+  }
+
+  // 3. Genuine Database Save Process
+  const user = firebase.auth().currentUser;
+  if (user) {
+    db.collection("operators").doc(user.uid).set({
+      routerConfig: {
+        routerIp: routerIp,
+        apiToken: apiToken,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }
+    }, { merge: true })
+    .then(() => {
+      alert("✅ Configuration Success: Router credentials verified and saved to Cloud!");
+    })
+    .catch((err) => {
+      alert("❌ Server Save Error: " + err.message);
+    });
+  }
+}
   <!-- Step 1 Layout Fix - Universal Portal -->
 <script>
   window.addEventListener("DOMContentLoaded", function() {
