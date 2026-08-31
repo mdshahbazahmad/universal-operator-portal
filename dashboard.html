@@ -17,6 +17,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -183,6 +187,8 @@
         .empty-state { color: #64748b; text-align: center; padding: 28px 12px; font-size: 0.85rem; }
         .muted-note { color: #94a3b8; font-size: 0.75rem; line-height: 1.45; }
         .server-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .validation-alert { display:none; color:#fecaca; background:rgba(127,29,29,.45); border:1px solid #ef4444; border-radius:8px; padding:10px; margin-bottom:12px; font-size:.82rem; line-height:1.45; }
+        .validation-alert.show { display:block; }
 
         /* Mobile Responsive View */
         @media screen and (max-width: 768px) {
@@ -539,6 +545,7 @@
    <div class="server-layout">
      <div class="phase-card">
        <h3><i class="fa-solid fa-plug"></i> Add or edit server adapter</h3>
+        <div id="server-validation-alert" class="validation-alert" role="alert" aria-live="assertive"></div>
        <form id="server-profile-form" onsubmit="ServerEngine.save(event)">
          <input type="hidden" id="server-edit-id">
          <div class="server-form-grid">
@@ -592,6 +599,11 @@
                             <div class="form-field">
                                 <label>Logo URL</label>
                                 <input type="url" id="set-logo-url" placeholder="https://example.com/logo.png">
+                            </div>
+                            <div class="form-field">
+                                <label>Admin WhatsApp alert numbers</label>
+                                <input type="tel" id="admin-whatsapp-alert-numbers" placeholder="919876543210, 919812345678" autocomplete="tel">
+                                <small style="display:block; color:#64748b; margin-top:5px;">Use country codes and commas for multiple administrators.</small>
                             </div>
                             <button type="submit" class="btn-add" style="width:100%; justify-content:center;">
                                 <i class="fa-solid fa-floppy-disk"></i> Save Branding
@@ -664,11 +676,12 @@
                             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:14px 0;">
                             <label class="toggle-line"><input type="checkbox" id="channel-whatsapp"> WhatsApp manual-send link</label>
                             <div class="form-field"><label>WhatsApp number with country code</label><input class="phase-input" type="tel" id="alert-wa-number" placeholder="919876543210"></div>
+                             <div class="form-field"><label>WhatsApp webhook endpoint (optional)</label><input class="phase-input" type="url" id="alert-wa-webhook" placeholder="https://your-provider.example/whatsapp"></div>
                             <label class="toggle-line"><input type="checkbox" id="channel-sms"> SMS webhook</label>
                             <div class="form-field"><label>SMS webhook endpoint</label><input class="phase-input" type="url" id="alert-sms-endpoint" placeholder="https://your-provider.example/send"></div>
                             <button class="btn-add" type="submit" style="width:100%; justify-content:center;"><i class="fa-solid fa-floppy-disk"></i> Save routing rules</button>
                         </form>
-                        <p class="muted-note" style="margin-top:12px;">WhatsApp opens a prefilled message for review. SMS dispatch posts JSON to your configured webhook; no provider is bundled with this static portal.</p>
+                         <p class="muted-note" style="margin-top:12px;">WhatsApp opens click-to-chat links for saved administrators and can POST to the optional webhook. SMS dispatch posts JSON to its configured webhook.</p>
                     </div>
                 </div>
             </div>
@@ -771,6 +784,107 @@
             { id: 2, type: 'wifi', name: 'Ultra 100 Mbps', price: 599, validity: 30, speed: '100 Mbps', quality: '', desc: '' },
             { id: 3, type: 'ott', name: '4K OTT Special', price: 799, validity: 30, speed: '', quality: '4K', desc: 'Hotstar, SonyLIV, Zee5 + 300 Channels' }
         ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVsmFa6Xr-_EFUqh_ZS6tmzBwcdMZq0JA",
+            authDomain: "universal-portal-dashboard.firebaseapp.com",
+            projectId: "universal-portal-dashboard",
+            storageBucket: "universal-portal-dashboard.firebasestorage.app",
+            messagingSenderId: "403036962443",
+            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e",
+            databaseURL: "https://universal-portal-dashboard-default-rtdb.firebaseio.com"
+        };
+        let firebaseAuth = null;
+        let firebaseFirestore = null;
+        let realtimeDb = null;
+        let firebaseBridgeReady = false;
+        let firebaseAuthObserverAttached = false;
+        let realtimeListeners = [];
+
+        function initializeFirebaseBridge() {
+            if (typeof firebase === "undefined") return;
+            try {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firebaseFirestore = firebase.firestore();
+                realtimeDb = firebase.database();
+                firebaseBridgeReady = true;
+            } catch (error) {
+                console.error("Firebase bridge initialization failed:", error);
+            }
+        }
+
+        function currentFirebaseUser() {
+            return firebaseAuth?.currentUser || null;
+        }
+
+        function syncRealtimeValue(path, value) {
+            const user = currentFirebaseUser();
+            if (!realtimeDb || !user) return Promise.resolve();
+            return realtimeDb.ref(`operators/${user.uid}/${path}`).set(value).catch((error) => {
+                console.warn(`Realtime sync failed for ${path}:`, error);
+            });
+        }
+
+        function normalizeWhatsAppNumbers(value) {
+            return [...new Set(String(value || "").split(/[,\n]+/).map(item => item.replace(/\D/g, "").trim()).filter(item => item.length >= 10 && item.length <= 15))];
+        }
+
+        function clearRealtimeListeners() {
+            realtimeListeners.forEach(({ ref, handler }) => ref.off("value", handler));
+            realtimeListeners = [];
+        }
+
+        function subscribeToRealtimeData(user) {
+            clearRealtimeListeners();
+            if (!realtimeDb || !user) return;
+            const bindings = [
+                ["subscribers", (value) => {
+                    const records = Array.isArray(value) ? value : Object.values(value || {});
+                    if (records.length) {
+                        dbSubscribers = records;
+                        localStorage.setItem("eagle_db_subscribers", JSON.stringify(dbSubscribers));
+                        renderDashboard();
+                    }
+                }],
+                ["plans", (value) => {
+                    const records = Array.isArray(value) ? value : Object.values(value || {});
+                    if (records.length) {
+                        dbPlans = records;
+                        localStorage.setItem("eagle_db_plans", JSON.stringify(dbPlans));
+                        renderPlansTable();
+                    }
+                }],
+                ["settings", (value) => {
+                    if (!value || typeof value !== "object") return;
+                    if (value.company) localStorage.setItem("eagle_brand_company", value.company);
+                    if (value.logo) localStorage.setItem("eagle_brand_logo", value.logo);
+                    if (value.upi) localStorage.setItem("eagle_brand_upi", value.upi);
+                    loadLocalStorageData();
+                }]
+            ];
+            bindings.forEach(([path, apply]) => {
+                const ref = realtimeDb.ref(`operators/${user.uid}/${path}`);
+                const handler = (snapshot) => apply(snapshot.val());
+                ref.on("value", handler, (error) => console.warn(`Realtime read failed for ${path}:`, error));
+                realtimeListeners.push({ ref, handler });
+            });
+        }
+
+        function handleFirebaseAuthState(user) {
+            if (user) {
+                currentUser = { uid: user.uid, email: user.email || "", role: "Operator Admin" };
+                localStorage.setItem("eagle_logged_user", JSON.stringify(currentUser));
+                document.getElementById("auth-screen").style.display = "none";
+                document.getElementById("app-wrapper").style.display = "flex";
+                subscribeToRealtimeData(user);
+                renderDashboard();
+            } else if (!localStorage.getItem("eagle_logged_user")) {
+                clearRealtimeListeners();
+                currentUser = null;
+                document.getElementById("app-wrapper").style.display = "none";
+                document.getElementById("auth-screen").style.display = "flex";
+            }
+        }
 
         /* Multi-Language Dictionaries */
         const translations = {
@@ -802,6 +916,7 @@
 
         /* Window Initialization & Persistent Auth Check */
         window.addEventListener('DOMContentLoaded', () => {
+            initializeFirebaseBridge();
             initializeClockAndFestival();
             loadLocalStorageData();
             checkPersistentAuth();
@@ -832,7 +947,18 @@
         function checkPersistentAuth() {
             const savedUser = localStorage.getItem('eagle_logged_user');
             if (savedUser) {
-                currentUser = JSON.parse(savedUser);
+                try {
+                    currentUser = JSON.parse(savedUser);
+                } catch (error) {
+                    localStorage.removeItem("eagle_logged_user");
+                    currentUser = null;
+                }
+            }
+            if (firebaseBridgeReady && firebaseAuth && !firebaseAuthObserverAttached) {
+                firebaseAuthObserverAttached = true;
+                firebaseAuth.onAuthStateChanged(handleFirebaseAuthState);
+            }
+            if (currentUser) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('app-wrapper').style.display = 'flex';
                 renderDashboard();
@@ -857,27 +983,46 @@
         function handleAuthSubmit(e) {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const submit = document.getElementById('btn-auth-submit');
+            if (!firebaseAuth) {
+                showToast("Authentication service is unavailable.");
+                return;
+            }
             triggerEagleLoader(isSignUpMode ? "CREATING OPERATOR ACCOUNT..." : "AUTHENTICATING...");
-
-            setTimeout(() => {
-                currentUser = { email: email, role: 'Operator Admin' };
-                localStorage.setItem('eagle_logged_user', JSON.stringify(currentUser));
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app-wrapper').style.display = 'flex';
-                showToast(isSignUpMode ? "Account Created & Logged In Successfully!" : "Welcome Back, Operator!");
-                renderDashboard();
-            }, 800);
+            if (submit) submit.disabled = true;
+            const authRequest = isSignUpMode
+                ? firebaseAuth.createUserWithEmailAndPassword(email, password)
+                : firebaseAuth.signInWithEmailAndPassword(email, password);
+            authRequest.then((credential) => {
+                const user = credential.user;
+                if (isSignUpMode && user && firebaseFirestore) {
+                    return Promise.all([
+                        firebaseFirestore.collection("users").doc(user.uid).set({ email, role: "Operator Admin", createdAt: new Date() }, { merge: true }),
+                        syncRealtimeValue("profile", { email, role: "Operator Admin", updatedAt: firebase.database.ServerValue.TIMESTAMP })
+                    ]);
+                }
+            }).then(() => {
+                showToast(isSignUpMode ? "Account created successfully." : "Welcome back, Operator!");
+                handleFirebaseAuthState(currentFirebaseUser());
+            }).catch((error) => {
+                showToast(error.message || "Authentication failed.");
+            }).finally(() => {
+                if (submit) submit.disabled = false;
+            });
         }
 
         function handleLogout() {
             triggerEagleLoader("LOGGING OUT...");
-            setTimeout(() => {
+            const signOutRequest = firebaseAuth ? firebaseAuth.signOut().catch((error) => console.warn("Firebase sign-out failed:", error)) : Promise.resolve();
+            signOutRequest.finally(() => {
                 localStorage.removeItem('eagle_logged_user');
+                clearRealtimeListeners();
                 currentUser = null;
                 document.getElementById('app-wrapper').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'flex';
                 showToast("Logged Out Successfully");
-            }, 600);
+            });
         }
 
         function togglePasswordVisibility(inputId, iconId) {
@@ -985,6 +1130,7 @@
             const savedCompany = localStorage.getItem('eagle_brand_company');
             const savedLogo = localStorage.getItem('eagle_brand_logo');
             const savedUpi = localStorage.getItem('eagle_brand_upi');
+            const savedAdminWhatsApp = localStorage.getItem('eagle_admin_whatsapp_numbers') || localStorage.getItem('operatorWANumber') || "";
             const savedSubs = localStorage.getItem('eagle_db_subscribers');
             const savedPlans = localStorage.getItem('eagle_db_plans');
 
@@ -1001,6 +1147,8 @@
                 document.getElementById('set-upi1').value = savedUpi;
                 generateDynamicUpiQr();
             }
+            const adminWhatsApp = document.getElementById("admin-whatsapp-alert-numbers");
+            if (adminWhatsApp) adminWhatsApp.value = savedAdminWhatsApp;
             if (savedSubs) dbSubscribers = JSON.parse(savedSubs);
             if (savedPlans) dbPlans = JSON.parse(savedPlans);
 
@@ -1012,9 +1160,20 @@
             e.preventDefault();
             const company = document.getElementById('set-company').value;
             const logo = document.getElementById('set-logo-url').value;
+            const adminWhatsApp = normalizeWhatsAppNumbers(document.getElementById("admin-whatsapp-alert-numbers")?.value);
 
             localStorage.setItem('eagle_brand_company', company);
             localStorage.setItem('eagle_brand_logo', logo);
+            localStorage.setItem('eagle_admin_whatsapp_numbers', adminWhatsApp.join(","));
+            localStorage.setItem('operatorWANumber', adminWhatsApp[0] || "");
+            if (typeof alertSettings !== "undefined") {
+                alertSettings.whatsappNumbers = adminWhatsApp;
+                alertSettings.whatsappNumber = adminWhatsApp[0] || "";
+                alertSettings.channels.whatsapp = adminWhatsApp.length > 0;
+                if (typeof savePhase34State === "function") savePhase34State();
+                if (typeof renderAlertRouting === "function") renderAlertRouting();
+            }
+            syncRealtimeValue("settings", { company, logo, upi: document.getElementById("set-upi1")?.value || "", adminWhatsApp });
 
             showToast("Branding & Company Settings Saved Successfully!");
             loadLocalStorageData();

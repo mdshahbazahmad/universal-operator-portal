@@ -20,6 +20,80 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background: #090d16;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity .8s ease, visibility .8s ease;
+        }
+        #splash-screen.splash-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .splash-logo-container { text-align: center; animation: zoomPulse 2s ease-in-out infinite alternate; }
+        .splash-logo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fbbf24;
+            box-shadow: 0 0 35px rgba(251,191,36,.6), 0 0 70px rgba(56,189,248,.4);
+            margin-bottom: 20px;
+        }
+        .splash-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8, #fbbf24, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .splash-subtitle { color: #94a3b8; font-size: 1rem; margin-top: 8px; letter-spacing: 2px; text-transform: uppercase; }
+        @keyframes zoomPulse { from { transform: scale(.92); } to { transform: scale(1.05); } }
+        .glow-1, .glow-2 { position: fixed; pointer-events: none; z-index: 0; }
+        .glow-1 {
+            top: -10%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(56,189,248,.25), transparent 70%);
+        }
+        .glow-2 {
+            right: -10%;
+            bottom: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139,92,246,.2), transparent 70%);
+        }
+        .welcome-panel {
+            width: min(520px, 100%);
+            padding: 22px;
+            color: #cbd5e1;
+            position: relative;
+            z-index: 1;
+        }
+        .welcome-panel h1 { color: #f8fafc; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0; line-height: 1.08; }
+        .welcome-panel h1 span { color: #38bdf8; }
+        .welcome-panel p { color: #94a3b8; line-height: 1.65; }
+        .welcome-features { list-style: none; display: grid; gap: 10px; margin-top: 20px; }
+        .welcome-features li { display: flex; gap: 10px; align-items: center; color: #cbd5e1; }
+        .welcome-features i { color: #38bdf8; }
+        .auth-error { display: none; color: #fecaca; background: rgba(127,29,29,.45); border: 1px solid #ef4444; border-radius: 8px; padding: 10px; margin-bottom: 14px; font-size: .82rem; }
+        @media screen and (max-width: 860px) {
+            .main-container { flex-direction: column; }
+            .welcome-panel { text-align: center; }
+            .welcome-features { text-align: left; }
         }
         .main-container {
             flex: 1;
@@ -192,13 +266,34 @@
     </style>
 </head>
 <body>
+    <div id="splash-screen" aria-label="Loading Eagle Network">
+        <div class="splash-logo-container">
+            <img class="splash-logo" src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" alt="Eagle Network SBZ logo">
+            <h1 class="splash-title">Eagle Network SBZ</h1>
+            <p class="splash-subtitle">Universal Operator Portal</p>
+        </div>
+    </div>
+    <div class="glow-1" aria-hidden="true"></div>
+    <div class="glow-2" aria-hidden="true"></div>
 
     <main class="main-container">
+        <section class="welcome-panel" id="welcome-panel">
+            <i class="fa-solid fa-tower-cell" style="color:#38bdf8; font-size:2rem;"></i>
+            <p id="welcome-badge" style="color:#38bdf8; font-weight:700; margin-top:18px;">Built for Cable & Wi-Fi Operators</p>
+            <h1 id="welcome-title">Manage your entire <span>network empire.</span></h1>
+            <p id="welcome-description">A secure operator workspace for customer billing, service operations, server health, and support alerts.</p>
+            <ul class="welcome-features">
+                <li><i class="fa-solid fa-circle-check"></i><span>Customer profiles, plans, and service records</span></li>
+                <li><i class="fa-solid fa-circle-check"></i><span>Server validation and operations visibility</span></li>
+                <li><i class="fa-solid fa-circle-check"></i><span>WhatsApp support and automated alert workflows</span></li>
+            </ul>
+        </section>
         <div class="auth-card">
             <div class="auth-header">
                 <i class="fa-solid fa-tower-cell"></i>
-                <h2>Eagle Network SBZ</h2>
+                <h2 id="auth-card-title">Eagle Network SBZ</h2>
             </div>
+            <div id="auth-error" class="auth-error" role="alert"></div>
 
             <div class="tab-buttons">
                 <button class="tab-btn active" onclick="switchTab('login')">Login</button>
@@ -211,14 +306,14 @@
                     <label>Email Address</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope icon-left"></i>
-                        <input type="email" id="login-email" placeholder="operator@example.com" required>
+                        <input type="email" id="login-email" placeholder="operator@example.com" autocomplete="username" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock icon-left"></i>
-                        <input type="password" id="login-pass" placeholder="••••••••" required>
+                        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" required>
                         <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('login-pass', this)"></i>
                     </div>
                 </div>
@@ -231,21 +326,21 @@
                     <label>Operator / Business Name</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-building icon-left"></i>
-                        <input type="text" id="reg-name" placeholder="e.g. Star Fibernet" required>
+                        <input type="text" id="reg-name" placeholder="e.g. Star Fibernet" autocomplete="organization" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope icon-left"></i>
-                        <input type="email" id="reg-email" placeholder="operator@example.com" required>
+                        <input type="email" id="reg-email" placeholder="operator@example.com" autocomplete="email" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Create Password</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-key icon-left"></i>
-                        <input type="password" id="reg-pass" placeholder="••••••••" required>
+                        <input type="password" id="reg-pass" placeholder="••••••••" autocomplete="new-password" required>
                         <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"></i>
                     </div>
                 </div>
@@ -296,21 +391,92 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
             authDomain: "universal-portal-dashboard.firebaseapp.com",
             projectId: "universal-portal-dashboard",
             storageBucket: "universal-portal-dashboard.firebasestorage.app",
             messagingSenderId: "403036962443",
-            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e",
+            databaseURL: "https://universal-portal-dashboard-default-rtdb.firebaseio.com"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        let auth = null;
+        let db = null;
+        let realtimeDb = null;
+        let firebaseReady = false;
+        let redirectInProgress = false;
+        let profileWriteInProgress = false;
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            realtimeDb = firebase.database();
+            firebaseReady = true;
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+        }
+
+        function showAuthError(message) {
+            const node = document.getElementById("auth-error");
+            if (!node) return;
+            node.textContent = message;
+            node.style.display = "block";
+        }
+
+        function clearAuthError() {
+            const node = document.getElementById("auth-error");
+            if (node) {
+                node.textContent = "";
+                node.style.display = "none";
+            }
+        }
+
+        function routeToDashboard() {
+            if (redirectInProgress || /dashboard\.html$/i.test(window.location.pathname)) return;
+            redirectInProgress = true;
+            window.location.replace("dashboard.html");
+        }
+
+        function updateWelcomeState(user) {
+            const title = document.getElementById("welcome-title");
+            const description = document.getElementById("welcome-description");
+            if (!title || !description) return;
+            if (user) {
+                const name = (user.displayName || user.email || "operator").split("@")[0];
+                title.innerHTML = `Welcome back, <span>${name}</span>.`;
+                description.textContent = "Your operator session is ready. Opening the secure dashboard...";
+            } else {
+                title.innerHTML = "Manage your entire <span>network empire.</span>";
+                description.textContent = "A secure operator workspace for customer billing, service operations, server health, and support alerts.";
+            }
+        }
+
+        function saveRealtimeProfile(user, name) {
+            if (!realtimeDb || !user) return Promise.resolve();
+            return realtimeDb.ref(`operators/${user.uid}/profile`).update({
+                name: name || user.displayName || "",
+                email: user.email || "",
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            }).catch((error) => {
+                console.warn("Realtime profile sync unavailable:", error);
+            });
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            window.setTimeout(() => document.getElementById("splash-screen")?.classList.add("splash-hidden"), 1800);
+            if (!firebaseReady) {
+                showAuthError("Authentication service is unavailable. Please refresh and try again.");
+                return;
+            }
+            auth.onAuthStateChanged((user) => {
+                updateWelcomeState(user);
+                if (user && !profileWriteInProgress) routeToDashboard();
+            });
+        });
 
         // Switch Tabs Logic
         function switchTab(tab) {
@@ -391,38 +557,51 @@
         // Login Handler
         function handleLogin(e) {
             e.preventDefault();
+            clearAuthError();
+            if (!firebaseReady || !auth) {
+                showAuthError("Authentication service is unavailable. Please refresh and try again.");
+                return;
+            }
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-pass').value;
 
             auth.signInWithEmailAndPassword(email, pass)
-                .then(() => {
-                    window.location.href = "dashboard.html";
-                })
+                .then(() => routeToDashboard())
                 .catch((error) => {
-                    alert("Login failed: " + error.message);
+                    showAuthError(error.message || "Login failed. Please check your details.");
                 });
         }
 
         // Register Handler
         function handleRegister(e) {
             e.preventDefault();
+            clearAuthError();
+            if (!firebaseReady || !auth || !db) {
+                showAuthError("Registration service is unavailable. Please refresh and try again.");
+                return;
+            }
             const name = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value;
             const pass = document.getElementById('reg-pass').value;
 
+            profileWriteInProgress = true;
             auth.createUserWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    return db.collection("users").doc(userCredential.user.uid).set({
+                    const profile = {
                         name: name,
                         email: email,
                         createdAt: new Date()
-                    });
+                    };
+                    const firestoreWrite = db.collection("users").doc(userCredential.user.uid).set(profile);
+                    return Promise.all([firestoreWrite, saveRealtimeProfile(userCredential.user, name)]);
                 })
                 .then(() => {
-                    window.location.href = "dashboard.html";
+                    profileWriteInProgress = false;
+                    routeToDashboard();
                 })
                 .catch((error) => {
-                    alert("Registration failed: " + error.message);
+                    profileWriteInProgress = false;
+                    showAuthError(error.message || "Registration failed. Please try again.");
                 });
         }
     </script>
