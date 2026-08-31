@@ -1,0 +1,1 @@
+- [GitHub push fallback](github-push-fallback.md) — use the attached GitHub connector API when the HTTPS Git remote rejects otherwise-valid credentials.
