@@ -141,6 +141,49 @@
 
         #map-container { height: 220px; width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); z-index: 1; }
 
+        /* Phase 3 & 4 Workspace Components */
+        .phase-card { background: #1e293b; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px; }
+        .phase-card h3 { color: #38bdf8; margin-bottom: 12px; }
+        .phase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px; }
+        .phase-stat { background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(139,92,246,0.08)); border: 1px solid rgba(56,189,248,0.16); border-radius: 10px; padding: 15px; }
+        .phase-stat span { color: #94a3b8; font-size: 0.78rem; display: block; margin-bottom: 5px; }
+        .phase-stat strong { color: #f8fafc; font-size: 1.4rem; }
+        .phase-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+        .phase-toolbar input, .phase-toolbar select, .phase-input { background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.12); border-radius: 7px; padding: 9px 11px; outline: none; }
+        .phase-toolbar input { flex: 1; min-width: 210px; }
+        .profile-layout, .automation-layout, .server-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr); gap: 18px; align-items: start; }
+        .profile-row, .server-row, .kb-row { cursor: pointer; transition: background 0.2s ease; }
+        .profile-row:hover, .profile-row.selected, .server-row:hover, .kb-row:hover { background: rgba(56,189,248,0.08); }
+        .profile-row.selected { box-shadow: inset 3px 0 #38bdf8; }
+        .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: capitalize; }
+        .status-pill.online, .status-pill.published, .status-pill.ready { background: rgba(34,197,94,0.16); color: #4ade80; }
+        .status-pill.offline, .status-pill.draft, .status-pill.error { background: rgba(239,68,68,0.16); color: #f87171; }
+        .status-pill.syncing, .status-pill.pending, .status-pill.queued { background: rgba(234,179,8,0.16); color: #facc15; }
+        .profile-detail { min-height: 440px; }
+        .profile-hero { display: flex; align-items: center; gap: 13px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 14px; }
+        .profile-avatar { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #38bdf8, #8b5cf6); font-size: 1.1rem; font-weight: 800; }
+        .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+        .detail-item { background: #0f172a; border-radius: 8px; padding: 10px; }
+        .detail-item small { color: #64748b; display: block; font-size: 0.7rem; margin-bottom: 3px; }
+        .detail-item span { color: #e2e8f0; font-size: 0.83rem; word-break: break-word; }
+        .asset-list, .alert-log { display: flex; flex-direction: column; gap: 8px; }
+        .asset-item, .alert-item, .kb-item { background: #0f172a; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 10px; }
+        .asset-item, .alert-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .asset-item small, .alert-item small { display: block; color: #64748b; font-size: 0.7rem; margin-top: 3px; }
+        .mini-btn { background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 6px 8px; cursor: pointer; font-size: 0.74rem; }
+        .mini-btn.primary { background: rgba(56,189,248,0.16); color: #7dd3fc; border-color: rgba(56,189,248,0.25); }
+        .mini-btn.danger { color: #f87171; }
+        .server-capabilities { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+        .server-capabilities span, .tag-chip { background: rgba(139,92,246,0.14); color: #c4b5fd; border-radius: 999px; padding: 3px 7px; font-size: 0.68rem; }
+        .kb-item h4 { color: #f8fafc; margin-bottom: 5px; }
+        .kb-item p { color: #94a3b8; font-size: 0.82rem; line-height: 1.5; }
+        .kb-meta { color: #64748b; font-size: 0.7rem; margin-top: 8px; display: flex; justify-content: space-between; gap: 8px; }
+        .toggle-line { display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-size: 0.82rem; margin: 9px 0; }
+        .toggle-line input { accent-color: #38bdf8; }
+        .empty-state { color: #64748b; text-align: center; padding: 28px 12px; font-size: 0.85rem; }
+        .muted-note { color: #94a3b8; font-size: 0.75rem; line-height: 1.45; }
+        .server-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
         /* Mobile Responsive View */
         @media screen and (max-width: 768px) {
             .sidebar {
@@ -153,6 +196,8 @@
                 width: 100%;
                 padding: 15px;
             }
+            .profile-layout, .automation-layout, .server-layout { grid-template-columns: 1fr; }
+            .server-form-grid, .detail-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -186,13 +231,13 @@
             <form id="auth-form" onsubmit="handleAuthSubmit(event)">
                 <div class="form-field">
                     <label id="lbl-email">Email / Username</label>
-                    <input type="email" id="auth-email" placeholder="operator@eaglenetwork.com" required>
+                    <input type="email" id="auth-email" placeholder="operator@eaglenetwork.com" autocomplete="username" required>
                 </div>
                 
                 <div class="form-field">
                     <label id="lbl-pass">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="auth-password" placeholder="••••••••••••" required>
+                        <input type="password" id="auth-password" placeholder="••••••••••••" autocomplete="current-password" required>
                         <i class="fa-solid fa-eye password-toggle-icon" id="toggleAuthPass" onclick="togglePasswordVisibility('auth-password', 'toggleAuthPass')"></i>
                     </div>
                 </div>
@@ -222,10 +267,12 @@
                     <li><a onclick="switchTab('subscribers')" id="nav-subscribers"><i class="fa-solid fa-users"></i> <span class="lang-key" data-key="nav_subs">Subscribers</span></a></li>
                     <li><a onclick="switchTab('plans')" id="nav-plans"><i class="fa-solid fa-list-check"></i> <span class="lang-key" data-key="nav_plans">Manage Plans</span></a></li>
                     <li><a onclick="switchTab('server')" id="nav-server"><i class="fa-solid fa-server"></i> <span class="lang-key" data-key="nav_server">Server Sync</span></a></li>
+                    <li><a onclick="switchTab('profiles')" id="nav-profiles"><i class="fa-solid fa-address-card"></i> Customer Profiles</a></li>
+                    <li><a onclick="switchTab('automation')" id="nav-automation"><i class="fa-solid fa-wand-magic-sparkles"></i> Knowledge & Alerts</a></li>
                     <li><a onclick="switchTab('help')" id="nav-help"><i class="fa-solid fa-circle-info"></i> <span class="lang-key" data-key="nav_help">Help Guide</span></a></li>
                     <li><a onclick="switchTab('settings')" id="nav-settings"><i class="fa-solid fa-gear"></i> <span class="lang-key" data-key="nav_settings">Settings</span></a></li>
                 <!-- SIDEBAR COMPLAINT BUTTON -->
-<a href="#" class="nav-item" onclick="switchTab('sec-complaints')">
+ <a href="#" class="nav-item" id="nav-complaints" onclick="switchTab('complaints')">
   <i class="fa-solid fa-headset"></i> Complaints / शिकायतें
   <span id="complaint-badge" class="badge" style="background:#ef4444; color:#fff; border-radius:12px; padding:2px 8px; font-size:11px; margin-left:auto; display:none;">0</span>
 </a>
@@ -338,6 +385,38 @@
                 </div>
             </div>
 
+            <!-- Phase 3: Customer Profiles & Assets -->
+            <div id="sec-profiles" class="tab-section">
+                <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <div><h2>Customer Profile 360°</h2><p class="muted-note">Contacts, service identity, devices, notes, and customer assets in one place.</p></div>
+                    <button class="btn-add" onclick="openAddCustomerModal()"><i class="fa-solid fa-user-plus"></i> Add Customer</button>
+                </div><br>
+                <div class="phase-grid">
+                    <div class="phase-stat"><span>Total profiles</span><strong id="profile-count">0</strong></div>
+                    <div class="phase-stat"><span>Active services</span><strong id="profile-active-count">0</strong></div>
+                    <div class="phase-stat"><span>Profiles with assets</span><strong id="profile-asset-count">0</strong></div>
+                    <div class="phase-stat"><span>Last profile update</span><strong id="profile-last-update" style="font-size:0.95rem;">—</strong></div>
+                </div>
+                <div class="profile-layout">
+                    <div class="table-card">
+                        <div class="phase-toolbar">
+                            <input id="profile-search" type="search" placeholder="Search name, phone, device or zone..." oninput="renderProfileDirectory()">
+                            <select id="profile-status-filter" onchange="renderProfileDirectory()">
+                                <option value="ALL">All statuses</option><option value="Active">Active</option><option value="Pending">Pending</option><option value="Suspended">Suspended</option>
+                            </select>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table><thead><tr><th>Customer</th><th>Service</th><th>Device</th><th>Status</th><th>Updated</th></tr></thead>
+                                <tbody id="profile-list-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="phase-card profile-detail" id="profile-detail-panel">
+                        <div class="empty-state">Select a customer profile to view details.</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tab 3: Plans & OTT Section -->
             <div id="sec-plans" class="tab-section">
                 <h2>Manage Plans & Pricing (Internet / OTT / Cable)</h2><br>
@@ -445,26 +524,42 @@
     </div>
   </div>
 </div>
-            <!-- Tab 4: Server / OLT Sync -->
-<div id="sec-server" class="tab-section">
-  <h2 style="color:#fff;">Mikrotik Router & OLT Server Configuration</h2><br>
-  <div class="table-card" style="max-width: 550px;">
-    <div class="form-field">
-      <label>Router IP / Hostname</label>
-      <input type="text" id="srv-ip" placeholder="192.168.88.1">
-    </div>
-    <div class="form-field">
-      <label>API Secret Token</label>
-      <div class="password-wrapper">
-        <input type="password" id="srv-token" placeholder="••••••••••••">
-        <i class="fa-solid fa-eye password-toggle-icon" id="toggleSrvToken" onclick="togglePassword('srv-token', 'toggleSrvToken')"></i>
-      </div>
-    </div>
-    
-    <!-- Real Working Save Button -->
-    <button class="btn-add" type="button" onclick="executeRealServerSave()">Save Configuration</button>
-  </div>
-</div>
+             <!-- Phase 3: Multi-Server Engine -->
+ <div id="sec-server" class="tab-section">
+   <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
+     <div><h2 style="color:#fff;">Multi-Server Connection Engine</h2><p class="muted-note">Manage MikroTik, RADIUS, OLT, and custom server adapters from one control plane.</p></div>
+     <span class="status-pill ready"><i class="fa-solid fa-shield-halved"></i> Local control plane</span>
+   </div><br>
+   <div class="phase-grid">
+     <div class="phase-stat"><span>Configured servers</span><strong id="server-count">0</strong></div>
+     <div class="phase-stat"><span>Online / ready</span><strong id="server-online">0</strong></div>
+     <div class="phase-stat"><span>Last sync</span><strong id="server-last-sync" style="font-size:0.95rem;">—</strong></div>
+     <div class="phase-stat"><span>Subscriber mappings</span><strong id="server-mappings">0</strong></div>
+   </div>
+   <div class="server-layout">
+     <div class="phase-card">
+       <h3><i class="fa-solid fa-plug"></i> Add or edit server adapter</h3>
+       <form id="server-profile-form" onsubmit="ServerEngine.save(event)">
+         <input type="hidden" id="server-edit-id">
+         <div class="server-form-grid">
+           <div class="form-field"><label>Display name</label><input class="phase-input" type="text" id="server-name" placeholder="Main MikroTik Router" required></div>
+           <div class="form-field"><label>Adapter type</label><select class="phase-input" id="server-type"><option>MikroTik RouterOS</option><option>RADIUS AAA</option><option>OLT / GPON</option><option>Custom REST API</option></select></div>
+           <div class="form-field"><label>Endpoint / host</label><input class="phase-input" type="text" id="server-endpoint" placeholder="192.168.88.1:8728" required></div>
+           <div class="form-field"><label>Protocol</label><select class="phase-input" id="server-protocol"><option value="routeros">RouterOS API</option><option value="radius">RADIUS REST</option><option value="snmp-ssh">SNMP / SSH</option><option value="https">HTTPS REST</option></select></div>
+           <div class="form-field"><label>API token (stored locally)</label><input class="phase-input" type="password" id="server-token" placeholder="Enter only if required" autocomplete="new-password"></div>
+           <div class="form-field"><label>Sync interval</label><select class="phase-input" id="server-interval"><option value="5">Every 5 minutes</option><option value="15">Every 15 minutes</option><option value="30">Every 30 minutes</option><option value="60">Hourly</option></select></div>
+         </div>
+         <div class="form-field"><label>Capabilities (comma separated)</label><input class="phase-input" type="text" id="server-capabilities" placeholder="subscriber-sync, plans, usage, payments"></div>
+         <div class="phase-toolbar" style="margin-bottom:0;"><button class="btn-add" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save adapter</button><button class="mini-btn" type="button" onclick="ServerEngine.resetForm()">Clear</button></div>
+       </form>
+       <p class="muted-note" style="margin-top:12px;">The static portal stores adapter metadata locally. Add a server API contract/backend later to replace the sync adapter with live network calls.</p>
+     </div>
+     <div class="phase-card">
+       <h3><i class="fa-solid fa-server"></i> Server fleet</h3>
+       <div style="overflow-x:auto;"><table><thead><tr><th>Server</th><th>Status</th><th>Last sync</th><th>Action</th></tr></thead><tbody id="server-list-body"></tbody></table></div>
+     </div>
+   </div>
+ </div>
 
             <!-- Tab 5: Help & Guide -->
             <div id="sec-help" class="tab-section">
@@ -519,6 +614,61 @@
                                 <i class="fa-solid fa-check"></i> Save UPI Details
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Automated Knowledge Base & Alert Triggers -->
+            <div id="sec-automation" class="tab-section">
+                <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <div><h2>Automated Knowledge Base & Alert Triggers</h2><p class="muted-note">Publish reusable support answers and queue WhatsApp/SMS notifications from operational events.</p></div>
+                    <button class="btn-add" onclick="refreshAutoKnowledgeBase()"><i class="fa-solid fa-arrows-rotate"></i> Refresh auto insights</button>
+                </div><br>
+                <div class="phase-grid">
+                    <div class="phase-stat"><span>Knowledge articles</span><strong id="kb-count">0</strong></div>
+                    <div class="phase-stat"><span>Published</span><strong id="kb-published-count">0</strong></div>
+                    <div class="phase-stat"><span>Alert events logged</span><strong id="alert-count">0</strong></div>
+                    <div class="phase-stat"><span>Needs configuration</span><strong id="alert-pending-count">0</strong></div>
+                </div>
+                <div class="automation-layout">
+                    <div>
+                        <div class="phase-card" style="margin-bottom:18px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;"><h3><i class="fa-solid fa-book-open"></i> Knowledge base</h3><button class="mini-btn primary" onclick="newKnowledgeArticle()">New article</button></div>
+                            <div class="phase-toolbar"><input id="kb-search" type="search" placeholder="Search support articles..." oninput="renderKnowledgeBase()"><select id="kb-category" onchange="renderKnowledgeBase()"><option value="ALL">All categories</option><option>Connectivity</option><option>Billing</option><option>Devices</option><option>Operations</option></select></div>
+                            <div id="kb-list" class="asset-list"></div>
+                            <form id="kb-editor-form" onsubmit="saveKnowledgeArticle(event)" style="margin-top:16px; padding-top:15px; border-top:1px solid rgba(255,255,255,0.08);">
+                                <input type="hidden" id="kb-edit-id">
+                                <div class="form-field"><label>Article title</label><input class="phase-input" type="text" id="kb-title" placeholder="How to restart an ONU safely" required></div>
+                                <div class="server-form-grid">
+                                    <div class="form-field"><label>Category</label><select class="phase-input" id="kb-article-category"><option>Connectivity</option><option>Billing</option><option>Devices</option><option>Operations</option></select></div>
+                                    <div class="form-field"><label>Tags</label><input class="phase-input" type="text" id="kb-tags" placeholder="onu, restart, fiber"></div>
+                                </div>
+                                <div class="form-field"><label>Answer / procedure</label><textarea class="phase-input" id="kb-body" rows="3" placeholder="Write the support answer agents can reuse..." required></textarea></div>
+                                <label class="toggle-line"><input type="checkbox" id="kb-published" checked> Published to operator assistant</label>
+                                <div class="phase-toolbar" style="margin-bottom:0;"><button class="btn-add" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save article</button><button class="mini-btn" type="button" onclick="newKnowledgeArticle()">Clear editor</button></div>
+                            </form>
+                        </div>
+                        <div class="phase-card">
+                            <h3><i class="fa-solid fa-bolt"></i> Test alert triggers</h3>
+                            <div class="phase-toolbar"><button class="mini-btn primary" onclick="triggerAutomationTest('ticket_created')">New ticket</button><button class="mini-btn primary" onclick="triggerAutomationTest('sla_breach')">SLA breach</button><button class="mini-btn primary" onclick="triggerAutomationTest('payment_due')">Payment due</button><button class="mini-btn primary" onclick="triggerAutomationTest('server_offline')">Server offline</button></div>
+                            <div id="alert-log" class="alert-log"></div>
+                        </div>
+                    </div>
+                    <div class="phase-card">
+                        <h3><i class="fa-solid fa-paper-plane"></i> Alert routing</h3>
+                        <form id="alert-settings-form" onsubmit="saveAlertSettings(event)">
+                            <label class="toggle-line"><input type="checkbox" id="trigger-ticket-created"> New ticket / complaint</label>
+                            <label class="toggle-line"><input type="checkbox" id="trigger-sla-breach"> SLA breach</label>
+                            <label class="toggle-line"><input type="checkbox" id="trigger-payment-due"> Payment due</label>
+                            <label class="toggle-line"><input type="checkbox" id="trigger-server-offline"> Server offline</label>
+                            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:14px 0;">
+                            <label class="toggle-line"><input type="checkbox" id="channel-whatsapp"> WhatsApp manual-send link</label>
+                            <div class="form-field"><label>WhatsApp number with country code</label><input class="phase-input" type="tel" id="alert-wa-number" placeholder="919876543210"></div>
+                            <label class="toggle-line"><input type="checkbox" id="channel-sms"> SMS webhook</label>
+                            <div class="form-field"><label>SMS webhook endpoint</label><input class="phase-input" type="url" id="alert-sms-endpoint" placeholder="https://your-provider.example/send"></div>
+                            <button class="btn-add" type="submit" style="width:100%; justify-content:center;"><i class="fa-solid fa-floppy-disk"></i> Save routing rules</button>
+                        </form>
+                        <p class="muted-note" style="margin-top:12px;">WhatsApp opens a prefilled message for review. SMS dispatch posts JSON to your configured webhook; no provider is bundled with this static portal.</p>
                     </div>
                 </div>
             </div>
@@ -925,7 +1075,11 @@
                 price: price,
                 status: status,
                 lat: lat,
-                lng: lng
+                lng: lng,
+                serverId: "",
+                notes: "",
+                assets: [],
+                updatedAt: new Date().toISOString()
             };
 
             dbSubscribers.unshift(newCust);
@@ -1009,6 +1163,10 @@
             areaZones.forEach(zone => {
                 areaFilter.innerHTML += `<option value="${zone}">${zone}</option>`;
             });
+            if (typeof renderProfileDirectory === "function") renderProfileDirectory();
+            if (typeof renderKnowledgeBase === "function") renderKnowledgeBase();
+            if (typeof renderAlertLog === "function") renderAlertLog();
+            if (typeof ServerEngine !== "undefined") ServerEngine.render();
         }
 
         /* Delete Customer */
@@ -1016,6 +1174,7 @@
             if (confirm("Are you sure you want to delete this subscriber?")) {
                 triggerEagleLoader("DELETING RECORD...");
                 dbSubscribers = dbSubscribers.filter(sub => sub.id !== id);
+                if (String(selectedProfileId) === String(id)) selectedProfileId = dbSubscribers[0]?.id || null;
                 localStorage.setItem('eagle_db_subscribers', JSON.stringify(dbSubscribers));
                 setTimeout(() => {
                     renderDashboard();
@@ -1183,6 +1342,412 @@
         }
     </script>
 
+    <!-- Phase 3 & 4 Customer 360, Knowledge Base & Alert Automation -->
+    <script>
+        let selectedProfileId = null;
+        let dbKnowledgeBase = [];
+        let alertSettings = {
+            triggers: { ticket_created: true, sla_breach: true, payment_due: true, server_offline: true },
+            channels: { whatsapp: true, sms: false },
+            whatsappNumber: "",
+            smsEndpoint: ""
+        };
+        let alertLog = [];
+
+        const defaultKnowledgeArticles = [
+            { id: "kb-connectivity", title: "First response for a slow or disconnected connection", category: "Connectivity", body: "Confirm the customer device and outage zone, check the active server adapter, restart the ONU/router, then record the result before escalating.", tags: ["outage", "fiber", "router"], published: true, source: "operator", updatedAt: new Date().toISOString() },
+            { id: "kb-payment", title: "Payment due conversation guide", category: "Billing", body: "Share the current plan, amount due, UPI details, and the next service-impact date. Never request or store a card PIN or password.", tags: ["payment", "upi", "renewal"], published: true, source: "operator", updatedAt: new Date().toISOString() },
+            { id: "kb-device", title: "Collect device identity during support", category: "Devices", body: "Ask for the ONU serial, STB/MAC ID, or router IP shown in the customer profile. Match it to the assigned server before changing service state.", tags: ["onu", "stb", "mac"], published: true, source: "operator", updatedAt: new Date().toISOString() }
+        ];
+
+        function phaseEscape(value) {
+            return String(value == null ? "" : value)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function phaseFormatDate(value) {
+            if (!value) return "Never";
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+        }
+
+        function savePhase34State() {
+            localStorage.setItem("eagle_knowledge_base", JSON.stringify(dbKnowledgeBase));
+            localStorage.setItem("eagle_alert_settings", JSON.stringify(alertSettings));
+            localStorage.setItem("eagle_alert_log", JSON.stringify(alertLog.slice(0, 50)));
+        }
+
+        function loadPhase34State() {
+            try {
+                const savedKb = JSON.parse(localStorage.getItem("eagle_knowledge_base") || "null");
+                dbKnowledgeBase = Array.isArray(savedKb) && savedKb.length ? savedKb : defaultKnowledgeArticles.slice();
+                const savedSettings = JSON.parse(localStorage.getItem("eagle_alert_settings") || "null");
+                if (savedSettings) {
+                    alertSettings = {
+                        ...alertSettings,
+                        ...savedSettings,
+                        triggers: { ...alertSettings.triggers, ...(savedSettings.triggers || {}) },
+                        channels: { ...alertSettings.channels, ...(savedSettings.channels || {}) }
+                    };
+                }
+                const savedLog = JSON.parse(localStorage.getItem("eagle_alert_log") || "[]");
+                alertLog = Array.isArray(savedLog) ? savedLog : [];
+            } catch (error) {
+                dbKnowledgeBase = defaultKnowledgeArticles.slice();
+                alertLog = [];
+                console.warn("Phase 4 local state reset after an invalid saved value.", error);
+            }
+            renderProfileDirectory();
+            renderKnowledgeBase();
+            renderAlertRouting();
+            renderAlertLog();
+        }
+
+        function getProfile(id) {
+            return dbSubscribers.find(subscriber => String(subscriber.id) === String(id));
+        }
+
+        function renderProfileDirectory() {
+            const body = document.getElementById("profile-list-body");
+            if (!body) return;
+            const query = (document.getElementById("profile-search")?.value || "").trim().toLowerCase();
+            const status = document.getElementById("profile-status-filter")?.value || "ALL";
+            const filtered = dbSubscribers.filter(subscriber => {
+                const haystack = [subscriber.name, subscriber.phone, subscriber.device, subscriber.zone, subscriber.plan].join(" ").toLowerCase();
+                return (!query || haystack.includes(query)) && (status === "ALL" || subscriber.status === status);
+            });
+
+            body.innerHTML = filtered.map(subscriber => `
+                <tr class="profile-row ${String(subscriber.id) === String(selectedProfileId) ? "selected" : ""}" onclick="selectProfile('${phaseEscape(subscriber.id)}')">
+                    <td><strong>${phaseEscape(subscriber.name)}</strong><small style="display:block;color:#64748b;">${phaseEscape(subscriber.phone)}</small></td>
+                    <td>${phaseEscape(subscriber.type || "Service")}<small style="display:block;color:#64748b;">${phaseEscape(subscriber.plan)}</small></td>
+                    <td><code>${phaseEscape(subscriber.device)}</code></td>
+                    <td><span class="status-pill ${subscriber.status === "Active" ? "ready" : "pending"}">${phaseEscape(subscriber.status || "Pending")}</span></td>
+                    <td><small style="color:#94a3b8;">${phaseFormatDate(subscriber.updatedAt)}</small></td>
+                </tr>
+            `).join("") || `<tr><td colspan="5" class="empty-state">No profiles match this search.</td></tr>`;
+
+            const active = dbSubscribers.filter(subscriber => subscriber.status === "Active").length;
+            const withAssets = dbSubscribers.filter(subscriber => Array.isArray(subscriber.assets) && subscriber.assets.length).length;
+            const latest = dbSubscribers.filter(subscriber => subscriber.updatedAt).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
+            document.getElementById("profile-count").innerText = dbSubscribers.length;
+            document.getElementById("profile-active-count").innerText = active;
+            document.getElementById("profile-asset-count").innerText = withAssets;
+            document.getElementById("profile-last-update").innerText = latest ? phaseFormatDate(latest.updatedAt) : "—";
+
+            if (!getProfile(selectedProfileId) && dbSubscribers.length) selectedProfileId = dbSubscribers[0].id;
+            renderProfileDetail();
+        }
+
+        function selectProfile(id) {
+            selectedProfileId = id;
+            renderProfileDirectory();
+        }
+
+        function renderProfileDetail() {
+            const panel = document.getElementById("profile-detail-panel");
+            if (!panel) return;
+            const subscriber = getProfile(selectedProfileId);
+            if (!subscriber) {
+                panel.innerHTML = `<div class="empty-state">Add or select a customer to view their profile.</div>`;
+                return;
+            }
+            const assets = Array.isArray(subscriber.assets) ? subscriber.assets : [];
+            const initials = (subscriber.name || "?").split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase();
+            panel.innerHTML = `
+                <div class="profile-hero">
+                    <div class="profile-avatar">${phaseEscape(initials)}</div>
+                    <div style="flex:1;"><h3 style="margin:0;color:#f8fafc;">${phaseEscape(subscriber.name)}</h3><small style="color:#94a3b8;">${phaseEscape(subscriber.type || "Customer")} · ID ${phaseEscape(subscriber.id)}</small></div>
+                    <span class="status-pill ${subscriber.status === "Active" ? "ready" : "pending"}">${phaseEscape(subscriber.status || "Pending")}</span>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item"><small>Phone</small><span><a href="tel:${phaseEscape(subscriber.phone)}" style="color:#7dd3fc;">${phaseEscape(subscriber.phone)}</a></span></div>
+                    <div class="detail-item"><small>Service plan</small><span>${phaseEscape(subscriber.plan)} · ₹${phaseEscape(subscriber.price)}</span></div>
+                    <div class="detail-item"><small>Device / identity</small><span>${phaseEscape(subscriber.device)}</span></div>
+                    <div class="detail-item"><small>Assigned server</small><span>${phaseEscape(subscriber.serverId || "Unmapped")}</span></div>
+                    <div class="detail-item"><small>Service address</small><span>${phaseEscape([subscriber.house, subscriber.zone].filter(Boolean).join(", ") || "Not recorded")}</span></div>
+                    <div class="detail-item"><small>Map coordinates</small><span>${phaseEscape(subscriber.lat || "—")}, ${phaseEscape(subscriber.lng || "—")}</span></div>
+                </div>
+                <div class="form-field"><label>Service status</label><select class="phase-input" onchange="updateProfileStatus('${phaseEscape(subscriber.id)}', this.value)"><option ${subscriber.status === "Active" ? "selected" : ""}>Active</option><option ${subscriber.status === "Pending" ? "selected" : ""}>Pending</option><option ${subscriber.status === "Suspended" ? "selected" : ""}>Suspended</option></select></div>
+                <div class="form-field"><label>Internal profile notes</label><textarea class="phase-input" id="profile-notes-${phaseEscape(subscriber.id)}" rows="3" placeholder="Preferred contact time, installation notes, or escalation context...">${phaseEscape(subscriber.notes || "")}</textarea><button class="mini-btn primary" style="margin-top:7px;" onclick="saveProfileNotes('${phaseEscape(subscriber.id)}')">Save notes</button></div>
+                <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:13px; margin-top:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;"><h4 style="color:#38bdf8;">Customer assets</h4><label class="mini-btn primary" style="cursor:pointer;"><i class="fa-solid fa-upload"></i> Add file<input type="file" hidden accept="image/*,.pdf,.txt,.doc,.docx" onchange="addProfileAsset(event,'${phaseEscape(subscriber.id)}')"></label></div>
+                    <p class="muted-note" style="margin:6px 0 10px;">Attach installation photos, signed forms, or device documents. Files are kept in this browser profile.</p>
+                    <div class="asset-list">${assets.map(asset => `
+                        <div class="asset-item"><div><strong style="font-size:0.8rem;">${phaseEscape(asset.name)}</strong><small>${phaseEscape(asset.type || "File")} · ${Math.ceil((asset.size || 0) / 1024)} KB · ${phaseFormatDate(asset.addedAt)}</small></div><div style="display:flex;gap:5px;"><a class="mini-btn" href="${phaseEscape(asset.dataUrl)}" download="${phaseEscape(asset.name)}"><i class="fa-solid fa-download"></i></a><button class="mini-btn danger" onclick="removeProfileAsset('${phaseEscape(subscriber.id)}','${phaseEscape(asset.id)}')"><i class="fa-solid fa-trash"></i></button></div></div>
+                    `).join("") || `<div class="empty-state">No assets attached yet.</div>`}</div>
+                </div>
+            `;
+        }
+
+        function updateProfileStatus(id, status) {
+            const subscriber = getProfile(id);
+            if (!subscriber) return;
+            subscriber.status = status;
+            subscriber.updatedAt = new Date().toISOString();
+            localStorage.setItem("eagle_db_subscribers", JSON.stringify(dbSubscribers));
+            renderDashboard();
+            renderProfileDirectory();
+            if (typeof showToast === "function") showToast("Customer service status updated.");
+        }
+
+        function saveProfileNotes(id) {
+            const subscriber = getProfile(id);
+            const input = document.getElementById(`profile-notes-${id}`);
+            if (!subscriber || !input) return;
+            subscriber.notes = input.value.trim();
+            subscriber.updatedAt = new Date().toISOString();
+            localStorage.setItem("eagle_db_subscribers", JSON.stringify(dbSubscribers));
+            renderProfileDirectory();
+            if (typeof showToast === "function") showToast("Profile notes saved.");
+        }
+
+        function addProfileAsset(event, id) {
+            const file = event.target.files[0];
+            const subscriber = getProfile(id);
+            if (!file || !subscriber) return;
+            if (file.size > 2 * 1024 * 1024) {
+                if (typeof showToast === "function") showToast("Please choose a file smaller than 2 MB.");
+                event.target.value = "";
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function () {
+                subscriber.assets = Array.isArray(subscriber.assets) ? subscriber.assets : [];
+                subscriber.assets.unshift({ id: `asset-${Date.now()}`, name: file.name, type: file.type || "File", size: file.size, dataUrl: reader.result, addedAt: new Date().toISOString() });
+                subscriber.updatedAt = new Date().toISOString();
+                localStorage.setItem("eagle_db_subscribers", JSON.stringify(dbSubscribers));
+                renderProfileDirectory();
+                if (typeof showToast === "function") showToast("Customer asset attached.");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProfileAsset(profileId, assetId) {
+            const subscriber = getProfile(profileId);
+            if (!subscriber || !window.confirm("Remove this customer asset?")) return;
+            subscriber.assets = (subscriber.assets || []).filter(asset => String(asset.id) !== String(assetId));
+            subscriber.updatedAt = new Date().toISOString();
+            localStorage.setItem("eagle_db_subscribers", JSON.stringify(dbSubscribers));
+            renderProfileDirectory();
+            if (typeof showToast === "function") showToast("Customer asset removed.");
+        }
+
+        function renderKnowledgeBase() {
+            const list = document.getElementById("kb-list");
+            if (!list) return;
+            const query = (document.getElementById("kb-search")?.value || "").trim().toLowerCase();
+            const category = document.getElementById("kb-category")?.value || "ALL";
+            const articles = dbKnowledgeBase.filter(article => {
+                const haystack = [article.title, article.body, article.category, ...(article.tags || [])].join(" ").toLowerCase();
+                return (!query || haystack.includes(query)) && (category === "ALL" || article.category === category);
+            });
+            list.innerHTML = articles.map(article => `
+                <div class="kb-item"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;"><div><h4>${phaseEscape(article.title)}</h4><span class="tag-chip">${phaseEscape(article.category)}</span> ${(article.tags || []).slice(0, 3).map(tag => `<span class="tag-chip">${phaseEscape(tag)}</span>`).join("")}</div><span class="status-pill ${article.published ? "published" : "draft"}">${article.published ? "Published" : "Draft"}</span></div><p style="margin-top:8px;">${phaseEscape(article.body)}</p><div class="kb-meta"><span>${article.source === "auto" ? "Auto-generated insight" : "Operator article"} · ${phaseFormatDate(article.updatedAt)}</span><span style="display:flex;gap:5px;"><button class="mini-btn" onclick="editKnowledgeArticle('${phaseEscape(article.id)}')">Edit</button><button class="mini-btn" onclick="toggleKnowledgeArticle('${phaseEscape(article.id)}')">${article.published ? "Unpublish" : "Publish"}</button><button class="mini-btn danger" onclick="deleteKnowledgeArticle('${phaseEscape(article.id)}')">Delete</button></span></div></div>
+            `).join("") || `<div class="empty-state">No articles match this search.</div>`;
+            const published = dbKnowledgeBase.filter(article => article.published).length;
+            document.getElementById("kb-count").innerText = dbKnowledgeBase.length;
+            document.getElementById("kb-published-count").innerText = published;
+        }
+
+        function newKnowledgeArticle() {
+            document.getElementById("kb-editor-form")?.reset();
+            document.getElementById("kb-edit-id").value = "";
+            document.getElementById("kb-published").checked = true;
+            document.getElementById("kb-title")?.focus();
+        }
+
+        function saveKnowledgeArticle(event) {
+            event.preventDefault();
+            const title = document.getElementById("kb-title").value.trim();
+            const body = document.getElementById("kb-body").value.trim();
+            if (!title || !body) return;
+            const id = document.getElementById("kb-edit-id").value || `kb-${Date.now()}`;
+            const existing = dbKnowledgeBase.find(article => article.id === id);
+            const article = { id, title, body, category: document.getElementById("kb-article-category").value, tags: document.getElementById("kb-tags").value.split(",").map(tag => tag.trim()).filter(Boolean), published: document.getElementById("kb-published").checked, source: existing?.source || "operator", updatedAt: new Date().toISOString() };
+            dbKnowledgeBase = existing ? dbKnowledgeBase.map(item => item.id === id ? article : item) : [article, ...dbKnowledgeBase];
+            savePhase34State();
+            renderKnowledgeBase();
+            newKnowledgeArticle();
+            if (typeof showToast === "function") showToast("Knowledge article saved.");
+        }
+
+        function editKnowledgeArticle(id) {
+            const article = dbKnowledgeBase.find(item => item.id === id);
+            if (!article) return;
+            document.getElementById("kb-edit-id").value = article.id;
+            document.getElementById("kb-title").value = article.title;
+            document.getElementById("kb-article-category").value = article.category;
+            document.getElementById("kb-tags").value = (article.tags || []).join(", ");
+            document.getElementById("kb-body").value = article.body;
+            document.getElementById("kb-published").checked = Boolean(article.published);
+            document.getElementById("kb-title").focus();
+        }
+
+        function toggleKnowledgeArticle(id) {
+            const article = dbKnowledgeBase.find(item => item.id === id);
+            if (!article) return;
+            article.published = !article.published;
+            article.updatedAt = new Date().toISOString();
+            savePhase34State();
+            renderKnowledgeBase();
+        }
+
+        function deleteKnowledgeArticle(id) {
+            if (!window.confirm("Delete this knowledge article?")) return;
+            dbKnowledgeBase = dbKnowledgeBase.filter(article => article.id !== id);
+            savePhase34State();
+            renderKnowledgeBase();
+            if (typeof showToast === "function") showToast("Knowledge article deleted.");
+        }
+
+        function refreshAutoKnowledgeBase() {
+            const active = dbSubscribers.filter(subscriber => subscriber.status === "Active").length;
+            const servers = typeof ServerEngine !== "undefined" ? ServerEngine.getServers() : [];
+            const ready = servers.filter(server => server.status === "ready" || server.status === "online").length;
+            const body = `The portal currently has ${dbSubscribers.length} customer profiles, ${active} active services, and ${servers.length} configured server adapters. ${ready} server adapter${ready === 1 ? " is" : "s are"} ready. Review unmapped profiles and adapters without a recent sync before the next support shift.`;
+            const existing = dbKnowledgeBase.find(article => article.id === "kb-auto-network");
+            const article = { id: "kb-auto-network", title: "Current network snapshot", category: "Operations", body, tags: ["automated", "handover", "health"], published: true, source: "auto", updatedAt: new Date().toISOString() };
+            dbKnowledgeBase = existing ? dbKnowledgeBase.map(item => item.id === article.id ? article : item) : [article, ...dbKnowledgeBase];
+            savePhase34State();
+            renderKnowledgeBase();
+            if (typeof showToast === "function") showToast("Auto-generated network insight refreshed.");
+        }
+
+        function renderAlertRouting() {
+            const triggerMap = { ticket_created: "trigger-ticket-created", sla_breach: "trigger-sla-breach", payment_due: "trigger-payment-due", server_offline: "trigger-server-offline" };
+            Object.entries(triggerMap).forEach(([key, id]) => { const node = document.getElementById(id); if (node) node.checked = Boolean(alertSettings.triggers[key]); });
+            const whatsapp = document.getElementById("channel-whatsapp");
+            const sms = document.getElementById("channel-sms");
+            const waNumber = document.getElementById("alert-wa-number");
+            const smsEndpoint = document.getElementById("alert-sms-endpoint");
+            if (whatsapp) whatsapp.checked = Boolean(alertSettings.channels.whatsapp);
+            if (sms) sms.checked = Boolean(alertSettings.channels.sms);
+            if (waNumber) waNumber.value = alertSettings.whatsappNumber || "";
+            if (smsEndpoint) smsEndpoint.value = alertSettings.smsEndpoint || "";
+        }
+
+        function saveAlertSettings(event) {
+            event.preventDefault();
+            alertSettings = {
+                triggers: {
+                    ticket_created: document.getElementById("trigger-ticket-created").checked,
+                    sla_breach: document.getElementById("trigger-sla-breach").checked,
+                    payment_due: document.getElementById("trigger-payment-due").checked,
+                    server_offline: document.getElementById("trigger-server-offline").checked
+                },
+                channels: {
+                    whatsapp: document.getElementById("channel-whatsapp").checked,
+                    sms: document.getElementById("channel-sms").checked
+                },
+                whatsappNumber: document.getElementById("alert-wa-number").value.trim().replace(/[^\d]/g, ""),
+                smsEndpoint: document.getElementById("alert-sms-endpoint").value.trim()
+            };
+            localStorage.setItem("operatorWANumber", alertSettings.whatsappNumber);
+            savePhase34State();
+            renderAlertLog();
+            if (typeof showToast === "function") showToast("Alert routing rules saved.");
+        }
+
+        function getAlertMessage(type, payload) {
+            const details = payload || {};
+            if (type === "ticket_created") return `New support ticket ${details.ticketId || "TICKET-" + Date.now()} for ${details.customerName || "a customer"}: ${details.issue || "review the complaint queue"}.`;
+            if (type === "sla_breach") return `SLA breach: ${details.ticketId || "support ticket"} has exceeded its response window.`;
+            if (type === "payment_due") return `Payment due for ${details.customerName || "a customer"}: ₹${details.amount || "0"}.`;
+            if (type === "server_offline") return `Server alert: ${details.serverName || "an adapter"} needs attention at ${details.endpoint || "the configured endpoint"}.`;
+            return `Portal event: ${type}.`;
+        }
+
+        function dispatchAlertTrigger(type, payload = {}) {
+            if (!alertSettings.triggers[type]) return { skipped: true, reason: "Trigger disabled" };
+            const message = getAlertMessage(type, payload);
+            const channels = [];
+            let whatsappUrl = "";
+            if (alertSettings.channels.whatsapp) {
+                if (alertSettings.whatsappNumber) {
+                    whatsappUrl = `https://wa.me/${alertSettings.whatsappNumber}?text=${encodeURIComponent(message)}`;
+                    channels.push({ channel: "WhatsApp", status: "ready" });
+                } else {
+                    channels.push({ channel: "WhatsApp", status: "configuration_required" });
+                }
+            }
+            if (alertSettings.channels.sms) {
+                channels.push({ channel: "SMS", status: alertSettings.smsEndpoint ? "queued" : "configuration_required" });
+            }
+            const record = { id: `alert-${Date.now()}-${Math.random().toString(16).slice(2)}`, type, message, channels, whatsappUrl, createdAt: new Date().toISOString() };
+            alertLog.unshift(record);
+            alertLog = alertLog.slice(0, 50);
+            savePhase34State();
+            renderAlertLog();
+            const sms = channels.find(channel => channel.channel === "SMS");
+            if (sms && sms.status === "queued") {
+                fetch(alertSettings.smsEndpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event: type, message, payload }) })
+                    .then(response => { sms.status = response.ok ? "sent" : "failed"; savePhase34State(); renderAlertLog(); })
+                    .catch(() => { sms.status = "failed"; savePhase34State(); renderAlertLog(); });
+            }
+            if (typeof showToast === "function") showToast(`Alert ${type.replace("_", " ")} queued.`);
+            return record;
+        }
+        window.dispatchAlertTrigger = dispatchAlertTrigger;
+
+        function triggerAutomationTest(type) {
+            const payloads = {
+                ticket_created: { ticketId: "TKT-DEMO-001", customerName: dbSubscribers[0]?.name || "Demo customer", issue: "Connectivity check required" },
+                sla_breach: { ticketId: "TKT-DEMO-001" },
+                payment_due: { customerName: dbSubscribers[0]?.name || "Demo customer", amount: dbSubscribers[0]?.price || 499 },
+                server_offline: { serverName: "Test server adapter", endpoint: "not-configured" }
+            };
+            dispatchAlertTrigger(type, payloads[type]);
+        }
+
+        function renderAlertLog() {
+            const list = document.getElementById("alert-log");
+            if (!list) return;
+            list.innerHTML = alertLog.map(record => `<div class="alert-item"><div><strong style="font-size:0.78rem;">${phaseEscape(record.type.replace(/_/g, " "))}</strong><small>${phaseEscape(record.message)} · ${phaseFormatDate(record.createdAt)}</small><small>${(record.channels || []).map(channel => `${phaseEscape(channel.channel)}: ${phaseEscape(channel.status)}`).join(" · ") || "No channels enabled"}</small></div><div>${record.whatsappUrl ? `<button class="mini-btn primary" onclick="openAlertWhatsApp('${phaseEscape(record.id)}')"><i class="fa-brands fa-whatsapp"></i></button>` : ""}</div></div>`).join("") || `<div class="empty-state">No alerts have been triggered yet.</div>`;
+            const pending = alertLog.filter(record => (record.channels || []).some(channel => channel.status === "configuration_required" || channel.status === "queued")).length;
+            document.getElementById("alert-count").innerText = alertLog.length;
+            document.getElementById("alert-pending-count").innerText = pending;
+        }
+
+        function openAlertWhatsApp(id) {
+            const record = alertLog.find(item => item.id === id);
+            if (record?.whatsappUrl) window.open(record.whatsappUrl, "_blank", "noopener");
+        }
+
+        function createArticleFromTicket(ticket) {
+            const issue = ticket || {};
+            document.getElementById("kb-title").value = issue.title || "Resolved support issue";
+            document.getElementById("kb-article-category").value = "Connectivity";
+            document.getElementById("kb-tags").value = "ticket, resolved, support";
+            document.getElementById("kb-body").value = issue.resolution || "Document the verified steps that resolved this customer issue.";
+            document.getElementById("kb-published").checked = false;
+            if (typeof switchTab === "function") switchTab("automation");
+        }
+
+        function recordPortalTicket(ticket) {
+            const item = {
+                id: ticket?.id || `TKT-${Date.now()}`,
+                customerName: ticket?.customerName || "Unknown customer",
+                phone: ticket?.phone || "",
+                issue: ticket?.issue || "Support request",
+                status: ticket?.status || "Open",
+                createdAt: ticket?.createdAt || new Date().toISOString()
+            };
+            const tickets = JSON.parse(localStorage.getItem("eagle_complaints") || "[]");
+            tickets.unshift(item);
+            localStorage.setItem("eagle_complaints", JSON.stringify(tickets.slice(0, 100)));
+            dispatchAlertTrigger("ticket_created", { ticketId: item.id, customerName: item.customerName, issue: item.issue });
+            return item;
+        }
+        window.recordPortalTicket = recordPortalTicket;
+
+        window.addEventListener("DOMContentLoaded", function () {
+            loadPhase34State();
+            if (typeof ServerEngine !== "undefined") ServerEngine.initialize();
+        });
+    </script>
+
     <!-- AI Floating Widget UI Box -->
     <button class="ai-widget-btn" onclick="toggleAiBox()" title="Eagle AI Assistant">
         <i class="fa-solid fa-robot"></i>
@@ -1200,59 +1765,6 @@
     </div>
 
 <script src="server-integration.js"></script>
-  <script src="weather-widget.js"></script>
-  <!-- 💡 Modular Features Auto-Loader (बिना मुख्य कोड को छेड़े) -->
-<script src="server-integration.js"></script>
-
-<script>
-    // यह फ़ंक्शन सुनिश्चित करेगा कि डैशबोर्ड पूरी तरह लोड होने के बाद ही सारे नए फ़ीचर्स स्क्रीन पर दिखें
-    window.addEventListener("DOMContentLoaded", function() {
-        console.log("Loading all external features...");
-        
-        // 1. Weather Widget Call
-        if (typeof injectWeatherWidget === "function") {
-            injectWeatherWidget();
-            startLiveClock();
-            fetchLiveWeatherAndLocation();
-        }
-
-        // 2. Multi-Server & Plan ID Fields Call
-        if (typeof injectServerFields === "function") {
-            injectServerFields();
-        }
-
-        // 3. Excel Import/Export Buttons Call
-        if (typeof injectExcelSyncButtons === "function") {
-            injectExcelSyncButtons();
-        }
-    });
-</script>
-  <!-- Universal Portal - Multi-Server Sync & Auto-Inject Script -->
-<script>
-  function triggerAutoServerSync() {
-      alert("🔄 Main Server Connected!\nFetching subscribers, MAC/STB IDs, and active plans...");
-  }
-
-  function injectAutoConnectButton() {
-      const pageHeader = document.querySelector(".page-header") || document.querySelector("header") || document.querySelector(".header-top");
-      
-      if (!pageHeader || document.getElementById("btn-auto-connect-server")) return;
-
-      const autoBtn = document.createElement("button");
-      autoBtn.id = "btn-auto-connect-server";
-      autoBtn.className = "btn-add";
-      autoBtn.style.cssText = "background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-left: 10px;";
-      autoBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Auto-Sync Main Server`;
-      autoBtn.onclick = triggerAutoServerSync;
-
-      pageHeader.appendChild(autoBtn);
-  }
-
-  // Direct Auto Execution
-  window.addEventListener("load", function() {
-      setTimeout(injectAutoConnectButton, 300);
-  });
-    </script>
   <!-- Universal Portal - Annual Financial Ledger & Sidebar Integration -->
 <script>
   window.addEventListener("load", function() {
@@ -1336,165 +1848,6 @@
     }
   }
 </script>
-  <!-- Universal Portal - Multi-Brand Server Manager (Jio, Airtel, Den, Tata, etc.) -->
-<script>
-  window.addEventListener("load", function() {
-    const mainHeader = document.querySelector(".page-header") || document.querySelector("header") || document.querySelector(".header-top") || document.body;
-    if (document.getElementById("multi-brand-server-bar")) return;
-
-    // Create Multi-Brand Server Selector Bar
-    const brandBar = document.createElement("div");
-    brandBar.id = "multi-brand-server-bar";
-    brandBar.style.cssText = "background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); padding: 10px 15px; border-radius: 8px; margin: 10px 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);";
-
-    brandBar.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="color: #38bdf8; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-server"></i> Active Server Network:
-        </span>
-        <select id="select-brand-server" onchange="switchBrandServer(this.value)" style="background: #0f172a; color: #a855f7; font-weight: bold; padding: 6px 12px; border: 1px solid rgba(168,85,247,0.5); border-radius: 6px; font-size: 13px; cursor: pointer;">
-          <optgroup label="🌐 Broadband & ISP Servers">
-            <option value="jio">🌐 Jio Fiber / Enterprise CAS</option>
-            <option value="airtel">🌐 Airtel Xstream Server</option>
-            <option value="vi">🌐 Vi / Vodafone Business</option>
-            <option value="connexw">🌐 Connexw Broadband</option>
-            <option value="mikrotik">📡 Mikrotik / Radius Server</option>
-          </optgroup>
-          <optgroup label="📺 Cable TV & DTH Servers">
-            <option value="den">📺 Den Digital Cable CAS</option>
-            <option value="tataplay">📺 Tata Play / Tata Sky DTH</option>
-            <option value="dishtv">📺 Dish TV / D2H SMS</option>
-            <option value="siti">📺 Siti Networks CAS</option>
-            <option value="gtpl">📺 GTPL Hathway Server</option>
-          </optgroup>
-        </select>
-      </div>
-
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <button onclick="openServerConfigModal()" style="background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
-          ⚙️ Server API Credentials
-        </button>
-        <button onclick="syncSelectedBrandServer()" style="background: linear-gradient(135deg, #a855f7, #6366f1); color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
-          🔄 Sync Selected Server
-        </button>
-      </div>
-    `;
-
-    mainHeader.appendChild(brandBar);
-  });
-
-  // Function to Switch Active Server Brand
-  function switchBrandServer(brandKey) {
-    const brandNames = {
-      jio: "Jio Fiber Server",
-      airtel: "Airtel Xstream Server",
-      vi: "Vi Business Server",
-      connexw: "Connexw Broadband",
-      mikrotik: "Mikrotik AAA Radius",
-      den: "Den Digital Cable CAS",
-      tataplay: "Tata Play DTH Portal",
-      dishtv: "Dish TV SMS Server",
-      siti: "Siti Cable CAS",
-      gtpl: "GTPL Hathway Server"
-    };
-    alert(`⚡ Active Network Switched to: ${brandNames[brandKey]}\nAll subscriber profiles and active wallet accounts are now mapped to this server.`);
-  }
-
-  // Sync Selected Server Action
-  function syncSelectedBrandServer() {
-    const selectedBrand = document.getElementById("select-brand-server").value;
-    alert(`🔄 Syncing data with ${selectedBrand.toUpperCase()} Server...\nFetching active STB/MAC IDs, expired accounts, and wallet balance.`);
-  }
-
-  // Modal to enter Server IP / API Key
-  function openServerConfigModal() {
-    const selectedBrand = document.getElementById("select-brand-server").value;
-    const ip = prompt(`Enter Server IP / API Endpoint for ${selectedBrand.toUpperCase()}:`, "192.168.1.100 or api.server.com");
-    if (ip) {
-      alert(`✅ Configuration Saved for ${selectedBrand.toUpperCase()} Server!\nIP/Endpoint: ${ip}`);
-    }
-  }
-    // Step 2: Universal Firebase Cloud Data Sync Engine
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    console.log("Logged in user UID:", user.uid);
-    // 1. Firebase Firestore se Operator ka Data Fetch karna
-    db.collection("operators").doc(user.uid).collection("customers")
-      .onSnapshot((snapshot) => {
-        let liveCustomerList = [];
-        snapshot.forEach((doc) => {
-          liveCustomerList.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // 2. Har Phone/Device par UI Table update karna
-        if (typeof renderCustomerTable === "function") {
-          renderCustomerTable(liveCustomerList);
-        } else {
-          localStorage.setItem("operator_customers", JSON.stringify(liveCustomerList));
-        }
-      }, (error) => {
-        console.error("Firebase Sync Error:", error);
-      });
-  } else {
-    // Agar login nahi hai to Login Page par bhejna
-    window.location.href = "index.html";
-  }
-});
-
-// 3. Customer Data Firebase Cloud me Safe Save karne ka Function
-function saveCustomerToCloud(customerData) {
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("❌ Error: आपका सत्र समाप्त हो गया है, कृपया पुनः लॉगिन करें!");
-    return;
-  }
-
-  db.collection("operators").doc(user.uid).collection("customers").add({
-    ...customerData,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  })
-  .then(() => {
-    alert("✅ डेटा सुरक्षित तरीके से Cloud Database में सेव हो गया है!");
-  })
-  .catch((err) => {
-    alert("❌ Cloud Save Failed: " + err.message);
-  });
-    }
-    // Step 3: Form Validation & Genuine API Response Engine
-function validateAndSaveRouterConfig() {
-  const routerIp = document.getElementById("router-ip") ? document.getElementById("router-ip").value.trim() : "";
-  const apiToken = document.getElementById("api-token") ? document.getElementById("api-token").value.trim() : "";
-
-  // 1. Incomplete Data Check (Khali hone par roke)
-  if (!routerIp || !apiToken) {
-    alert("❌ Error: कृपया Router IP और API Token सही तरीके से भरें! खाली फॉर्म सबमिट नहीं हो सकता।");
-    return false;
-  }
-
-  // 2. Dummy Test Check
-  if (routerIp.length < 5 || apiToken.length < 5) {
-    alert("⚠️ Invalid Credentials: आपने जो Router IP या Token डाला है वह अमान्य/गलत है।");
-    return false;
-  }
-
-  // 3. Genuine Database Save Process
-  const user = firebase.auth().currentUser;
-  if (user) {
-    db.collection("operators").doc(user.uid).set({
-      routerConfig: {
-        routerIp: routerIp,
-        apiToken: apiToken,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }
-    }, { merge: true })
-    .then(() => {
-      alert("✅ Configuration Success: Router credentials verified and saved to Cloud!");
-    })
-    .catch((err) => {
-      alert("❌ Server Save Error: " + err.message);
-    });
-  }
-}
   <!-- Step 1 Layout Fix - Universal Portal -->
 <script>
   window.addEventListener("DOMContentLoaded", function() {
@@ -1513,53 +1866,6 @@ function validateAndSaveRouterConfig() {
     }
   });
 </script>
-  <!-- DIRECT WORKING SERVER ENGINE -->
-<script>
-function executeRealServerSave() {
-    console.log("Button clicked!");
-    
-    // 1. Get Elements Safely
-    var ipInput = document.getElementById("srv-ip");
-    var tokenInput = document.getElementById("srv-token");
-    var modeSelect = document.getElementById("active-server-mode");
-
-    var ip = ipInput ? ipInput.value.trim() : "";
-    var token = tokenInput ? tokenInput.value.trim() : "";
-    var mode = modeSelect ? modeSelect.value : "mikrotik_api";
-
-    // 2. Immediate Alert Validation (Freeze Fix)
-    if (ip === "" || token === "") {
-        alert("⚠️ अधूरा फ़ॉर्म: कृपया Router IP और API Secret Token दोनों भरें!");
-        return;
-    }
-
-    if (ip.length < 7) {
-        alert("⚠️ गलत IP: सही Router IP Address दर्ज करें (जैसे 192.168.88.1)");
-        return;
-    }
-
-    // 3. Confirm Success Alert
-    alert("✅ Server Configuration Dynamically Saved!\n\nIP: " + ip + "\nMode: " + mode);
-
-    // 4. Firebase Database Push
-    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-        var user = firebase.auth().currentUser;
-        db.collection("operators").doc(user.uid).set({
-            routerConfig: {
-                routerIp: ip,
-                apiToken: token,
-                connectionMode: mode,
-                status: "CONNECTED",
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }
-        }, { merge: true }).then(function() {
-            console.log("Firebase Database Updated!");
-        }).catch(function(err) {
-            console.error("Firebase Error:", err);
-        });
-    }
-}
-</script>
   <!-- REAL-TIME CUSTOMER SEARCH ENGINE -->
 <script>
 function filterSubscribersList() {
@@ -1568,7 +1874,7 @@ function filterSubscribersList() {
   var filter = input.value.toLowerCase().trim();
   
   // 2. Target Subscriber Table Rows
-  var tableBody = document.querySelector("#subscriber-table tbody") || document.querySelector("tbody");
+  var tableBody = document.getElementById("dash-subscriber-list") || document.querySelector("tbody");
   if (!tableBody) return;
   
   var rows = tableBody.getElementsByTagName("tr");
@@ -1597,7 +1903,7 @@ function setupWhatsAppGroup() {
   }
 
   // Company / Operator Details
-  var compName = localStorage.getItem("companyName") || "Cable/Broadband Network";
+  var compName = localStorage.getItem("eagle_brand_company") || "Cable/Broadband Network";
   
   // WhatsApp Deep Link Generator for Automatic Group Creation Inquiry
   var groupCreationMsg = encodeURIComponent("नमस्ते! " + compName + " Support Team Group.\n\nफील्ड वर्कर जोड़ने और ग्राहकों की लाइव कंप्लेंट अपडेट प्राप्त करने के लिए यह ऑफिशियल ग्रुप तैयार किया गया है।");
@@ -1605,6 +1911,12 @@ function setupWhatsAppGroup() {
 
   // Save Operator WA in LocalStorage/Firebase
   localStorage.setItem("operatorWANumber", waNum);
+  if (typeof alertSettings !== "undefined") {
+    alertSettings.whatsappNumber = waNum;
+    alertSettings.channels.whatsapp = true;
+    if (typeof savePhase34State === "function") savePhase34State();
+    if (typeof renderAlertRouting === "function") renderAlertRouting();
+  }
   
   var linkDisplay = document.getElementById("wa-group-link-display");
   linkDisplay.style.display = "block";
@@ -1616,7 +1928,7 @@ function setupWhatsAppGroup() {
 // 2. Direct Forward Complaint to WhatsApp Group/Field Worker
 function forwardToWhatsApp(ticketId, custName, custPhone, issueText) {
   var waNum = localStorage.getItem("operatorWANumber") || "";
-  var compName = localStorage.getItem("companyName") || "Broadband Support";
+  var compName = localStorage.getItem("eagle_brand_company") || "Broadband Support";
   
   var text = "🚨 *नई ग्राहक शिकायत (NEW COMPLAINT)* 🚨\n" +
              "🏢 *" + compName + "*\n\n" +
@@ -1627,6 +1939,19 @@ function forwardToWhatsApp(ticketId, custName, custPhone, issueText) {
              "📌 *निर्देश:* फील्ड वर्कर कृपया तुरंत लोकेशन पर पहुँच कर समस्या का समाधान करें!";
              
   var waShareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+
+  if (typeof dispatchAlertTrigger === "function") {
+    if (typeof alertSettings !== "undefined" && !alertSettings.whatsappNumber && waNum) {
+      alertSettings.whatsappNumber = waNum;
+      alertSettings.channels.whatsapp = true;
+      if (typeof savePhase34State === "function") savePhase34State();
+    }
+    dispatchAlertTrigger("ticket_created", {
+      ticketId: ticketId,
+      customerName: custName,
+      issue: issueText
+    });
+  }
   
   // Open WhatsApp with populated complaint template
   window.open(waShareUrl, '_blank');
