@@ -1632,5 +1632,31 @@ function forwardToWhatsApp(ticketId, custName, custPhone, issueText) {
   window.open(waShareUrl, '_blank');
 }
 </script>
+  // UPDATED SWITCH-TAB FUNCTION FOR COMPLAINTS
+function switchTab(tabId) {
+    // 1. Sabhi Sections ko Chhupaye (Hide All Tabs)
+    var sections = document.querySelectorAll('.tab-section');
+    sections.forEach(function(sec) {
+        sec.style.display = 'none';
+    });
+
+    // 2. Active Class Hataaye
+    var navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(function(link) {
+        link.classList.remove('active');
+    });
+
+    // 3. Naye Complaints Section ko Dhoond Kar Dikhaye (Show Active Tab)
+    var targetSec = document.getElementById(tabId) || document.getElementById('sec-' + tabId);
+    if (targetSec) {
+        targetSec.style.display = 'block';
+    }
+
+    // 4. Button Par Selection Active Karein
+    var activeNav = document.getElementById('nav-' + tabId);
+    if (activeNav) {
+        activeNav.classList.add('active');
+    }
+}
   </body>
 </html>
