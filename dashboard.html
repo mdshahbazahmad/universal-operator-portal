@@ -407,6 +407,44 @@
                     </div>
                 </div>
             </div>
+            <!-- TAB SECTION: COMPLAINTS MANAGEMENT -->
+<div id="sec-complaints" class="tab-section" style="display:none;">
+  <h2 style="color:#fff;"><i class="fa-solid fa-headset"></i> Helpdesk & Complaints Management</h2>
+  
+  <!-- WhatsApp Automation Configuration Card -->
+  <div class="table-card" style="margin-bottom:20px; background:#1e293b; padding:15px; border-radius:8px;">
+    <h3 style="color:#38bdf8; margin-bottom:10px; font-size:16px;">💬 Field Worker WhatsApp Group Integration</h3>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <input type="text" id="operator-wa-number" placeholder="WhatsApp Business Number (जैसे 919876543210)" style="padding:10px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; flex:1; min-width:250px;">
+      <button onclick="setupWhatsAppGroup()" style="background:#22c55e; color:#fff; padding:10px 15px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Group लिंक बनाएँ
+      </button>
+    </div>
+    <div id="wa-group-link-display" style="margin-top:10px; color:#a7f3d0; font-size:13px; display:none;"></div>
+  </div>
+
+  <!-- Realtime Complaints Table -->
+  <div class="table-card">
+    <h3 style="color:#fff; margin-bottom:15px;">📋 लाइव ग्राहक शिकायत सूची (Live Tickets)</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%; border-collapse:collapse; color:#fff;" id="complaint-table">
+        <thead>
+          <tr style="background:#0f172a; text-align:left;">
+            <th style="padding:10px;">Ticket ID</th>
+            <th style="padding:10px;">कस्टमर का नाम</th>
+            <th style="padding:10px;">फ़ोन नंबर</th>
+            <th style="padding:10px;">समस्या (Issue)</th>
+            <th style="padding:10px;">स्टेटस</th>
+            <th style="padding:10px;">एक्शन / Field Worker</th>
+          </tr>
+        </thead>
+        <tbody id="complaints-list-body">
+          <!-- Real-time complaints will populate here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
             <!-- Tab 4: Server / OLT Sync -->
 <div id="sec-server" class="tab-section">
   <h2 style="color:#fff;">Mikrotik Router & OLT Server Configuration</h2><br>
@@ -1547,5 +1585,52 @@ function filterSubscribersList() {
   }
 }
       </script>
+  <!-- COMPLAINT & WHATSAPP AUTOMATION ENGINE -->
+<script>
+// 1. WhatsApp Business Group Link Generator Function
+function setupWhatsAppGroup() {
+  var waNum = document.getElementById("operator-wa-number").value.trim();
+  
+  if(!waNum || waNum.length < 10) {
+    alert("⚠️ कृपया सही WhatsApp Business Number दर्ज करें!");
+    return;
+  }
+
+  // Company / Operator Details
+  var compName = localStorage.getItem("companyName") || "Cable/Broadband Network";
+  
+  // WhatsApp Deep Link Generator for Automatic Group Creation Inquiry
+  var groupCreationMsg = encodeURIComponent("नमस्ते! " + compName + " Support Team Group.\n\nफील्ड वर्कर जोड़ने और ग्राहकों की लाइव कंप्लेंट अपडेट प्राप्त करने के लिए यह ऑफिशियल ग्रुप तैयार किया गया है।");
+  var waUrl = "https://wa.me/" + waNum + "?text=" + groupCreationMsg;
+
+  // Save Operator WA in LocalStorage/Firebase
+  localStorage.setItem("operatorWANumber", waNum);
+  
+  var linkDisplay = document.getElementById("wa-group-link-display");
+  linkDisplay.style.display = "block";
+  linkDisplay.innerHTML = "✅ व्हाट्सएप नंबर सेव हो गया! <a href='" + waUrl + "' target='_blank' style='color:#38bdf8; text-decoration:underline;'>यहाँ क्लिक करके " + compName + " Field Group खोलें/बनाएँ</a>";
+  
+  alert("✅ WhatsApp Number सफलतापूर्वक सेव हो गया है! अब फील्ड वर्कर इस ग्रुप में जोड़ें।");
+}
+
+// 2. Direct Forward Complaint to WhatsApp Group/Field Worker
+function forwardToWhatsApp(ticketId, custName, custPhone, issueText) {
+  var waNum = localStorage.getItem("operatorWANumber") || "";
+  var compName = localStorage.getItem("companyName") || "Broadband Support";
+  
+  var text = "🚨 *नई ग्राहक शिकायत (NEW COMPLAINT)* 🚨\n" +
+             "🏢 *" + compName + "*\n\n" +
+             "🎫 *Ticket ID:* " + ticketId + "\n" +
+             "👤 *ग्राहक:* " + custName + "\n" +
+             "📞 *फ़ोन:* " + custPhone + "\n" +
+             "⚠️ *समस्या:* " + issueText + "\n\n" +
+             "📌 *निर्देश:* फील्ड वर्कर कृपया तुरंत लोकेशन पर पहुँच कर समस्या का समाधान करें!";
+             
+  var waShareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+  
+  // Open WhatsApp with populated complaint template
+  window.open(waShareUrl, '_blank');
+}
+</script>
   </body>
 </html>
