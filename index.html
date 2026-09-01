@@ -204,5 +204,22 @@
 
   </div>
 
+<!-- Firebase Connection Code -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+    authDomain: "universal-portal-dashboard.firebaseapp.com",
+    projectId: "universal-portal-dashboard",
+    storageBucket: "universal-portal-dashboard.firebasestorage.app",
+    messagingSenderId: "403036962443",
+    appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+</script>
 </body>
 </html>
