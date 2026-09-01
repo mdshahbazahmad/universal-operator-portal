@@ -225,41 +225,7 @@
         <i class="fa-solid fa-circle-check"></i>
         <span id="toast-message">Operation Completed Successfully!</span>
     </div>
-
-    <!-- Auth Container (Sign-Up / Login) -->
-    <div id="auth-screen" class="auth-container">
-        <div class="auth-card">
-            <div style="text-align: center; margin-bottom: 15px;">
-                <i class="fa-solid fa-tower-cell" style="font-size: 2.5rem; color: #38bdf8;"></i>
-            </div>
-            <h2 id="auth-title">Operator Login</h2>
-            
-            <form id="auth-form" onsubmit="handleAuthSubmit(event)">
-                <div class="form-field">
-                    <label id="lbl-email">Email / Username</label>
-                    <input type="email" id="auth-email" placeholder="operator@eaglenetwork.com" autocomplete="username" required>
-                </div>
-                
-                <div class="form-field">
-                    <label id="lbl-pass">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="auth-password" placeholder="••••••••••••" autocomplete="current-password" required>
-                        <i class="fa-solid fa-eye password-toggle-icon" id="toggleAuthPass" onclick="togglePasswordVisibility('auth-password', 'toggleAuthPass')"></i>
-                    </div>
-                </div>
-
-                <button type="submit" id="btn-auth-submit" class="btn-add" style="width: 100%; justify-content: center; margin-top: 10px; padding: 12px;">
-                    <i class="fa-solid fa-right-to-bracket"></i> Login to Portal
-                </button>
-            </form>
-
-            <div style="text-align: center; margin-top: 15px;">
-                <a onclick="toggleAuthMode()" id="auth-toggle-link" style="color: #38bdf8; text-decoration: none; font-size: 0.85rem; cursor: pointer;">New Operator? Create an Account</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Application Wrapper -->
+<!-- Main Application Wrapper -->
     <div id="app-wrapper">
         <!-- Sidebar Navigation -->
         <div class="sidebar">
