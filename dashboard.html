@@ -909,29 +909,51 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        /* Authentication Engine */
-/* Authentication Engine - Loop Fix */
+        /* Authentication Engine - Bulletproof Fix */
 function checkPersistentAuth() {
-    firebaseBridgeReady = true;
-    
-    if (firebaseAuth && !firebaseAuthObserverAttached) {
-        firebaseAuthObserverAttached = true;
-        
-        firebaseAuth.onAuthStateChanged((user) => {
-            const loader = document.getElementById('eagle-loader-overlay');
-            const appWrapper = document.getElementById('app-wrapper');
+    const loader = document.getElementById('eagle-loader-overlay');
+    const appWrapper = document.getElementById('app-wrapper');
 
+    // 1. लोकल स्टोरेज से चेक करें (अगर यूज़र पहले से लॉगिन है)
+    const savedUser = localStorage.getItem('eagle_logged_user');
+
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            if (loader) loader.style.display = 'none';
+            if (appWrapper) appWrapper.style.display = 'flex';
+            if (typeof renderDashboard === 'function') renderDashboard();
+        } catch (e) {
+            console.error("Local user parse error", e);
+        }
+    }
+
+    // 2. फ़ायरबेस ऑथ ऑब्जर्वर चालू करें
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                // ✅ यूज़र लॉगिन है -> लोडर हटाएँ और डैशबोर्ड दिखाएँ
+                localStorage.setItem('eagle_logged_user', JSON.stringify(user));
                 if (loader) loader.style.display = 'none';
                 if (appWrapper) appWrapper.style.display = 'flex';
                 if (typeof renderDashboard === 'function') renderDashboard();
-            } else {
-                // ❌ यूज़र लॉगिन नहीं है -> लोडर हटाएँ और लॉगिन पेज पर भेजें
+            } else if (!savedUser) {
                 if (loader) loader.style.display = 'none';
                 window.location.href = "index.html";
             }
         });
+    } else {
+        // अगर फ़ायरबेस लोड होने में समय ले, तब भी 1.5 सेकंड में लोडर जबरदस्ती बंद करें
+        setTimeout(() => {
+            if (loader && loader.style.display !== 'none') {
+                if (savedUser || currentUser) {
+                    loader.style.display = 'none';
+                    if (appWrapper) appWrapper.style.display = 'flex';
+                } else {
+                    loader.style.display = 'none';
+                    window.location.href = "index.html";
+                }
+            }
+        }, 1500);
     }
 }
         let isSignUpMode = false;
