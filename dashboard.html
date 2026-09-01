@@ -911,28 +911,27 @@
 
         /* Authentication Engine */
 function checkPersistentAuth() {
-    const savedUser = localStorage.getItem('eagle_logged_user');
-    if (savedUser) {
-        try {
-            currentUser = JSON.parse(savedUser);
-        } catch (error) {
-            localStorage.removeItem('eagle_logged_user');
-            currentUser = null;
-        }
-    }
-    if (firebaseBridgeReady && firebaseAuth && !firebaseAuthObserverAttached) {
+    firebaseBridgeReady = true;
+    
+    if (firebaseAuth && !firebaseAuthObserverAttached) {
         firebaseAuthObserverAttached = true;
-        firebaseAuth.onAuthStateChanged(handleFirebaseAuthState);
-    }
-    if (currentUser) {
-        document.getElementById('app-wrapper').style.display = 'flex';
-        renderDashboard();
-    } else {
-        // अगर यूज़र लॉगिन नहीं है तो सीधे मुख्य लॉगिन पेज पर भेजें
-        window.location.href = "index.html";
+        
+        firebaseAuth.onAuthStateChanged((user) => {
+            const loader = document.getElementById('eagle-loader-overlay');
+            const appWrapper = document.getElementById('app-wrapper');
+
+            if (user) {
+                // ✅ यूज़र लॉगिन है तो लोडर छुपाएं और होम पेज दिखाएं
+                if (loader) loader.style.display = 'none';
+                if (appWrapper) appWrapper.style.display = 'flex';
+                if (typeof renderDashboard === 'function') renderDashboard();
+            } else {
+                // ❌ यूज़र लॉगिन नहीं है तभी index.html पर भेजें
+                window.location.href = "index.html";
+            }
+        });
     }
 }
-
         let isSignUpMode = false;
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
