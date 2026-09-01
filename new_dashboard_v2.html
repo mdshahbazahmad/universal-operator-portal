@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EAGLE NETWORK SBZ - Gateway Login</title>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-body: #0b0f19;
+      --bg-card: #151c2c;
+      --border-color: rgba(255,255,255,0.08);
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; justify-content: center; align-items: center; }
+
+    /* LOGIN CONTAINER */
+    .auth-box {
+      background: var(--bg-card);
+      padding: 35px 30px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      width: 90%; max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .form-group { margin-bottom: 18px; text-align: left; }
+    .form-group label { font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px; }
+    
+    .password-wrapper { position: relative; display: flex; align-items: center; }
+    .form-control { width: 100%; padding: 12px; background: var(--bg-body); border: 1px solid var(--border-color); color: #fff; border-radius: 6px; outline: none; font-size: 0.95rem; }
+    .eye-btn { position: absolute; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer; }
+
+    .btn-primary { background: var(--primary); color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+    .btn-primary:hover { background: var(--primary-hover); color: #fff; }
+
+    .forgot-link { display: block; text-align: right; font-size: 0.8rem; color: var(--primary); margin-top: 8px; text-decoration: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN CONTAINER -->
+  <div class="auth-box">
+    <h2 style="color: var(--primary); text-align: center; margin-bottom: 20px;">
+      <i class="fa-solid fa-wifi"></i> EAGLE SBZ
+    </h2>
+    
+    <form onsubmit="handleAuth(event)">
+      <div class="form-group">
+        <label>Email ID</label>
+        <input type="email" id="auth-email" class="form-control" placeholder="admin@eaglenetwork.com" required>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required>
+          <button type="button" class="eye-btn" onclick="togglePassword('auth-password', this)">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <span class="forgot-link" onclick="handleForgotPassword()">Forget Password?</span>
+      </div>
+
+      <button type="submit" class="btn-primary" style="margin-top: 10px;">लॉगिन / साइन-अप करें</button>
+    </form>
+  </div>
+
+  <script>
+    // FIREBASE CONFIGURATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+      authDomain: "universal-portal-dashboard.firebaseapp.com",
+      projectId: "universal-portal-dashboard",
+      storageBucket: "universal-portal-dashboard.firebasestorage.app",
+      messagingSenderId: "403036962443",
+      appId: "1:403036962443:web:52b233377303ecb1c3de8e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // पासवर्ड शो/हाइड टोगल
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = "password";
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // AUTH STATE CHECK: अगर यूजर लॉगिन हो चुका है, तो तुरंत बड़े original dashboard.html पर भेज दो
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    // LOGIN / SIGN-UP LOGIC
+    function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const pass = document.getElementById('auth-password').value;
+
+      auth.signInWithEmailAndPassword(email, pass).catch((err) => {
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+          // अगर अकाउंट नहीं बना है तो ऑटोमैटिक साइन-अप करेगा
+          auth.createUserWithEmailAndPassword(email, pass)
+            .then(() => {
+              window.location.href = "dashboard.html";
+            })
+            .catch(e => alert("Error: " + e.message));
+        } else {
+          alert("Error: " + err.message);
+        }
+      });
+    }
+
+    // FORGOT PASSWORD
+    function handleForgotPassword() {
+      const email = document.getElementById('auth-email').value;
+      if (!email) {
+        alert("कृपया अपना Email ID दर्ज करें!");
+        return;
+      }
+      auth.sendPasswordResetEmail(email)
+        .then(() => alert("पासवर्ड रीसेट लिंक आपके ईमेल पर भेज दिया गया है।"))
+        .catch(err => alert("Error: " + err.message));
+    }
+  </script>
+</body>
+</html>
