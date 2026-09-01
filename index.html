@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eagle Network SBZ - Universal Operator Portal</title>
+    
+    <!-- FontAwesome Icons & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.3s ease;
+        }
+        body {
+            min-height: 100vh;
+            background: #090d16;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 🚀 Splash Screen Animation */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #090d16;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        .splash-logo-container {
+            position: relative;
+            animation: zoomPulse 2s ease-in-out infinite alternate;
+            text-align: center;
+        }
+        .splash-logo {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fbbf24;
+            box-shadow: 0 0 35px rgba(251, 191, 36, 0.6), 0 0 70px rgba(56, 189, 248, 0.4);
+            margin-bottom: 20px;
+        }
+        .splash-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8, #fbbf24, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .splash-subtitle {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        @keyframes zoomPulse {
+            0% { transform: scale(0.94); }
+            100% { transform: scale(1.04); }
+        }
+        .splash-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* Ambient Glow & Background Overlay */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('backgroundpng.jpeg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.12;
+            filter: blur(8px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .glow-1 {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+        }
+        .glow-2 {
+            position: fixed;
+            bottom: -10%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+        }
+
+        /* Top Header */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+        .logo img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fbbf24;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+        }
+        .lang-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .lang-selector select {
+            background: transparent;
+            border: none;
+            color: #f8fafc;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+        .lang-selector select option {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        /* Layout Main Body */
+        main {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            padding: 40px 8%;
+            gap: 60px;
+        }
+        .hero-text {
+            max-width: 580px;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            color: #38bdf8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .hero-text h1 {
+            font-size: 3rem;
+            line-height: 1.15;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-text p {
+            font-size: 1.05rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 35px;
+        }
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e1;
+            font-size: 0.98rem;
+        }
+        .feature-item i {
+            color: #10b981;
+        }
+
+        /* Glassmorphism Auth Card */
+        .auth-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 35px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 460px;
+            justify-self: end;
+        }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+        }
+        .stat-item h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #38bdf8;
+        }
+        .stat-item p {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+        .tab-buttons {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        /* 🔒 Password Lock/Unlock Input Wrapper */
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i.icon-left {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+        .input-wrapper i.toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            cursor: pointer;
+        }
+        .input-wrapper i.toggle-password:hover {
+            color: #38bdf8;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 45px 14px 45px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .input-wrapper input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .auth-error {
+            display: none;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
+        }
+        .security-badges {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .sec-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sec-item i {
+            color: #10b981;
+        }
+
+        footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px 10px;
+            font-size: 13px;
+            color: #94a3b8;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+        .footer-providers {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        [dir="rtl"] {
+            font-family: 'Noto Nastaliq Urdu', 'Plus Jakarta Sans', sans-serif;
+        }
+        [dir="rtl"] .input-wrapper i.icon-left {
+            left: auto;
+            right: 16px;
+        }
+        [dir="rtl"] .input-wrapper i.toggle-password {
+            right: auto;
+            left: 16px;
+        }
+
+        @media (max-width: 968px) {
+            main {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .auth-card {
+                justify-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ⚡ Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo-container">
+            <img class="splash-logo" src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" alt="Eagle Network SBZ Logo">
+            <h1 class="splash-title">Eagle Network SBZ</h1>
+            <p class="splash-subtitle">Universal Operator Portal</p>
+        </div>
+    </div>
+
+    <div class="bg-overlay"></div>
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+
+    <header>
+        <div class="logo">
+            <img src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" alt="Eagle Network SBZ Logo">
+            <span id="txt-logo">Eagle Network SBZ</span>
+        </div>
+        <div class="lang-selector">
+            <i class="fa-solid fa-globe" style="color:#38bdf8;"></i>
+            <select id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="en" selected>English</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="ur">اردو (Urdu)</option>
+            </select>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-text">
+            <div class="badge">
+                <i class="fa-solid fa-bolt"></i>
+                <span id="txt-badge">Built for Cable & Wi-Fi Operators</span>
+            </div>
+            <h1 id="txt-title">Manage Your Entire Cable & Broadband Empire</h1>
+            <p id="txt-desc">All-in-one portal to streamline customer billing, automate payments, resolve signal faults, and manage your local network easily.</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="feat-1">Automated Multi-Operator Billing & Invoicing</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="feat-2">Dedicated Customer Mobile App Support</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="feat-3">Instant Cable Cut & Signal Fault Alerts</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <!-- 📊 Live Statistics Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <h3 id="stat-users">1B+</h3>
+                    <p id="stat-lbl-1">App Users</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="stat-ops">50K+</h3>
+                    <p id="stat-lbl-2">Operators</p>
+                </div>
+                <div class="stat-item">
+                    <h3 style="color:#10b981;">99.9%</h3>
+                    <p id="stat-lbl-3">Uptime</p>
+                </div>
+            </div>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Register Operator</button>
+            </div>
+
+            <div id="auth-error" class="auth-error" role="alert"></div>
+
+            <!-- Login Form -->
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label id="lbl-login-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope icon-left"></i>
+                        <input type="email" id="login-email" placeholder="eaglenetworksbz@gmail.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-login-pass">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock icon-left"></i>
+                        <input type="password" id="login-pass" placeholder="••••••••" required>
+                        <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('login-pass', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-login-submit">Login to Portal</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label id="lbl-reg-name">Operator / Business Name</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-building icon-left"></i>
+                        <input type="text" id="reg-name" placeholder="e.g. Eagle Network SBZ" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-reg-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope icon-left"></i>
+                        <input type="email" id="reg-email" placeholder="eaglenetworksbz@gmail.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-reg-pass">Create Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-key icon-left"></i>
+                        <input type="password" id="reg-pass" placeholder="••••••••" required>
+                        <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-reg-submit">Create Operator Account</button>
+            </form>
+
+            <div class="security-badges">
+                <div class="sec-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>256-Bit SSL Encrypted</span>
+                </div>
+                <div class="sec-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Verified License</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-providers">
+            <span>Powered by <strong style="color: #38bdf8;">Eagle Network SBZ</strong></span>
+            <span>|</span>
+            <span><i class="fa-brands fa-google" style="color: #ea4335;"></i> Google Authorized</span>
+            <span>|</span>
+            <span><i class="fa-solid fa-fire" style="color: #ffa600;"></i> Firebase Secured</span>
+        </div>
+        <p style="font-size: 11px; opacity: 0.7;">© 2026 Eagle Network SBZ. All Rights Reserved. ISO 27001 Certified System.</p>
+    </footer>
+
+    <!-- Firebase SDK Compat Version 10.8.0 -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Splash Screen Timer
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) splash.classList.add('splash-hidden');
+            }, 2200);
+        });
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+            authDomain: "universal-portal-dashboard.firebaseapp.com",
+            projectId: "universal-portal-dashboard",
+            storageBucket: "universal-portal-dashboard.firebasestorage.app",
+            messagingSenderId: "403036962443",
+            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e",
+            databaseURL: "https://universal-portal-dashboard-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const realtimeDb = firebase.database();
+
+        // Error Handlers
+        function showAuthError(message) {
+            const node = document.getElementById("auth-error");
+            if (node) {
+                node.textContent = message;
+                node.style.display = "block";
+            }
+        }
+        function clearAuthError() {
+            const node = document.getElementById("auth-error");
+            if (node) {
+                node.textContent = "";
+                node.style.display = "none";
+            }
+        }
+
+        // 🔓 Toggle Password Lock/Unlock View
+        function togglePasswordVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        // Multilingual Translation Support
+        const translations = {
+            en: {
+                dir: 'ltr',
+                logo: 'Eagle Network SBZ',
+                badge: 'Built for Cable & Wi-Fi Operators',
+                title: 'Manage Your Entire Cable & Broadband Empire',
+                desc: 'All-in-one portal to streamline customer billing, automate payments, resolve signal faults, and manage your local network easily.',
+                feat1: 'Automated Multi-Operator Billing & Invoicing',
+                feat2: 'Dedicated Customer Mobile App Support',
+                feat3: 'Instant Cable Cut & Signal Fault Alerts',
+                statLbl1: 'App Users',
+                statLbl2: 'Operators',
+                statLbl3: 'Uptime',
+                tabLogin: 'Sign In',
+                tabRegister: 'Register Operator',
+                lblLoginEmail: 'Email Address',
+                lblLoginPass: 'Password',
+                btnLoginSubmit: 'Login to Portal',
+                lblRegName: 'Operator / Business Name',
+                lblRegEmail: 'Email Address',
+                lblRegPass: 'Create Password',
+                btnRegSubmit: 'Create Operator Account'
+            },
+            hi: {
+                dir: 'ltr',
+                logo: 'Eagle Network SBZ',
+                badge: 'केबल और वाई-फाई ऑपरेटरों के लिए निर्मित',
+                title: 'अपने पूरे केबल और ब्रॉडबैंड नेटवर्क को मैनेज करें',
+                desc: 'ग्राहक बिलिंग, ऑटोमैटिक भुगतान, सिग्नल फॉल्ट सुलझाने और अपने लोकल नेटवर्क को आसानी से संचालित करने का ऑल-इन-वन पोर्टल।',
+                feat1: 'ऑटोमैटिक मल्टी-ऑपरेटर बिलिंग और रसीद',
+                feat2: 'ग्राहकों के लिए विशेष मोबाइल ऐप सपोर्ट',
+                feat3: 'केबल कटने और सिग्नल फ़ॉल्ट का तुरंत अलर्ट',
+                statLbl1: 'ऐप ग्राहक',
+                statLbl2: 'नेटवर्क ऑपरेटर',
+                statLbl3: 'सक्रिय सर्वर',
+                tabLogin: 'साइन इन करें',
+                tabRegister: 'नया ऑपरेटर जोड़ें',
+                lblLoginEmail: 'ईमेल आईडी',
+                lblLoginPass: 'पासवर्ड',
+                btnLoginSubmit: 'डैशबोर्ड में लॉगिन करें',
+                lblRegName: 'ऑपरेटर / कंपनी का नाम',
+                lblRegEmail: 'ईमेल आईडी',
+                lblRegPass: 'पासवर्ड बनाएं',
+                btnRegSubmit: 'ऑपरेटर अकाउंट बनाएं'
+            },
+            ur: {
+                dir: 'rtl',
+                logo: 'Eagle Network SBZ',
+                badge: 'کیبل اور وائی فائی آپریٹرز کے لیے خاص',
+                title: 'اپنے کیبل اور براڈ بینڈ نیٹ ورک کا مکمل انتظام کریں',
+                desc: 'کسٹمر بلنگ، خودکار ادائیگیاں، سگنل کی خرابیوں کو حل کرنے اور اپنے مقامی نیٹ ورک کو آسانی سے چلانے کا بہترین پورٹل۔',
+                feat1: 'خودکار بلنگ اور رسیدیں',
+                feat2: 'کسٹمرز کے لیے خصوصی موبائل ایپ',
+                feat3: 'کیبل کٹنے اور سگنل کی خرابی کا فوری الرٹ',
+                statLbl1: 'ایپ کسٹمرز',
+                statLbl2: 'آپریٹرز',
+                statLbl3: 'سرور سسٹم',
+                tabLogin: 'سائن ان کریں',
+                tabRegister: 'نیا آپریٹر رجسٹر کریں',
+                lblLoginEmail: 'ای میل',
+                lblLoginPass: 'پاسورڈ',
+                btnLoginSubmit: 'پورٹل میں لاگ ان کریں',
+                lblRegName: 'آپریٹر / کمپنی کا نام',
+                lblRegEmail: 'ای میل',
+                lblRegPass: 'پاسورڈ بنائیں',
+                btnRegSubmit: 'نیا اکاؤنٹ بنائیں'
+            }
+        };
+
+        function changeLanguage(lang) {
+            const data = translations[lang];
+            document.documentElement.dir = data.dir;
+            document.getElementById('txt-logo').innerText = data.logo;
+            document.getElementById('txt-badge').innerText = data.badge;
+            document.getElementById('txt-title').innerText = data.title;
+            document.getElementById('txt-desc').innerText = data.desc;
+            document.getElementById('feat-1').innerText = data.feat1;
+            document.getElementById('feat-2').innerText = data.feat2;
+            document.getElementById('feat-3').innerText = data.feat3;
+            document.getElementById('stat-lbl-1').innerText = data.statLbl1;
+            document.getElementById('stat-lbl-2').innerText = data.statLbl2;
+            document.getElementById('stat-lbl-3').innerText = data.statLbl3;
+            document.getElementById('tab-login').innerText = data.tabLogin;
+            document.getElementById('tab-register').innerText = data.tabRegister;
+            document.getElementById('lbl-login-email').innerText = data.lblLoginEmail;
+            document.getElementById('lbl-login-pass').innerText = data.lblLoginPass;
+            document.getElementById('btn-login-submit').innerText = data.btnLoginSubmit;
+            document.getElementById('lbl-reg-name').innerText = data.lblRegName;
+            document.getElementById('lbl-reg-email').innerText = data.lblRegEmail;
+            document.getElementById('lbl-reg-pass').innerText = data.lblRegPass;
+            document.getElementById('btn-reg-submit').innerText = data.btnRegSubmit;
+        }
+
+        function switchTab(tab) {
+            clearAuthError();
+            if(tab === 'login') {
+                document.getElementById('form-login').style.display = 'block';
+                document.getElementById('form-register').style.display = 'none';
+                document.getElementById('tab-login').classList.add('active');
+                document.getElementById('tab-register').classList.remove('active');
+            } else {
+                document.getElementById('form-login').style.display = 'none';
+                document.getElementById('form-register').style.display = 'block';
+                document.getElementById('tab-register').classList.add('active');
+                document.getElementById('tab-login').classList.remove('active');
+            }
+        }
+
+        // Handling Login Action
+        function handleLogin(e) {
+            e.preventDefault();
+            clearAuthError();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-pass').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    window.location.href = 'dashboard.html';
+                })
+                .catch((error) => {
+                    showAuthError("Login Failed: " + error.message);
+                });
+        }
+
+        // Handling Registration Action
+        function handleRegister(e) {
+            e.preventDefault();
+            clearAuthError();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-pass').value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    // Save to Firestore
+                    const firestorePromise = db.collection("users").doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        companyName: "Eagle Network SBZ",
+                        role: "operator",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Sync Realtime DB profile
+                    const realtimePromise = realtimeDb.ref(`operators/${user.uid}/profile`).set({
+                        name: name,
+                        email: email,
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+
+                    return Promise.all([firestorePromise, realtimePromise]);
+                })
+                .then(() => {
+                    alert("Account Created Successfully!");
+                    window.location.href = 'dashboard.html';
+                })
+                .catch((error) => {
+                    showAuthError("Registration Error: " + error.message);
+                });
+        }
+    </script>
+</body>
+</html>
