@@ -910,6 +910,7 @@
         }
 
         /* Authentication Engine */
+/* Authentication Engine - Loop Fix */
 function checkPersistentAuth() {
     firebaseBridgeReady = true;
     
@@ -921,12 +922,13 @@ function checkPersistentAuth() {
             const appWrapper = document.getElementById('app-wrapper');
 
             if (user) {
-                // ✅ यूज़र लॉगिन है तो लोडर छुपाएं और होम पेज दिखाएं
+                // ✅ यूज़र लॉगिन है -> लोडर हटाएँ और डैशबोर्ड दिखाएँ
                 if (loader) loader.style.display = 'none';
                 if (appWrapper) appWrapper.style.display = 'flex';
                 if (typeof renderDashboard === 'function') renderDashboard();
             } else {
-                // ❌ यूज़र लॉगिन नहीं है तभी index.html पर भेजें
+                // ❌ यूज़र लॉगिन नहीं है -> लोडर हटाएँ और लॉगिन पेज पर भेजें
+                if (loader) loader.style.display = 'none';
                 window.location.href = "index.html";
             }
         });
