@@ -910,29 +910,28 @@
         }
 
         /* Authentication Engine */
-        function checkPersistentAuth() {
-            const savedUser = localStorage.getItem('eagle_logged_user');
-            if (savedUser) {
-                try {
-                    currentUser = JSON.parse(savedUser);
-                } catch (error) {
-                    localStorage.removeItem("eagle_logged_user");
-                    currentUser = null;
-                }
-            }
-            if (firebaseBridgeReady && firebaseAuth && !firebaseAuthObserverAttached) {
-                firebaseAuthObserverAttached = true;
-                firebaseAuth.onAuthStateChanged(handleFirebaseAuthState);
-            }
-            if (currentUser) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app-wrapper').style.display = 'flex';
-                renderDashboard();
-            } else {
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('app-wrapper').style.display = 'none';
-            }
+function checkPersistentAuth() {
+    const savedUser = localStorage.getItem('eagle_logged_user');
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+        } catch (error) {
+            localStorage.removeItem('eagle_logged_user');
+            currentUser = null;
         }
+    }
+    if (firebaseBridgeReady && firebaseAuth && !firebaseAuthObserverAttached) {
+        firebaseAuthObserverAttached = true;
+        firebaseAuth.onAuthStateChanged(handleFirebaseAuthState);
+    }
+    if (currentUser) {
+        document.getElementById('app-wrapper').style.display = 'flex';
+        renderDashboard();
+    } else {
+        // अगर यूज़र लॉगिन नहीं है तो सीधे मुख्य लॉगिन पेज पर भेजें
+        window.location.href = "index.html";
+    }
+}
 
         let isSignUpMode = false;
         function toggleAuthMode() {
