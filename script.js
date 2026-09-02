@@ -22,26 +22,23 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const realtimeDb = firebase.database();
-
-// 🟢 Fix Redirection Loop
+// 🟢 Fix Redirection Loop - Check Current Page
 auth.onAuthStateChanged((user) => {
-    // Current page check karein
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/');
 
     if (user) {
-        // Agar user logged in hai AUR wo abhi Login Page par hai, TABHI dashboard bhejein
+        // Agar user logged in hai aur abhi login page par hai, TABHI dashboard bhejein
         if (isLoginPage) {
             window.location.href = 'dashboard_v2.html';
         }
     } else {
-        // Agar user logged in NAHI hai aur dashboard par hai, toh login page par bhejein
+        // Agar user logged in NAHI hai aur dashboard par hai, TABHI login page bhejein
         if (!isLoginPage) {
             window.location.href = 'index.html';
         }
     }
 });
-
 // Error Handlers
 function showAuthError(message) {
     const node = document.getElementById("auth-error");
