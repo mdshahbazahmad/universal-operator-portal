@@ -22,21 +22,10 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const realtimeDb = firebase.database();
-// 🟢 Final Redirection Loop Fix
+// Sirf Login Page Logic (Loop Safe)
 auth.onAuthStateChanged((user) => {
-    const currentPath = window.location.pathname;
-    const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/');
-
-    if (user) {
-        // Sirf LOGIN PAGE par hone par hi dashboard par bhejain
-        if (isLoginPage) {
-            window.location.href = 'dashboard_v2.html';
-        }
-    } else {
-        // Agar logged in nahi hai aur DASHBOARD par hai, tabhi login par bhejain
-        if (!isLoginPage) {
-            window.location.href = 'index.html';
-        }
+    if (user && (window.location.pathname.endsWith('index.html') || window.location.pathname === '/')) {
+        window.location.href = 'dashboard_v2.html';
     }
 });
 // Error Handlers
