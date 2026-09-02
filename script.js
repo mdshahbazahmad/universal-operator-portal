@@ -25,17 +25,17 @@ const realtimeDb = firebase.database();
 
 // 🟢 Fix Redirection Loop
 auth.onAuthStateChanged((user) => {
-    // Check karein ki user abhi Login / Home page par hai ya Dashboard par
+    // Current page check karein
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/');
 
     if (user) {
-        // Agar user logged in hai AUR abhi Login page par hai, TABHI redirect karein
+        // Agar user logged in hai AUR wo abhi Login Page par hai, TABHI dashboard bhejein
         if (isLoginPage) {
             window.location.href = 'dashboard_v2.html';
         }
     } else {
-        // Agar user logged in NAHI hai aur direct dashboard khol raha hai, toh login page par bhejein
+        // Agar user logged in NAHI hai aur dashboard par hai, toh login page par bhejein
         if (!isLoginPage) {
             window.location.href = 'index.html';
         }
