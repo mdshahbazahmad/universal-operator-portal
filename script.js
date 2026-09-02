@@ -26,7 +26,7 @@ const realtimeDb = firebase.database();
 // 🟢 Check User Auth Status -> Dashboard Version 2 (`dashboard-v2.html`) Connection Added!
 auth.onAuthStateChanged((user) => {
     if (user) {
-        window.location.href = 'dashboard-v2.html';
+        window.location.href = 'dashboard_v2.html';
     }
 });
 
