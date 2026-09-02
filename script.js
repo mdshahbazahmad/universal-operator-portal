@@ -198,7 +198,7 @@ function handleLogin(e) {
     auth.signInWithEmailAndPassword(email, password)
         .then(() => {
             // 🚀 Direct link to Dashboard Version 2
-            window.location.href = 'dashboard-v2.html';
+            window.location.href = 'dashboard_v2.html';
         })
         .catch((error) => {
             showAuthError("Login Failed: " + error.message);
@@ -235,7 +235,7 @@ function handleRegister(e) {
         .then(() => {
             alert("Account Created Successfully!");
             // 🚀 Direct link to Dashboard Version 2
-            window.location.href = 'dashboard-v2.html';
+            window.location.href = 'dashboard_v2.html';
         })
         .catch((error) => {
             showAuthError("Registration Error: " + error.message);
