@@ -115,7 +115,7 @@
   <script src="script.js"></script>
 
   <script>
-    // Master dashboard script with safe firebase reads and fallbacks
+    // Master dashboard script with safe firebase reads and fallbacks + strict timeouts
     window.AppState = window.AppState || { subscribers: [], plans: [], workers: [] };
 
     const firebaseConfig = {
@@ -128,6 +128,22 @@
       databaseURL: "https://universal-portal-dashboard-default-rtdb.firebaseio.com"
     };
 
+    const DB_TIMEOUT_MS = 2200; // strict timeout for DB reads
+    const LOADER_AUTO_HIDE_MS = 3000; // always hide loader after 3s
+    let loaderAutoHideTimer = null;
+
+    function promiseTimeout(ms, errMsg){
+      return new Promise((_, reject) => setTimeout(() => reject(new Error(errMsg || 'timeout')), ms));
+    }
+
+    function hideLoaderAndShowApp(){
+      const loader = document.getElementById('eagle-loader');
+      const app = document.getElementById('app-wrapper');
+      try{ if(loader) loader.style.display = 'none'; }catch(e){}
+      try{ if(app) app.style.display = 'block'; }catch(e){}
+      if(loaderAutoHideTimer){ clearTimeout(loaderAutoHideTimer); loaderAutoHideTimer = null; }
+    }
+
     // safe utility
     function safeRun(fn){ try{ return fn(); }catch(e){ console.error('SafeRun error',e); return undefined; } }
 
@@ -135,23 +151,24 @@
     function showSubscribersEmptyFallback(){
       const tbody = document.getElementById('dash-recent-subs-table');
       if(!tbody) return;
-      tbody.innerHTML = `\n        <tr>\n          <td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td>\n        </tr>`;
+      tbody.innerHTML = `\n        <tr>\n          <td colspan=\"4\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td>\n        </tr>`;
       const full = document.getElementById('full-subscribers-table-body');
-      if(full) full.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td></tr>`;
-      document.getElementById('stat-total-subs').innerText = '0';
-      document.getElementById('stat-active-subs').innerText = '0';
-      document.getElementById('stat-pending-subs').innerText = '0';
-      document.getElementById('stat-revenue').innerText = '₹0';
+      if(full) full.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td></tr>`;
+      try{ document.getElementById('stat-total-subs').innerText = '0'; }catch(e){}
+      try{ document.getElementById('stat-active-subs').innerText = '0'; }catch(e){}
+      try{ document.getElementById('stat-pending-subs').innerText = '0'; }catch(e){}
+      try{ document.getElementById('stat-revenue').innerText = '₹0'; }catch(e){}
     }
 
-    // render functions safe-guarded
+    function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
     function renderRecentSubscribers(){
       try{
         const tbody = document.getElementById('dash-recent-subs-table');
         if(!tbody) return;
         const list = Array.isArray(AppState.subscribers) ? AppState.subscribers.slice(0,10) : [];
         if(list.length === 0){ showSubscribersEmptyFallback(); return; }
-        tbody.innerHTML = list.map(s=>`<tr><td>${s.id||'-'}</td><td>${escapeHtml(s.name||'—')}</td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.status||'—')}</td></tr>`).join('');
+        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'-')}</td><td>${escapeHtml(s.name||'—')}</td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.status||'—')}</td></tr>`).join('');
       }catch(err){ console.error('renderRecentSubscribers error',err); showSubscribersEmptyFallback(); }
     }
 
@@ -159,19 +176,17 @@
       try{
         const tbody = document.getElementById('full-subscribers-table-body'); if(!tbody) return;
         const list = Array.isArray(AppState.subscribers) ? AppState.subscribers : [];
-        if(list.length === 0){ tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td></tr>`; return; }
-        tbody.innerHTML = list.map(s=>`<tr><td>${s.id||''}</td><td>${escapeHtml(s.name||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.plan||'')}</td><td>${escapeHtml(s.status||'')}</td></tr>`).join('');
-      }catch(err){ console.error('renderFullSubscribers error',err); document.getElementById('full-subscribers-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">Error loading subscribers.</td></tr>`; }
+        if(list.length === 0){ tbody.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td></tr>`; return; }
+        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'')}</td><td>${escapeHtml(s.name||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.plan||'')}</td><td>${escapeHtml(s.status||'')}</td></tr>`).join('');
+      }catch(err){ console.error('renderFullSubscribers error',err); const t=document.getElementById('full-subscribers-table-body'); if(t) t.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">Error loading subscribers.</td></tr>`; }
     }
-
-    function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     function updateStats(){
       try{
         const subs = Array.isArray(AppState.subscribers) ? AppState.subscribers : [];
         const total = subs.length;
-        const active = subs.filter(s=> (s.status||'').toLowerCase() === 'active').length;
-        const pending = subs.filter(s=> (s.status||'').toLowerCase() === 'pending').length;
+        const active = subs.filter(s=> (String(s.status||'').toLowerCase()) === 'active').length;
+        const pending = subs.filter(s=> (String(s.status||'').toLowerCase()) === 'pending').length;
         const revenue = subs.reduce((acc,s)=> acc + (parseFloat(s.price||0)||0),0);
         document.getElementById('stat-total-subs').innerText = total;
         document.getElementById('stat-active-subs').innerText = active;
@@ -180,42 +195,45 @@
       }catch(err){ console.error('updateStats error',err); }
     }
 
-    // Attempt to fetch subscribers from Firebase (safe tries)
+    // Attempt to fetch subscribers from Firebase (safe tries with timeout)
     async function fetchSubscribersFromFirebase(){
       let fetched = [];
-      // Try Realtime DB first
+
+      // If firebase absent, skip
+      if(!(window.firebase)) return fetched;
+
+      // Try Realtime DB with timeout
       try{
-        if(window.firebase && firebase.database){
-          const snap = await firebase.database().ref('subscribers').once('value');
-          const val = snap && snap.val();
+        if(firebase.database){
+          const p = firebase.database().ref('subscribers').once('value').then(s=>s.val());
+          const val = await Promise.race([p, promiseTimeout(DB_TIMEOUT_MS, 'Realtime DB timeout')]);
           if(val){
             if(Array.isArray(val)) fetched = val.filter(Boolean);
             else fetched = Object.keys(val).map(k=> ({ id:k, ...(val[k]||{}) }));
           }
         }
-      }catch(err){ console.warn('Realtime DB read failed',err); }
+      }catch(err){ console.warn('Realtime DB read failed or timed out',err); }
 
-      // If nothing, try Firestore
+      // If nothing, try Firestore with timeout
       if(fetched.length === 0){
         try{
-          if(window.firebase && firebase.firestore){
-            const col = await firebase.firestore().collection('subscribers').get();
-            if(col && !col.empty){
-              fetched = col.docs.map(d=> ({ id: d.id, ...(d.data()||{}) }));
-            }
+          if(firebase.firestore){
+            const p = firebase.firestore().collection('subscribers').get();
+            const col = await Promise.race([p, promiseTimeout(DB_TIMEOUT_MS, 'Firestore timeout')]);
+            if(col && !col.empty){ fetched = col.docs.map(d=> ({ id: d.id, ...(d.data()||{}) })); }
           }
-        }catch(err){ console.warn('Firestore read failed',err); }
+        }catch(err){ console.warn('Firestore read failed or timed out',err); }
       }
 
-      // If still nothing, try localStorage
+      // If still nothing, try localStorage fallback
       if(fetched.length === 0){
         try{
-          const raw = localStorage.getItem('isp_subscribers');
+          const raw = localStorage.getItem('isp_subscribers') || localStorage.getItem('eagle_db_subscribers');
           if(raw) fetched = JSON.parse(raw) || [];
         }catch(e){ console.warn('localStorage parse failed',e); }
       }
 
-      return fetched;
+      return Array.isArray(fetched) ? fetched : [];
     }
 
     // Initialize firebase app (if not already initialized)
@@ -227,46 +245,48 @@
       }catch(e){ console.warn('Firebase init error',e); }
     }
 
-    // Main initialize sequence
+    // Main initialize sequence (with fail-safe loader handling)
     async function initDashboard(){
       try{
         initFirebaseIfNeeded();
 
+        // ensure loader auto-hide in LOADER_AUTO_HIDE_MS
+        if(!loaderAutoHideTimer){ loaderAutoHideTimer = setTimeout(()=>{ hideLoaderAndShowApp(); showSubscribersEmptyFallback(); }, LOADER_AUTO_HIDE_MS); }
+
         // Attach auth observer (guarded)
-        try{
-          if(window.firebase && firebase.auth){
-            firebase.auth().onAuthStateChanged(async (user)=>{
-              const loader = document.getElementById('eagle-loader');
-              const app = document.getElementById('app-wrapper');
+        if(window.firebase && firebase.auth){
+          firebase.auth().onAuthStateChanged(async (user)=>{
+            try{
               if(user){
-                if(loader) loader.style.display = 'none';
-                if(app) app.style.display = 'block';
+                hideLoaderAndShowApp();
                 document.getElementById('userNameDisplay').innerText = user.displayName || 'Operator Panel';
                 document.getElementById('userEmailDisplay').innerText = user.email || 'Signed in';
-                // fetch subscribers but don't crash if fails
+
+                // fetch subscribers but enforce timeout and fallback immediately if DB hangs
+                let subs = [];
                 try{
-                  const subs = await fetchSubscribersFromFirebase();
-                  AppState.subscribers = Array.isArray(subs) ? subs : [];
-                }catch(e){ console.warn('fetchSubscribersFromFirebase error',e); AppState.subscribers = AppState.subscribers || []; }
-                // render
+                  subs = await fetchSubscribersFromFirebase();
+                }catch(e){ console.warn('fetchSubscribersFromFirebase top error', e); subs = []; }
+
+                // If fetch returned data, use it; otherwise, keep empty fallback
+                AppState.subscribers = Array.isArray(subs) && subs.length ? subs : [];
                 updateStats(); renderRecentSubscribers(); renderFullSubscribers();
               } else {
-                if(loader) loader.style.display = 'none';
-                // if not on login page, redirect once
+                // not signed in -> hide loader and redirect
+                hideLoaderAndShowApp();
                 if(!window.location.pathname.includes('index.html')){ window.location.href = 'index.html'; }
               }
-            });
-          } else {
-            // no auth available — fallback: load from localStorage and show UI
-            const local = localStorage.getItem('isp_subscribers');
-            try{ AppState.subscribers = local ? JSON.parse(local) : []; }catch(e){ AppState.subscribers = []; }
-            document.getElementById('eagle-loader').style.display = 'none';
-            document.getElementById('app-wrapper').style.display = 'block';
-            updateStats(); renderRecentSubscribers(); renderFullSubscribers();
-          }
-        }catch(authErr){ console.warn('auth init error',authErr); }
-
-      }catch(err){ console.error('initDashboard error',err); document.getElementById('eagle-loader').style.display='none'; document.getElementById('app-wrapper').style.display='block'; showSubscribersEmptyFallback(); }
+            }catch(innerErr){ console.error('onAuthStateChanged handler error', innerErr); hideLoaderAndShowApp(); showSubscribersEmptyFallback(); }
+          });
+        } else {
+          // no auth available — immediate fallback: load from localStorage and show UI
+          try{
+            const raw = localStorage.getItem('isp_subscribers') || localStorage.getItem('eagle_db_subscribers');
+            AppState.subscribers = raw ? (JSON.parse(raw) || []) : [];
+          }catch(e){ AppState.subscribers = []; }
+          hideLoaderAndShowApp(); updateStats(); renderRecentSubscribers(); renderFullSubscribers();
+        }
+      }catch(err){ console.error('initDashboard error',err); hideLoaderAndShowApp(); showSubscribersEmptyFallback(); }
     }
 
     // Tab switching (simple)
@@ -291,7 +311,7 @@
 
     // DOM ready
     document.addEventListener('DOMContentLoaded', ()=>{
-      try{ setupTabs(); initDashboard(); }catch(e){ console.error('DOMContentLoaded error',e); document.getElementById('eagle-loader').style.display='none'; document.getElementById('app-wrapper').style.display='block'; showSubscribersEmptyFallback(); }
+      try{ setupTabs(); initDashboard(); }catch(e){ console.error('DOMContentLoaded error',e); hideLoaderAndShowApp(); showSubscribersEmptyFallback(); }
     });
 
   </script>
