@@ -22,18 +22,18 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const realtimeDb = firebase.database();
-// 🟢 Fix Redirection Loop - Check Current Page
+// 🟢 Final Redirection Loop Fix
 auth.onAuthStateChanged((user) => {
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/');
 
     if (user) {
-        // Agar user logged in hai aur abhi login page par hai, TABHI dashboard bhejein
+        // Sirf LOGIN PAGE par hone par hi dashboard par bhejain
         if (isLoginPage) {
             window.location.href = 'dashboard_v2.html';
         }
     } else {
-        // Agar user logged in NAHI hai aur dashboard par hai, TABHI login page bhejein
+        // Agar logged in nahi hai aur DASHBOARD par hai, tabhi login par bhejain
         if (!isLoginPage) {
             window.location.href = 'index.html';
         }
