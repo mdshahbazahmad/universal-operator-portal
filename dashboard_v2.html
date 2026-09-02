@@ -892,27 +892,117 @@
             XLSX.utils.book_append_sheet(workbook, worksheet, "Subscribers");
             XLSX.writeFile(workbook, `ISP_Subscribers_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
-      /* Authentication Engine */
-function checkPersistentAuth() {
-    firebaseBridgeReady = true;
-    
-    if (firebaseAuth && !firebaseAuthObserverAttached) {
-        firebaseAuthObserverAttached = true;
-        
-        firebaseAuth.onAuthStateChanged((user) => {
+      // ==========================================
+        // 8. AUTHENTICATION & REALTIME SYNC ENGINE (PART 8)
+        // ==========================================
+
+        // Universal Realtime Firebase Initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+            authDomain: "universal-portal-dashboard.firebaseapp.com",
+            projectId: "universal-portal-dashboard",
+            storageBucket: "universal-portal-dashboard.firebasestorage.app",
+            messagingSenderId: "403036962443",
+            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+        };
+
+        // Global Firebase References
+        let firebaseApp = null;
+        let firebaseAuth = null;
+        let firebaseDB = null;
+        let firebaseAuthObserverAttached = false;
+
+        // Core Initialization Logic
+        function initFirebasePortal() {
+            try {
+                if (typeof firebase !== 'undefined') {
+                    if (!firebase.apps.length) {
+                        firebaseApp = firebase.initializeApp(firebaseConfig);
+                    } else {
+                        firebaseApp = firebase.app();
+                    }
+                    firebaseAuth = firebase.auth();
+                    firebaseDB = firebase.database();
+                    
+                    checkPersistentAuth();
+                } else {
+                    console.warn("Firebase SDK loading, retrying initialization...");
+                    setTimeout(initFirebasePortal, 500);
+                }
+            } catch (err) {
+                console.error("Firebase Init Error:", err);
+                // Emergency Loader Force Remove if SDK fails
+                forceHideLoader();
+            }
+        }
+
+        // Persistent Auth Check & Spinner Control Engine
+        function checkPersistentAuth() {
+            if (firebaseAuth && !firebaseAuthObserverAttached) {
+                firebaseAuthObserverAttached = true;
+                
+                firebaseAuth.onAuthStateChanged((user) => {
+                    const loader = document.getElementById('eagle-loader-overlay');
+                    const appWrapper = document.getElementById('app-wrapper');
+
+                    if (user) {
+                        // User Logged In -> Immediately Hide Loader & Display Dashboard
+                        if (loader) loader.style.display = 'none';
+                        if (appWrapper) appWrapper.style.display = 'flex';
+                        
+                        // Load User Local/Server Sync
+                        loadStateFromStorage();
+                        calculateRealtimeStats();
+                        renderAllDashboardViews();
+                    } else {
+                        // User Not Logged In -> Hide Loader & Force Login Redirect
+                        if (loader) loader.style.display = 'none';
+                        
+                        // Redirect to login page cleanly
+                        if (!window.location.pathname.includes('index.html')) {
+                            window.location.href = "index.html";
+                        }
+                    }
+                });
+            } else {
+                // If Auth bypass or direct dev mode
+                forceHideLoader();
+            }
+        }
+
+        // Emergency Loader Remover Helper
+        function forceHideLoader() {
             const loader = document.getElementById('eagle-loader-overlay');
             const appWrapper = document.getElementById('app-wrapper');
+            if (loader) loader.style.display = 'none';
+            if (appWrapper) appWrapper.style.display = 'flex';
+        }
 
-            if (user) {
-                // User Logged In -> Hide loader & Show dashboard
-                if (loader) loader.style.display = 'none';
-                if (appWrapper) appWrapper.style.display = 'flex';
-                if (typeof renderDashboard === 'function') renderDashboard();
-            } else {
-                // User Not Logged In -> Redirect to login page
-                if (loader) loader.style.display = 'none';
-                window.location.href = "index.html";
+        // Portal Global Logout Engine
+        function handlePortalLogout() {
+            if (confirm("Are you sure you want to log out from Eagle Network Portal?")) {
+                if (firebaseAuth) {
+                    firebaseAuth.signOut().then(() => {
+                        window.location.href = "index.html";
+                    }).catch((err) => {
+                        console.error("Logout Error:", err);
+                        window.location.href = "index.html";
+                    });
+                } else {
+                    window.location.href = "index.html";
+                }
             }
+        }
+
+        // DOM Auto-Trigger Execution on Page Load
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebasePortal();
+            
+            // Backup Safety Timeout: Force hide spinner after 3 seconds max
+            setTimeout(() => {
+                forceHideLoader();
+            }, 3000);
         });
-    }
-}
+    </script>
+</body>
+</html>
