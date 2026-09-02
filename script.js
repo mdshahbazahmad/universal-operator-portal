@@ -23,10 +23,22 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const realtimeDb = firebase.database();
 
-// 🟢 Check User Auth Status -> Dashboard Version 2 (`dashboard-v2.html`) Connection Added!
+// 🟢 Fix Redirection Loop
 auth.onAuthStateChanged((user) => {
+    // Check karein ki user abhi Login / Home page par hai ya Dashboard par
+    const currentPath = window.location.pathname;
+    const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/');
+
     if (user) {
-        window.location.href = 'dashboard_v2.html';
+        // Agar user logged in hai AUR abhi Login page par hai, TABHI redirect karein
+        if (isLoginPage) {
+            window.location.href = 'dashboard_v2.html';
+        }
+    } else {
+        // Agar user logged in NAHI hai aur direct dashboard khol raha hai, toh login page par bhejein
+        if (!isLoginPage) {
+            window.location.href = 'index.html';
+        }
     }
 });
 
