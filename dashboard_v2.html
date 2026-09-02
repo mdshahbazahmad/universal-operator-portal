@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eagle Network SBZ - Universal Operator Portal</title>
+    
+    <!-- External UI Libraries & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0b0f19; color: #f8fafc; display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* Animated Eagle Loader */
+        #eagle-loader { position: fixed; inset: 0; background: #0b0f19; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .eagle-spinner { width: 65px; height: 65px; border: 4px solid rgba(56, 189, 248, 0.1); border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Sidebar Styling */
+        .sidebar { width: 260px; background: rgba(15, 23, 42, 0.95); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 20px 15px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; z-index: 100; }
+        .brand-logo { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 700; color: #38bdf8; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .nav-links { list-style: none; margin-top: 15px; }
+        .nav-links li { margin-bottom: 6px; }
+        .nav-links a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #94a3b8; text-decoration: none; border-radius: 8px; transition: 0.3s; font-size: 0.88rem; cursor: pointer; }
+        .nav-links a:hover, .nav-links a.active { background: linear-gradient(90deg, #1e293b, #0f172a); color: #38bdf8; border-left: 3px solid #38bdf8; }
+
+        /* Main Dashboard Content Layout */
+        .main-content { margin-left: 260px; flex: 1; padding: 22px; min-width: 0; }
+
+        /* Glassmorphism Header Bar with Weather & Clock */
+        .top-header { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 22px; }
+        .weather-time-box { text-align: right; line-height: 1.25; }
+        .live-clock-display { font-weight: 700; font-size: 1rem; color: #38bdf8; }
+        .live-weather-display { font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 6px; justify-content: flex-end; margin-top: 2px; }
+
+        /* Stat Cards Layout Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 22px; }
+        .stat-card { background: rgba(30, 41, 59, 0.6); padding: 18px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .stat-card h3 { font-size: 0.82rem; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .val { font-size: 1.6rem; font-weight: 700; color: #38bdf8; }
+
+        /* Data Tables General Styling */
+        .table-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 18px; overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem; }
+        th { color: #94a3b8; font-weight: 600; background: rgba(15, 23, 42, 0.4); }
+
+        /* Dynamic Status Badges */
+        .badge-status { padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
+        .status-active { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .status-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+        /* Advanced Modern Glassmorphism Popup Modals */
+        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.78); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-box { background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.3); width: 92%; max-width: 580px; border-radius: 14px; padding: 22px; box-shadow: 0 20px 30px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; margin-bottom: 16px; }
+        .modal-header h3 { color: #38bdf8; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .close-btn { background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: #ef4444; }
+
+        .tab-section { display: none; }
+        .tab-section.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- Full Screen Loader Overlay -->
+    <div id="eagle-loader">
+        <div class="eagle-spinner"></div>
+        <p style="margin-top: 14px; color: #38bdf8; font-weight: 600; font-size: 0.9rem;">Eagle Network SBZ - Loading Engine...</p>
+    </div>
+  <!-- Sidebar Navigation Drawer -->
+    <div class="sidebar">
+        <div>
+            <div class="brand-logo">
+                <i class="fa-solid fa-tower-cell"></i>
+                <span id="brand-title">Eagle Network SBZ</span>
+            </div>
+            <ul class="nav-links">
+                <li><a onclick="switchTab('dashboard-tab')" id="nav-dashboard" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a onclick="switchTab('subscribers-tab')" id="nav-subscribers"><i class="fa-solid fa-users"></i> Subscribers</a></li>
+                <li><a onclick="switchTab('plans-tab')" id="nav-plans"><i class="fa-solid fa-tags"></i> Plan Engine</a></li>
+                <li><a onclick="switchTab('server-tab')" id="nav-server"><i class="fa-solid fa-server"></i> Main Server Connection</a></li>
+                <li><a onclick="switchTab('workers-tab')" id="nav-workers"><i class="fa-brands fa-whatsapp"></i> Multi-Worker Alerts</a></li>
+                <li><a onclick="switchTab('complaints-tab')" id="nav-complaints"><i class="fa-solid fa-headset"></i> Complaints & Helpdesk</a></li>
+                <li><a onclick="switchTab('settings-tab')" id="nav-settings"><i class="fa-solid fa-sliders"></i> Operator Settings</a></li>
+                <li><a onclick="switchTab('help-tab')" id="nav-help"><i class="fa-solid fa-circle-info"></i> Help & System Guide</a></li>
+            </ul>
+        </div>
+        <div style="padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <button onclick="handleLogout()" style="width:100%; padding: 10px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-power-off"></i> Logout System
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Workspace Container -->
+    <div class="main-content">
+
+        <!-- Top Header Bar with Live Weather Location & Clock -->
+        <div class="top-header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="background: linear-gradient(135deg, #38bdf8, #8b5cf6); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);">
+                    <i class="fa-solid fa-wifi"></i>
+                </div>
+                <div>
+                    <h2 id="displayHeaderBrand" style="font-size: 1.1rem; color: #f8fafc; font-weight: 700;">EAGLE NETWORK SBZ</h2>
+                    <p style="font-size: 0.78rem; color: #94a3b8;">Universal Broadband & Cable Operator Control Room</p>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 25px;">
+                <!-- Live Weather & Clock Engine Widget -->
+                <div class="weather-time-box">
+                    <div class="live-clock-display" id="live-clock">--:--:-- --</div>
+                    <div class="live-weather-display" id="live-weather">
+                        <i class="fa-solid fa-location-dot" style="color: #ef4444;"></i>
+                        <span id="city-name">Detecting...</span> | 
+                        <i class="fa-solid fa-temperature-half" style="color: #f59e0b;"></i>
+                        <span id="temp-val">--°C</span>
+                    </div>
+                </div>
+
+                <!-- Operator Account Profile Badge -->
+                <div style="display: flex; align-items: center; gap: 10px; border-left: 1px solid rgba(255, 255, 255, 0.1); padding-left: 20px;">
+                    <i class="fa-solid fa-circle-user" style="font-size: 2.2rem; color: #38bdf8;"></i>
+                    <div>
+                        <h4 id="userNameDisplay" style="font-size: 0.85rem; color: #f8fafc;">Operator Panel</h4>
+                        <small id="userEmailDisplay" style="color: #94a3b8; font-size: 0.75rem;">Syncing Account...</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <!-- TAB 1: DASHBOARD OVERVIEW -->
+        <div id="dashboard-tab" class="tab-section active">
+            <!-- Top Summary Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Subscribers</h3>
+                    <div class="val" id="stat-total-subs">0</div>
+                    <small style="color: #94a3b8; font-size: 0.75rem;">All On-boarded Connections</small>
+                </div>
+                <div class="stat-card" style="border-bottom: 3px solid #10b981;">
+                    <h3>Active Connections</h3>
+                    <div class="val" id="stat-active-subs" style="color: #10b981;">0</div>
+                    <small style="color: #10b981; font-size: 0.75rem;">Online & Valid Plans</small>
+                </div>
+                <div class="stat-card" style="border-bottom: 3px solid #f59e0b;">
+                    <h3>Pending Invoices</h3>
+                    <div class="val" id="stat-pending-subs" style="color: #f59e0b;">0</div>
+                    <small style="color: #f59e0b; font-size: 0.75rem;">Due for Payment</small>
+                </div>
+                <div class="stat-card" style="border-bottom: 3px solid #8b5cf6;">
+                    <h3>Est. Monthly Revenue</h3>
+                    <div class="val" id="stat-revenue" style="color: #8b5cf6;">₹0</div>
+                    <small style="color: #94a3b8; font-size: 0.75rem;">Total Collections</small>
+                </div>
+            </div>
+
+            <!-- Quick Actions Control Bar -->
+            <div style="display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: rgba(30, 41, 59, 0.4); padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="openAddSubModal()" style="background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);">
+                        <i class="fa-solid fa-user-plus"></i> Add New Subscriber
+                    </button>
+                    <label style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-file-excel"></i> 1-Click Excel Import
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleBulkExcelUpload(event)" style="display: none;">
+                    </label>
+                    <button onclick="exportSubscribersExcel()" style="background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-download"></i> Export Excel Report
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="syncServerNow()" style="background: rgba(255, 255, 255, 0.06); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;" title="Manual Server Refresh">
+                        <i class="fa-solid fa-rotate"></i> Sync Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Subscribers Quick View Table -->
+            <div class="table-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <h3 style="color: #38bdf8; font-size: 1rem;"><i class="fa-solid fa-clock-rotate-left"></i> Recent Subscribers Activity</h3>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">Live Operational Status</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID / Acc No</th>
+                            <th>Subscriber Name</th>
+                            <th>Phone Number</th>
+                            <th>Assigned Plan</th>
+                            <th>Street / Zone</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dash-recent-subs-table">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #94a3b8; padding: 20px;">
+                                <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.2rem; margin-bottom: 8px; display: block; color: #38bdf8;"></i>
+                                Loading subscribers database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 5: MULTI-WORKER WHATSAPP ALERTS TAB -->
+        <div id="workers-tab" class="tab-section">
+            <div class="table-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.2);">
+                <div style="margin-bottom: 16px;">
+                    <h3 style="color: #38bdf8; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-brands fa-whatsapp" style="color: #25D366; font-size: 1.3rem;"></i> Multi-Worker Instant WhatsApp Alert Routing Engine
+                    </h3>
+                    <p style="color: #94a3b8; font-size: 0.82rem; margin-top: 4px;">
+                        Add 1 to 50+ staff / field workers. Whenever a customer submits a complaint or does a recharge, an automated WhatsApp alert triggers instantly to all configured phone numbers without WhatsApp group dependencies.
+                    </p>
+                </div>
+
+                <!-- Add Worker Form Container -->
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 20px;">
+                    <h4 style="color: #f8fafc; font-size: 0.9rem; margin-bottom: 12px;"><i class="fa-solid fa-user-plus" style="color: #38bdf8;"></i> Register New Staff / Field Worker</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: end;">
+                        <div>
+                            <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 5px;">Worker Full Name</label>
+                            <input type="text" id="new-worker-name" placeholder="e.g. Ramesh Sharma" style="width: 100%; padding: 9px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 0.85rem;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 5px;">WhatsApp Mobile No (with Country Code)</label>
+                            <input type="text" id="new-worker-phone" placeholder="919876543210" style="width: 100%; padding: 9px; background: #0f172a; border: 1px solid #334155; color: #38bdf8; font-weight: 600; border-radius: 6px; font-size: 0.85rem;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 5px;">Assigned Area / Zone</label>
+                            <input type="text" id="new-worker-zone" placeholder="e.g. North Ward / All Zones" style="width: 100%; padding: 9px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 0.85rem;">
+                        </div>
+                        <div>
+                            <button onclick="addWorkerToList()" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fa-solid fa-plus"></i> Save Worker Contact
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configured Workers Table -->
+                <h4 style="color: #f8fafc; font-size: 0.9rem; margin-bottom: 10px;">Active Notification Contacts List</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Worker Name</th>
+                            <th>WhatsApp Phone</th>
+                            <th>Assigned Area / Zone</th>
+                            <th>Alert Trigger Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workers-list-table">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #94a3b8; padding: 15px;">No field workers registered yet. Add worker details above to enable broadcast alerts.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      <!-- TAB 2: FULL SUBSCRIBERS MANAGEMENT TAB -->
+        <div id="subscribers-tab" class="tab-section">
+            <div class="table-card">
+                <!-- Search & Status Filter Controls -->
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div>
+                        <h3 style="color: #38bdf8; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-users-gear"></i> Subscriber Base Directory
+                        </h3>
+                        <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">Search, edit, manage billing & update connection states.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="sub-search-input" onkeyup="filterSubscribersList()" placeholder="🔍 Search Name, Phone, STB or MAC..." style="background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; width: 260px; outline: none;">
+                        <select id="sub-status-filter" onchange="filterSubscribersList()" style="background: #0f172a; border: 1px solid #334155; color: #38bdf8; padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; outline: none; font-weight: 600;">
+                            <option value="ALL">All Statuses</option>
+                            <option value="Active">Active Only</option>
+                            <option value="Pending">Pending / Expired</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                        <button onclick="openAddSubModal()" style="background: #38bdf8; color: #0f172a; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.88rem; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-user-plus"></i> Add Subscriber
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Full Subscribers Data Table -->
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subscriber ID</th>
+                                <th>Customer Name</th>
+                                <th>Contact Number</th>
+                                <th>STB / Router MAC ID</th>
+                                <th>Current Active Plan</th>
+                                <th>Price (₹)</th>
+                                <th>Installation Zone</th>
+                                <th>Status</th>
+                                <th>Action Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-subscribers-table-body">
+                            <tr>
+                                <td colspan="9" style="text-align: center; color: #94a3b8; padding: 25px;">
+                                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 10px; display: block; color: #38bdf8;"></i>
+                                    Fetching live subscriber records...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD / EDIT SUBSCRIBER MODAL POPUP -->
+        <div id="add-sub-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
+            <div style="background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; width: 100%; max-width: 650px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; animation: modalFadeIn 0.3s ease-out;">
+                
+                <!-- Modal Header -->
+                <div style="background: rgba(15, 23, 42, 0.8); padding: 18px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+                    <h3 id="modal-title-text" style="color: #38bdf8; margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-user-plus"></i> Register New Subscriber Profile
+                    </h3>
+                    <button onclick="closeAddSubModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; line-height: 1;">&times;</button>
+                </div>
+
+                <!-- Modal Form Body -->
+                <form id="subscriber-form" onsubmit="handleSaveSubscriber(event)" style="padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                    <input type="hidden" id="edit-sub-doc-id" value="">
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Subscriber Full Name *</label>
+                        <input type="text" id="sub-name" required placeholder="e.g. Rajesh Kumar" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">WhatsApp / Phone Mobile *</label>
+                        <input type="text" id="sub-phone" required placeholder="e.g. 9876543210" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #38bdf8; font-weight: 600; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">STB Number / Router MAC Address</label>
+                        <input type="text" id="sub-stb-mac" placeholder="e.g. STB9920 / AA:BB:CC:11:22" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Assigned Broadband / TV Plan</label>
+                        <input type="text" id="sub-plan-name" placeholder="e.g. 100 Mbps Unlimited / Gold Package" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Plan Monthly Tariff Price (₹) *</label>
+                        <input type="number" id="sub-plan-price" required placeholder="e.g. 599" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #10b981; font-weight: 700; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Street Address / Zone Name</label>
+                        <input type="text" id="sub-zone-address" placeholder="e.g. Plot 42, Sector 4, North Block" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Connection Status</label>
+                        <select id="sub-status-select" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #38bdf8; font-weight: 600; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                            <option value="Active">Active (Online & Paid)</option>
+                            <option value="Pending">Pending (Invoice Due / Payment Awaited)</option>
+                            <option value="Suspended">Suspended (Disabled / Line Cut)</option>
+                        </select>
+                    </div>
+
+                    <!-- Modal Actions Bar -->
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08);">
+                        <button type="button" onclick="closeAddSubModal()" style="background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">Cancel</button>
+                        <button type="submit" style="background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Subscriber Info
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      <!-- TAB 3: PLAN MANAGEMENT ENGINE TAB -->
+        <div id="plans-tab" class="tab-section">
+            <div class="table-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="color: #38bdf8; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-tags"></i> Tariff Plans & Server Wallet Deduct Mapping Engine
+                        </h3>
+                        <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">Map Server Plan IDs with Retail Prices and Main Server Wallet deductions.</p>
+                    </div>
+                    <button onclick="addNewPlanCardUI()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-plus"></i> Create New Plan
+                    </button>
+                </div>
+
+                <!-- Active Plans Container -->
+                <div id="plans-list-container" style="display: flex; flex-direction: column; gap: 14px;">
+                    <!-- Sample Plan Cards populated dynamically -->
+                    <div class="plan-card" style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: center;">
+                            <div>
+                                <label style="color: #94a3b8; font-size: 0.75rem; display: block; margin-bottom: 4px;">Plan Display Name</label>
+                                <input type="text" value="50 Mbps Unlimited WiFi" style="width: 100%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="color: #38bdf8; font-size: 0.75rem; display: block; margin-bottom: 4px;">Server Plan ID (Unique Code)</label>
+                                <input type="text" value="PRO_50M_FIBER" style="width: 100%; padding: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #38bdf8; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="color: #10b981; font-size: 0.75rem; display: block; margin-bottom: 4px;">Customer Price (₹)</label>
+                                <input type="number" value="500" style="width: 100%; padding: 8px; background: #0f172a; color: #10b981; border: 1px solid #10b981; border-radius: 6px; font-weight: 700; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="color: #ef4444; font-size: 0.75rem; display: block; margin-bottom: 4px;">Server Wallet Cut (₹)</label>
+                                <input type="number" value="300" style="width: 100%; padding: 8px; background: #0f172a; color: #ef4444; border: 1px solid #ef4444; border-radius: 6px; font-weight: 700; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="color: #8b5cf6; font-size: 0.75rem; display: block; margin-bottom: 4px;">Operator Profit (₹)</label>
+                                <input type="text" value="₹200 Net Profit" readonly style="width: 100%; padding: 8px; background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px; font-weight: 700; font-size: 0.85rem;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+                    <button onclick="savePlansConfiguration()" style="background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; border: none; padding: 10px 22px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);">
+                        <i class="fa-solid fa-floppy-disk"></i> Save & Sync All Tariff Plans
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: MAIN SERVER CONNECTION CONTROL ROOM -->
+        <div id="server-tab" class="tab-section">
+            <div class="table-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.3);">
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-server"></i> Main Core Server Connection Control Room
+                    </h3>
+                    <p style="color: #94a3b8; font-size: 0.82rem; margin-top: 4px;">
+                        Configure MikroTik RouterOS, RADIUS AAA Server, or OLT GPON API endpoints to automate line activation and billing sync.
+                    </p>
+                </div>
+
+                <!-- Server Connection Form -->
+                <form id="server-config-form" onsubmit="handleSaveServerSettings(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                    
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Server Type / Protocol</label>
+                        <select id="server-type" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #38bdf8; font-weight: 600; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                            <option value="mikrotik">MikroTik RouterOS API</option>
+                            <option value="radius">FreeRADIUS / RADIUS AAA Server</option>
+                            <option value="olt">OLT / GPON Hardware Controller</option>
+                            <option value="custom_rest">Custom REST API Server Endpoint</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Main Server IP / Host Domain *</label>
+                        <input type="text" id="server-ip" required placeholder="e.g. 192.168.88.1 or api.ispcore.com" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">API Port Number</label>
+                        <input type="number" id="server-port" placeholder="e.g. 8728 (MikroTik API) / 443" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">API Secret Key / Admin Password *</label>
+                        <input type="password" id="server-secret" required placeholder="••••••••••••••••" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <!-- Actions Bar -->
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px;">
+                        <button type="button" onclick="testServerPingConnection()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-network-wired"></i> Test Server Connection Ping
+                        </button>
+                        <button type="submit" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-link"></i> Connect & Save Server Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      <!-- SYSTEM SETTINGS MODAL POPUP -->
+        <div id="settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
+            <div style="background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; width: 100%; max-width: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; animation: modalFadeIn 0.3s ease-out;">
+                
+                <!-- Modal Header -->
+                <div style="background: rgba(15, 23, 42, 0.8); padding: 18px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="color: #38bdf8; margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-gears"></i> ISP Portal Engine Core Settings
+                    </h3>
+                    <button onclick="closeSettingsModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; line-height: 1;">&times;</button>
+                </div>
+
+                <!-- Modal Form Body -->
+                <form id="system-settings-form" onsubmit="handleSaveSystemSettings(event)" style="padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">WhatsApp Gateway API Host URL</label>
+                        <input type="text" id="cfg-wa-url" placeholder="https://api.whatsapp-gateway.com/send" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">WhatsApp Instance / Secret Token</label>
+                        <input type="password" id="cfg-wa-token" placeholder="••••••••••••••••" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Auto-Sync Realtime Interval (Seconds)</label>
+                        <input type="number" id="cfg-sync-interval" value="30" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #10b981; font-weight: 700; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">Operator Brand Name</label>
+                        <input type="text" id="cfg-brand-name" placeholder="SuperSpeed Broadband & TV" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 0.88rem; outline: none;">
+                    </div>
+
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08);">
+                        <button type="button" onclick="closeSettingsModal()" style="background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">Close</button>
+                        <button type="submit" style="background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);">
+                            <i class="fa-solid fa-floppy-disk"></i> Save System Config
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div> <!-- CLOSE MAIN DASHBOARD WRAPPER CONTAINER -->
+
+    <!-- ================================================================= -->
+    <!-- MASTER JAVASCRIPT CORE ENGINE ARCHITECTURE                        -->
+    <!-- ================================================================= -->
+    <script>
+        // GLOBAL STATE MANAGEMENT STORE
+        window.AppState = {
+            subscribers: [],
+            plans: [],
+            workers: [],
+            serverConfig: {},
+            systemConfig: {
+                waUrl: '',
+                waToken: '',
+                syncInterval: 30,
+                brandName: 'ISP Core Admin'
+            }
+        };
+
+        // DOM CONTENT LOADED INITIALIZER
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Initializing ISP Universal Portal Engine...');
+            loadStoredLocalData();
+            initTabSwitchingRouter();
+            calculateRealtimeStats();
+            renderAllDashboardViews();
+        });
+
+        // 1. TAB SWITCHING ROUTER ENGINE
+        function initTabSwitchingRouter() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const tabSections = document.querySelectorAll('.tab-section');
+
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.getAttribute('data-tab');
+
+                    // Active State Reset for Buttons
+                    navButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Active State Reset for Tab Panels
+                    tabSections.forEach(tab => {
+                        if (tab.id === `${targetTab}-tab`) {
+                            tab.classList.add('active');
+                        } else {
+                            tab.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        // 2. LOCAL STORAGE DATA PERSISTENCE INITIALIZER
+        function loadStoredLocalData() {
+            try {
+                const storedSubs = localStorage.getItem('isp_subscribers');
+                const storedPlans = localStorage.getItem('isp_plans');
+                const storedWorkers = localStorage.getItem('isp_workers');
+                const storedServer = localStorage.getItem('isp_server_config');
+                const storedSys = localStorage.getItem('isp_sys_config');
+
+                if (storedSubs) AppState.subscribers = JSON.parse(storedSubs);
+                if (storedPlans) AppState.plans = JSON.parse(storedPlans);
+                if (storedWorkers) AppState.workers = JSON.parse(storedWorkers);
+                if (storedServer) AppState.serverConfig = JSON.parse(storedServer);
+                if (storedSys) AppState.systemConfig = JSON.parse(storedSys);
+                
+            } catch (err) {
+                console.error('Error loading stored configuration:', err);
+            }
+        }
+
+        // 3. GLOBAL LOCALSTORAGE SAVER
+        function saveStateToStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (err) {
+                console.error('Error saving state to localStorage:', err);
+            }
+        }
+      // 4. REALTIME STATS & REVENUE CALCULATOR ENGINE
+        function calculateRealtimeStats() {
+            const subs = AppState.subscribers || [];
+            
+            const totalCount = subs.length;
+            const activeCount = subs.filter(s => (s.status || '').toLowerCase() === 'active').length;
+            const pendingCount = subs.filter(s => (s.status || '').toLowerCase() === 'pending').length;
+            
+            const totalRevenue = subs.reduce((sum, s) => {
+                const price = parseFloat(s.price || s.planPrice || 0);
+                return sum + (isNaN(price) ? 0 : price);
+            }, 0);
+
+            // Update UI Counters
+            const elTotal = document.getElementById('stat-total-subs');
+            const elActive = document.getElementById('stat-active-subs');
+            const elPending = document.getElementById('stat-pending-subs');
+            const elRev = document.getElementById('stat-revenue');
+
+            if (elTotal) elTotal.innerText = totalCount;
+            if (elActive) elActive.innerText = activeCount;
+            if (elPending) elPending.innerText = pendingCount;
+            if (elRev) elRev.innerText = `₹${totalRevenue.toLocaleString('en-IN')}`;
+        }
+
+        // 5. MASTER RENDER CONTROLLER
+        function renderAllDashboardViews() {
+            renderDashboardRecentTable();
+            renderFullSubscribersTable();
+            renderWorkersTable();
+            renderPlansListUI();
+        }
+
+        // 6. DASHBOARD RECENT SUBSCRIBERS TABLE RENDERER
+        function renderDashboardRecentTable() {
+            const tbody = document.getElementById('dash-recent-subs-table');
+            if (!tbody) return;
+
+            const list = AppState.subscribers.slice(0, 10); // Display top 10 recent
+
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 20px;">
+                            No subscriber records available. Click "Add New Subscriber" or import from Excel.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map((s, idx) => `
+                <tr>
+                    <td style="font-weight: 600; color: #38bdf8;">${s.id || `SUB-${1001 + idx}`}</td>
+                    <td style="font-weight: 600; color: #f8fafc;">${escapeHtml(s.name || 'N/A')}</td>
+                    <td><a href="https://wa.me/${cleanPhone(s.phone)}" target="_blank" style="color: #25D366; text-decoration: none; font-weight: 600;"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(s.phone || 'N/A')}</a></td>
+                    <td><span style="background: rgba(15, 23, 42, 0.8); padding: 4px 8px; border-radius: 4px; border: 1px solid #334155;">${escapeHtml(s.plan || s.planName || 'Basic Fiber')}</span></td>
+                    <td>${escapeHtml(s.address || s.zone || 'Main Zone')}</td>
+                    <td>
+                        <span class="badge ${getStatusBadgeClass(s.status)}">${escapeHtml(s.status || 'Active')}</span>
+                    </td>
+                    <td>
+                        <button onclick="editSubscriberModal('${s.id || idx}')" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.78rem;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 7. FULL SUBSCRIBERS DIRECTORY TABLE RENDERER
+        function renderFullSubscribersTable() {
+            const tbody = document.getElementById('full-subscribers-table-body');
+            if (!tbody) return;
+
+            const searchVal = (document.getElementById('sub-search-input')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('sub-status-filter')?.value || 'ALL';
+
+            let filtered = AppState.subscribers.filter(s => {
+                const matchesSearch = 
+                    (s.name || '').toLowerCase().includes(searchVal) ||
+                    (s.phone || '').toLowerCase().includes(searchVal) ||
+                    (s.stb || s.mac || '').toLowerCase().includes(searchVal) ||
+                    (s.id || '').toLowerCase().includes(searchVal);
+
+                const matchesStatus = statusFilter === 'ALL' || (s.status || '').toLowerCase() === statusFilter.toLowerCase();
+
+                return matchesSearch && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: #94a3b8; padding: 25px;">
+                            No matching subscribers found for the applied search criteria.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((s, idx) => `
+                <tr>
+                    <td style="font-weight: 700; color: #38bdf8;">${s.id || `SUB-${1001 + idx}`}</td>
+                    <td style="font-weight: 600; color: #f8fafc;">${escapeHtml(s.name || 'N/A')}</td>
+                    <td><a href="https://wa.me/${cleanPhone(s.phone)}" target="_blank" style="color: #25D366; text-decoration: none; font-weight: 600;"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(s.phone || 'N/A')}</a></td>
+                    <td style="font-family: monospace; color: #c084fc;">${escapeHtml(s.stb || s.mac || 'N/A')}</td>
+                    <td>${escapeHtml(s.plan || s.planName || 'Standard WiFi')}</td>
+                    <td style="font-weight: 700; color: #10b981;">₹${s.price || s.planPrice || 0}</td>
+                    <td>${escapeHtml(s.address || s.zone || 'Default Ward')}</td>
+                    <td>
+                        <span class="badge ${getStatusBadgeClass(s.status)}">${escapeHtml(s.status || 'Active')}</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="toggleSubscriberStatus('${s.id || idx}')" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;" title="Toggle Status">
+                                <i class="fa-solid fa-power-off"></i>
+                            </button>
+                            <button onclick="editSubscriberModal('${s.id || idx}')" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteSubscriberRecord('${s.id || idx}')" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 8. SUBSCRIBER FILTERING TRIGGER
+        function filterSubscribersList() {
+            renderFullSubscribersTable();
+        }
+
+        // 9. MODAL CONTROL & FORM HANDLERS
+        function openAddSubModal() {
+            document.getElementById('subscriber-form').reset();
+            document.getElementById('edit-sub-doc-id').value = '';
+            document.getElementById('modal-title-text').innerHTML = '<i class="fa-solid fa-user-plus"></i> Register New Subscriber Profile';
+            const modal = document.getElementById('add-sub-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeAddSubModal() {
+            const modal = document.getElementById('add-sub-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function handleSaveSubscriber(e) {
+            e.preventDefault();
+            
+            const docId = document.getElementById('edit-sub-doc-id').value;
+            const newSub = {
+                id: docId || `SUB-${Date.now().toString().slice(-5)}`,
+                name: document.getElementById('sub-name').value.trim(),
+                phone: document.getElementById('sub-phone').value.trim(),
+                stb: document.getElementById('sub-stb-mac').value.trim(),
+                plan: document.getElementById('sub-plan-name').value.trim(),
+                price: parseFloat(document.getElementById('sub-plan-price').value || 0),
+                address: document.getElementById('sub-zone-address').value.trim(),
+                status: document.getElementById('sub-status-select').value
+            };
+
+            if (docId) {
+                const index = AppState.subscribers.findIndex(s => s.id === docId);
+                if (index !== -1) AppState.subscribers[index] = newSub;
+            } else {
+                AppState.subscribers.unshift(newSub);
+            }
+
+            saveStateToStorage('isp_subscribers', AppState.subscribers);
+            calculateRealtimeStats();
+            renderAllDashboardViews();
+            closeAddSubModal();
+            alert(`Subscriber "${newSub.name}" saved successfully!`);
+        }
+
+        function editSubscriberModal(subId) {
+            const sub = AppState.subscribers.find((s, i) => s.id === subId || i == subId);
+            if (!sub) return;
+
+            document.getElementById('edit-sub-doc-id').value = sub.id || '';
+            document.getElementById('sub-name').value = sub.name || '';
+            document.getElementById('sub-phone').value = sub.phone || '';
+            document.getElementById('sub-stb-mac').value = sub.stb || sub.mac || '';
+            document.getElementById('sub-plan-name').value = sub.plan || sub.planName || '';
+            document.getElementById('sub-plan-price').value = sub.price || sub.planPrice || '';
+            document.getElementById('sub-zone-address').value = sub.address || sub.zone || '';
+            document.getElementById('sub-status-select').value = sub.status || 'Active';
+
+            document.getElementById('modal-title-text').innerHTML = '<i class="fa-solid fa-user-pen"></i> Update Subscriber Info';
+            document.getElementById('add-sub-modal').style.display = 'flex';
+        }
+
+        function toggleSubscriberStatus(subId) {
+            const sub = AppState.subscribers.find((s, i) => s.id === subId || i == subId);
+            if (!sub) return;
+
+            sub.status = (sub.status === 'Active') ? 'Pending' : 'Active';
+            saveStateToStorage('isp_subscribers', AppState.subscribers);
+            calculateRealtimeStats();
+            renderAllDashboardViews();
+        }
+
+        function deleteSubscriberRecord(subId) {
+            if (!confirm('Are you sure you want to delete this subscriber record?')) return;
+            AppState.subscribers = AppState.subscribers.filter((s, i) => s.id !== subId && i != subId);
+            saveStateToStorage('isp_subscribers', AppState.subscribers);
+            calculateRealtimeStats();
+            renderAllDashboardViews();
+        }
+
+        // 10. EXCEL BULK UPLOAD & EXPORT ENGINE
+        function handleBulkExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                    if (jsonData.length === 0) {
+                        alert('Excel sheet is empty!');
+                        return;
+                    }
+
+                    const importedSubs = jsonData.map((row, index) => ({
+                        id: row['Subscriber ID'] || row['ID'] || `EXCEL-${1000 + index}`,
+                        name: row['Customer Name'] || row['Name'] || 'Unnamed Customer',
+                        phone: String(row['Phone'] || row['Mobile'] || ''),
+                        stb: row['STB ID'] || row['MAC'] || '',
+                        plan: row['Plan Name'] || row['Plan'] || 'Standard Pack',
+                        price: parseFloat(row['Price'] || row['Amount'] || 0),
+                        address: row['Address'] || row['Zone'] || 'General Zone',
+                        status: row['Status'] || 'Active'
+                    }));
+
+                    AppState.subscribers = [...importedSubs, ...AppState.subscribers];
+                    saveStateToStorage('isp_subscribers', AppState.subscribers);
+                    calculateRealtimeStats();
+                    renderAllDashboardViews();
+                    alert(`Successfully imported ${importedSubs.length} subscribers from Excel!`);
+                } catch (err) {
+                    alert('Error parsing Excel file. Please ensure it is a valid XLSX/CSV document.');
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function exportSubscribersExcel() {
+            if (AppState.subscribers.length === 0) {
+                alert('No subscriber data available to export.');
+                return;
+            }
+
+            const exportData = AppState.subscribers.map(s => ({
+                'Subscriber ID': s.id,
+                'Customer Name': s.name,
+                'Phone Number': s.phone,
+                'STB / MAC Address': s.stb || s.mac || '',
+                'Plan Name': s.plan,
+                'Monthly Price': s.price,
+                'Address / Zone': s.address,
+                'Connection Status': s.status
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Subscribers");
+            XLSX.writeFile(workbook, `ISP_Subscribers_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+      /* Authentication Engine */
+function checkPersistentAuth() {
+    firebaseBridgeReady = true;
+    
+    if (firebaseAuth && !firebaseAuthObserverAttached) {
+        firebaseAuthObserverAttached = true;
+        
+        firebaseAuth.onAuthStateChanged((user) => {
+            const loader = document.getElementById('eagle-loader-overlay');
+            const appWrapper = document.getElementById('app-wrapper');
+
+            if (user) {
+                // User Logged In -> Hide loader & Show dashboard
+                if (loader) loader.style.display = 'none';
+                if (appWrapper) appWrapper.style.display = 'flex';
+                if (typeof renderDashboard === 'function') renderDashboard();
+            } else {
+                // User Not Logged In -> Redirect to login page
+                if (loader) loader.style.display = 'none';
+                window.location.href = "index.html";
+            }
+        });
+    }
+}
