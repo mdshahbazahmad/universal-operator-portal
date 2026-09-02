@@ -115,6 +115,14 @@
   <script src="script.js"></script>
 
   <script>
+    // Force render immediately (hard forced-render). This runs as the very first executable lines in the script
+    try{
+      const _loader = document.getElementById('eagle-loader');
+      if(_loader) _loader.style.display = 'none';
+      const _app = document.getElementById('app-wrapper');
+      if(_app) _app.style.display = 'block';
+    }catch(e){ /* ignore */ }
+
     // Master dashboard script with safe firebase reads and fallbacks + strict timeouts
     window.AppState = window.AppState || { subscribers: [], plans: [], workers: [] };
 
@@ -319,8 +327,13 @@
           });
         }
 
-        // Immediately unhide UI and hide loader so dashboard is visible without waiting for auth
-        hideLoaderAndShowApp();
+        // Ensure forced hide/show is executed at the very start of DOMContentLoaded as well
+        try{
+          const _loader2 = document.getElementById('eagle-loader');
+          if(_loader2) _loader2.style.display = 'none';
+          const _app2 = document.getElementById('app-wrapper');
+          if(_app2) _app2.style.display = 'block';
+        }catch(e){}
 
         // Initialize firebase SDK non-blocking
         initFirebaseIfNeeded();
