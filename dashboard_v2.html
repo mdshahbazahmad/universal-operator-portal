@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Eagle Network SBZ - Dashboard v2</title>
+  <title>Eagle Network SBZ - Dashboard v2 (Master)</title>
 
-  <!-- Icons & CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
-    /* Minimal, safe dashboard styles (keeps layout stable) */
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:#0b0f19;color:#f8fafc}
     #eagle-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0b0f19;z-index:9999}
@@ -23,22 +23,21 @@
     .table-card{background:rgba(30,41,59,.6);border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,.06)}
     .stat-card{background:rgba(30,41,59,.6);padding:12px;border-radius:8px}
     .hidden{display:none}
-    /* responsive */
     @media (max-width:800px){.sidebar{position:relative;width:100%;height:auto}.main-content{margin-left:0}}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .badge{padding:4px 8px;border-radius:8px;background:#ef4444;color:#fff}
   </style>
 
-  <!-- Firebase compat SDKs (ensure compat build is available before inline init runs) -->
+  <!-- Firebase compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
-  <!-- XLSX for export/import UI actions (optional) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
-  <!-- Loader -->
   <div id="eagle-loader">
     <div style="text-align:center">
       <div class="eagle-spinner" aria-hidden="true"></div>
@@ -46,26 +45,24 @@
     </div>
   </div>
 
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
       <i class="fa-solid fa-tower-cell" style="font-size:20px;color:#38bdf8"></i>
       <strong style="color:#f8fafc">Eagle Network SBZ</strong>
     </div>
     <ul class="nav-links">
-      <li><a href="#" class="active" onclick="switchTab('dashboard-tab')"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
-      <li><a href="#" onclick="switchTab('subscribers-tab')"><i class="fa-solid fa-users"></i> Subscribers</a></li>
-      <li><a href="#" onclick="switchTab('plans-tab')"><i class="fa-solid fa-tags"></i> Plans</a></li>
-      <li><a href="#" onclick="switchTab('server-tab')"><i class="fa-solid fa-server"></i> Server</a></li>
+      <li><a href="#" class="active" data-tab="dashboard-tab"> <i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="#" data-tab="subscribers-tab"> <i class="fa-solid fa-users"></i> Subscribers</a></li>
+      <li><a href="#" data-tab="plans-tab"> <i class="fa-solid fa-tags"></i> Plans</a></li>
+      <li><a href="#" data-tab="server-tab"> <i class="fa-solid fa-server"></i> Server</a></li>
+      <li><a href="#" data-tab="complaints-tab"> <i class="fa-solid fa-headset"></i> Complaints</a></li>
     </ul>
     <div style="position:relative;top:20px">
-      <button onclick="handlePortalLogout()" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.08);color:#ef4444"> <i class="fa-solid fa-power-off"></i> Logout</button>
+      <button id="logout-btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.08);color:#ef4444"> <i class="fa-solid fa-power-off"></i> Logout</button>
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main-content" id="app-wrapper" style="display:none">
-
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div>
         <h1 style="margin:0;font-size:1.2rem;color:#f8fafc">EAGLE NETWORK SBZ</h1>
@@ -82,117 +79,222 @@
         <div class="stat-card"><small>Total Subscribers</small><div id="stat-total-subs" style="font-weight:700">0</div></div>
         <div class="stat-card"><small>Active</small><div id="stat-active-subs" style="font-weight:700;color:#10b981">0</div></div>
         <div class="stat-card"><small>Pending</small><div id="stat-pending-subs" style="font-weight:700;color:#f59e0b">0</div></div>
+        <div class="stat-card"><small>Monthly Revenue</small><div id="stat-revenue" style="font-weight:700;color:#8b5cf6">₹0</div></div>
       </div>
 
       <div class="table-card">
         <h3 style="margin-top:0;color:#38bdf8">Recent Subscribers</h3>
-        <div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Status</th></tr></thead><tbody id="dash-recent-subs-table"><tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">Loading...</td></tr></tbody></table></div>
+        <div style="overflow:auto"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Status</th></tr></thead><tbody id="dash-recent-subs-table"><tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">Loading...</td></tr></tbody></table></div>
       </div>
     </section>
 
     <section id="subscribers-tab" class="tab-section hidden">
       <div class="table-card"><h3 style="margin-top:0;color:#38bdf8">All Subscribers</h3>
-        <div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Plan</th></tr></thead><tbody id="full-subscribers-table-body"><tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">No records</td></tr></tbody></table></div>
+        <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Plan</th><th>Status</th></tr></thead><tbody id="full-subscribers-table-body"><tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No records</td></tr></tbody></table></div>
       </div>
     </section>
 
     <section id="plans-tab" class="tab-section hidden">
-      <div class="table-card"><h3 style="margin-top:0;color:#38bdf8">Plans</h3><p style="color:#94a3b8">Manage tariff plans</p></div>
+      <div class="table-card"><h3 style="margin-top:0;color:#38bdf8">Plans</h3><p style="color:#94a3b8">Manage tariff plans</p>
+        <div id="plans-table-container"></div>
+      </div>
     </section>
 
     <section id="server-tab" class="tab-section hidden">
       <div class="table-card"><h3 style="margin-top:0;color:#38bdf8">Server</h3><p style="color:#94a3b8">Main server connection controls</p></div>
     </section>
 
+    <section id="complaints-tab" class="tab-section hidden">
+      <div class="table-card"><h3 style="margin-top:0;color:#38bdf8">Complaints</h3><div id="complaints-list">No complaints yet.</div></div>
+    </section>
+
   </main>
 
-  <!-- Include local scripts (keeps existing login page script.js and server integration logic) -->
+  <!-- include existing scripts for server and login functionality (they exist in repo) -->
   <script src="server-integration.js"></script>
   <script src="script.js"></script>
 
-  <!-- Inline: Firebase init + loop-safe auth listener for dashboard -->
   <script>
-    (function(){
-      // Use the same firebaseConfig as other pages. Keep databaseURL for realtime DB parity.
-      const firebaseConfig = {
-        apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
-        authDomain: "universal-portal-dashboard.firebaseapp.com",
-        projectId: "universal-portal-dashboard",
-        storageBucket: "universal-portal-dashboard.firebasestorage.app",
-        messagingSenderId: "403036962443",
-        appId: "1:403036962443:web:5a15ac684c76efd2c3de8e",
-        databaseURL: "https://universal-portal-dashboard-default-rtdb.firebaseio.com"
-      };
+    // Master dashboard script with safe firebase reads and fallbacks
+    window.AppState = window.AppState || { subscribers: [], plans: [], workers: [] };
 
-      // Wait for firebase SDK to be available
-      function whenFirebaseReady(cb){
-        if(window.firebase && firebase.auth){
-          return cb();
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+      authDomain: "universal-portal-dashboard.firebaseapp.com",
+      projectId: "universal-portal-dashboard",
+      storageBucket: "universal-portal-dashboard.firebasestorage.app",
+      messagingSenderId: "403036962443",
+      appId: "1:403036962443:web:5a15ac684c76efd2c3de8e",
+      databaseURL: "https://universal-portal-dashboard-default-rtdb.firebaseio.com"
+    };
+
+    // safe utility
+    function safeRun(fn){ try{ return fn(); }catch(e){ console.error('SafeRun error',e); return undefined; } }
+
+    // show fallback when subscribers empty
+    function showSubscribersEmptyFallback(){
+      const tbody = document.getElementById('dash-recent-subs-table');
+      if(!tbody) return;
+      tbody.innerHTML = `\n        <tr>\n          <td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td>\n        </tr>`;
+      const full = document.getElementById('full-subscribers-table-body');
+      if(full) full.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td></tr>`;
+      document.getElementById('stat-total-subs').innerText = '0';
+      document.getElementById('stat-active-subs').innerText = '0';
+      document.getElementById('stat-pending-subs').innerText = '0';
+      document.getElementById('stat-revenue').innerText = '₹0';
+    }
+
+    // render functions safe-guarded
+    function renderRecentSubscribers(){
+      try{
+        const tbody = document.getElementById('dash-recent-subs-table');
+        if(!tbody) return;
+        const list = Array.isArray(AppState.subscribers) ? AppState.subscribers.slice(0,10) : [];
+        if(list.length === 0){ showSubscribersEmptyFallback(); return; }
+        tbody.innerHTML = list.map(s=>`<tr><td>${s.id||'-'}</td><td>${escapeHtml(s.name||'—')}</td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.status||'—')}</td></tr>`).join('');
+      }catch(err){ console.error('renderRecentSubscribers error',err); showSubscribersEmptyFallback(); }
+    }
+
+    function renderFullSubscribers(){
+      try{
+        const tbody = document.getElementById('full-subscribers-table-body'); if(!tbody) return;
+        const list = Array.isArray(AppState.subscribers) ? AppState.subscribers : [];
+        if(list.length === 0){ tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td></tr>`; return; }
+        tbody.innerHTML = list.map(s=>`<tr><td>${s.id||''}</td><td>${escapeHtml(s.name||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.plan||'')}</td><td>${escapeHtml(s.status||'')}</td></tr>`).join('');
+      }catch(err){ console.error('renderFullSubscribers error',err); document.getElementById('full-subscribers-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">Error loading subscribers.</td></tr>`; }
+    }
+
+    function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function updateStats(){
+      try{
+        const subs = Array.isArray(AppState.subscribers) ? AppState.subscribers : [];
+        const total = subs.length;
+        const active = subs.filter(s=> (s.status||'').toLowerCase() === 'active').length;
+        const pending = subs.filter(s=> (s.status||'').toLowerCase() === 'pending').length;
+        const revenue = subs.reduce((acc,s)=> acc + (parseFloat(s.price||0)||0),0);
+        document.getElementById('stat-total-subs').innerText = total;
+        document.getElementById('stat-active-subs').innerText = active;
+        document.getElementById('stat-pending-subs').innerText = pending;
+        document.getElementById('stat-revenue').innerText = `₹${revenue.toLocaleString('en-IN')}`;
+      }catch(err){ console.error('updateStats error',err); }
+    }
+
+    // Attempt to fetch subscribers from Firebase (safe tries)
+    async function fetchSubscribersFromFirebase(){
+      let fetched = [];
+      // Try Realtime DB first
+      try{
+        if(window.firebase && firebase.database){
+          const snap = await firebase.database().ref('subscribers').once('value');
+          const val = snap && snap.val();
+          if(val){
+            if(Array.isArray(val)) fetched = val.filter(Boolean);
+            else fetched = Object.keys(val).map(k=> ({ id:k, ...(val[k]||{}) }));
+          }
         }
-        const to = setInterval(()=>{ if(window.firebase && firebase.auth){ clearInterval(to); cb(); } }, 300);
-        // safety fallback
-        setTimeout(()=>{ clearInterval(to); if(window.firebase && firebase.auth) cb(); else cb(); }, 5000);
-      }
+      }catch(err){ console.warn('Realtime DB read failed',err); }
 
-      whenFirebaseReady(()=>{
-        try{ if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); }catch(e){ /* ignore */ }
-        const auth = firebase.auth();
-
-        // Debounce/lock to prevent rapid redirect loops across tabs/pages
-        let authGuard = false;
-        function safeRedirect(url){
-          if(authGuard) return;
-          authGuard = true;
-          window.location.href = url;
-          // allow future redirects after short interval
-          setTimeout(()=>{ authGuard = false; }, 1200);
-        }
-
-        // Attach single observer
-        auth.onAuthStateChanged((user)=>{
-          const loader = document.getElementById('eagle-loader');
-          const app = document.getElementById('app-wrapper');
-
-          if(user){
-            // Show app and hide loader
-            if(loader) loader.style.display = 'none';
-            if(app) app.style.display = 'block';
-            // Populate basic user info (if available)
-            try{ document.getElementById('userNameDisplay').innerText = user.displayName || 'Operator Panel'; document.getElementById('userEmailDisplay').innerText = user.email || 'Signed in'; }catch(e){}
-            // initialize app state (simple safe calls)
-            try{ if(typeof loadStoredLocalData === 'function') loadStoredLocalData(); if(typeof renderAllDashboardViews === 'function') renderAllDashboardViews(); }catch(e){ console.warn('Dashboard init warning',e); }
-          } else {
-            // Not signed in: redirect to the login page once
-            if(loader) loader.style.display = 'none';
-            if(!window.location.pathname.includes('index.html')){
-              safeRedirect('index.html');
+      // If nothing, try Firestore
+      if(fetched.length === 0){
+        try{
+          if(window.firebase && firebase.firestore){
+            const col = await firebase.firestore().collection('subscribers').get();
+            if(col && !col.empty){
+              fetched = col.docs.map(d=> ({ id: d.id, ...(d.data()||{}) }));
             }
           }
-        });
+        }catch(err){ console.warn('Firestore read failed',err); }
+      }
 
-        // Additionally hide loader if nothing else happens after timeout
-        setTimeout(()=>{ const l = document.getElementById('eagle-loader'); if(l) l.style.display = 'none'; const a = document.getElementById('app-wrapper'); if(a && a.style.display==='none') a.style.display='block'; }, 6000);
-      });
+      // If still nothing, try localStorage
+      if(fetched.length === 0){
+        try{
+          const raw = localStorage.getItem('isp_subscribers');
+          if(raw) fetched = JSON.parse(raw) || [];
+        }catch(e){ console.warn('localStorage parse failed',e); }
+      }
 
-      // Simple tab switcher used by sidebar links
-      window.switchTab = function(tab){
-        document.querySelectorAll('.tab-section').forEach(s=>s.classList.add('hidden'));
-        const el = document.getElementById(tab);
-        if(el) el.classList.remove('hidden');
-        // mark nav active
-        document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
-        const nav = Array.from(document.querySelectorAll('.nav-links a')).find(a=>a.getAttribute('onclick') && a.getAttribute('onclick').includes(tab));
-        if(nav) nav.classList.add('active');
-      };
+      return fetched;
+    }
 
-      // Logout helper used by sidebar
-      window.handlePortalLogout = function(){
-        if(confirm('Log out from Eagle Network Portal?')){
-          try{ const a = firebase.auth(); if(a) a.signOut().then(()=>{ window.location.href='index.html'; }).catch(()=>{ window.location.href='index.html'; }); }catch(e){ window.location.href='index.html'; }
+    // Initialize firebase app (if not already initialized)
+    function initFirebaseIfNeeded(){
+      try{
+        if(window.firebase && firebase.apps && !firebase.apps.length){
+          firebase.initializeApp(firebaseConfig);
         }
-      };
+      }catch(e){ console.warn('Firebase init error',e); }
+    }
 
-    })();
+    // Main initialize sequence
+    async function initDashboard(){
+      try{
+        initFirebaseIfNeeded();
+
+        // Attach auth observer (guarded)
+        try{
+          if(window.firebase && firebase.auth){
+            firebase.auth().onAuthStateChanged(async (user)=>{
+              const loader = document.getElementById('eagle-loader');
+              const app = document.getElementById('app-wrapper');
+              if(user){
+                if(loader) loader.style.display = 'none';
+                if(app) app.style.display = 'block';
+                document.getElementById('userNameDisplay').innerText = user.displayName || 'Operator Panel';
+                document.getElementById('userEmailDisplay').innerText = user.email || 'Signed in';
+                // fetch subscribers but don't crash if fails
+                try{
+                  const subs = await fetchSubscribersFromFirebase();
+                  AppState.subscribers = Array.isArray(subs) ? subs : [];
+                }catch(e){ console.warn('fetchSubscribersFromFirebase error',e); AppState.subscribers = AppState.subscribers || []; }
+                // render
+                updateStats(); renderRecentSubscribers(); renderFullSubscribers();
+              } else {
+                if(loader) loader.style.display = 'none';
+                // if not on login page, redirect once
+                if(!window.location.pathname.includes('index.html')){ window.location.href = 'index.html'; }
+              }
+            });
+          } else {
+            // no auth available — fallback: load from localStorage and show UI
+            const local = localStorage.getItem('isp_subscribers');
+            try{ AppState.subscribers = local ? JSON.parse(local) : []; }catch(e){ AppState.subscribers = []; }
+            document.getElementById('eagle-loader').style.display = 'none';
+            document.getElementById('app-wrapper').style.display = 'block';
+            updateStats(); renderRecentSubscribers(); renderFullSubscribers();
+          }
+        }catch(authErr){ console.warn('auth init error',authErr); }
+
+      }catch(err){ console.error('initDashboard error',err); document.getElementById('eagle-loader').style.display='none'; document.getElementById('app-wrapper').style.display='block'; showSubscribersEmptyFallback(); }
+    }
+
+    // Tab switching (simple)
+    function setupTabs(){
+      document.querySelectorAll('.nav-links a').forEach(a=>{
+        a.addEventListener('click', (e)=>{
+          e.preventDefault();
+          document.querySelectorAll('.nav-links a').forEach(x=>x.classList.remove('active'));
+          a.classList.add('active');
+          const tab = a.getAttribute('data-tab');
+          document.querySelectorAll('.tab-section').forEach(s=>s.classList.add('hidden'));
+          const el = document.getElementById(tab);
+          if(el) el.classList.remove('hidden');
+        });
+      });
+    }
+
+    // Wire logout button safely
+    document.getElementById('logout-btn').addEventListener('click', ()=>{
+      try{ if(window.firebase && firebase.auth){ firebase.auth().signOut().finally(()=>{ window.location.href='index.html'; }); } else { window.location.href='index.html'; } }catch(e){ window.location.href='index.html'; }
+    });
+
+    // DOM ready
+    document.addEventListener('DOMContentLoaded', ()=>{
+      try{ setupTabs(); initDashboard(); }catch(e){ console.error('DOMContentLoaded error',e); document.getElementById('eagle-loader').style.display='none'; document.getElementById('app-wrapper').style.display='block'; showSubscribersEmptyFallback(); }
+    });
+
   </script>
+
 </body>
 </html>
