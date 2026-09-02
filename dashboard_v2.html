@@ -58,7 +58,7 @@
       <li><a href="#" data-tab="complaints-tab"> <i class="fa-solid fa-headset"></i> Complaints</a></li>
     </ul>
     <div style="position:relative;top:20px">
-      <button id="logout-btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.08);color:#ef4444"> <i class="fa-solid fa-power-off"></i> Logout</button>
+      <button id="logout-btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.08);color:#ef4444"> <i class="fa-solid fa-power-off"><[...]
     </div>
   </aside>
 
@@ -84,13 +84,13 @@
 
       <div class="table-card">
         <h3 style="margin-top:0;color:#38bdf8">Recent Subscribers</h3>
-        <div style="overflow:auto"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Status</th></tr></thead><tbody id="dash-recent-subs-table"><tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">Loading...</td></tr></tbody></table></div>
+        <div style="overflow:auto"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Status</th></tr></thead><tbody id="dash-recent-subs-table"><tr><td colspan="4" style="text-align:ce[...]
       </div>
     </section>
 
     <section id="subscribers-tab" class="tab-section hidden">
       <div class="table-card"><h3 style="margin-top:0;color:#38bdf8">All Subscribers</h3>
-        <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Plan</th><th>Status</th></tr></thead><tbody id="full-subscribers-table-body"><tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No records</td></tr></tbody></table></div>
+        <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Plan</th><th>Status</th></tr></thead><tbody id="full-subscribers-table-body"><tr><td colspan="5" styl[...]
       </div>
     </section>
 
@@ -151,9 +151,9 @@
     function showSubscribersEmptyFallback(){
       const tbody = document.getElementById('dash-recent-subs-table');
       if(!tbody) return;
-      tbody.innerHTML = `\n        <tr>\n          <td colspan=\"4\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td>\n        </tr>`;
+      tbody.innerHTML = `\n        <tr>\n          <td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td>\n        </tr>`;
       const full = document.getElementById('full-subscribers-table-body');
-      if(full) full.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td></tr>`;
+      if(full) full.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td></tr>`;
       try{ document.getElementById('stat-total-subs').innerText = '0'; }catch(e){}
       try{ document.getElementById('stat-active-subs').innerText = '0'; }catch(e){}
       try{ document.getElementById('stat-pending-subs').innerText = '0'; }catch(e){}
@@ -168,7 +168,7 @@
         if(!tbody) return;
         const list = Array.isArray(AppState.subscribers) ? AppState.subscribers.slice(0,10) : [];
         if(list.length === 0){ showSubscribersEmptyFallback(); return; }
-        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'-')}</td><td>${escapeHtml(s.name||'—')}</td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.status||'—')}</td></tr>`).join('');
+        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'-')}</td><td>${escapeHtml(s.name||'—')}</td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.status||'—')}</td></tr>[...]
       }catch(err){ console.error('renderRecentSubscribers error',err); showSubscribersEmptyFallback(); }
     }
 
@@ -177,8 +177,8 @@
         const tbody = document.getElementById('full-subscribers-table-body'); if(!tbody) return;
         const list = Array.isArray(AppState.subscribers) ? AppState.subscribers : [];
         if(list.length === 0){ tbody.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td></tr>`; return; }
-        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'')}</td><td>${escapeHtml(s.name||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.plan||'')}</td><td>${escapeHtml(s.status||'')}</td></tr>`).join('');
-      }catch(err){ console.error('renderFullSubscribers error',err); const t=document.getElementById('full-subscribers-table-body'); if(t) t.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">Error loading subscribers.</td></tr>`; }
+        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'')}</td><td>${escapeHtml(s.name||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.plan||'')}</td><td>${escapeHtml([...]
+      }catch(err){ console.error('renderFullSubscribers error',err); const t=document.getElementById('full-subscribers-table-body'); if(t) t.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td></tr>`; }
     }
 
     function updateStats(){
@@ -255,22 +255,23 @@
 
         // Attach auth observer (guarded)
         if(window.firebase && firebase.auth){
-          firebase.auth().onAuthStateChanged(async (user)=>{
+          firebase.auth().onAuthStateChanged((user)=>{
             try{
               if(user){
                 hideLoaderAndShowApp();
                 document.getElementById('userNameDisplay').innerText = user.displayName || 'Operator Panel';
                 document.getElementById('userEmailDisplay').innerText = user.email || 'Signed in';
 
-                // fetch subscribers but enforce timeout and fallback immediately if DB hangs
-                let subs = [];
-                try{
-                  subs = await fetchSubscribersFromFirebase();
-                }catch(e){ console.warn('fetchSubscribersFromFirebase top error', e); subs = []; }
+                // start fetching subscribers in background without blocking UI
+                fetchSubscribersFromFirebase().then((subs)=>{
+                  try{
+                    if(Array.isArray(subs) && subs.length){
+                      AppState.subscribers = subs;
+                      updateStats(); renderRecentSubscribers(); renderFullSubscribers();
+                    }
+                  }catch(e){ console.error('background update error', e); }
+                }).catch(e=>{ console.warn('fetchSubscribersFromFirebase top error', e); });
 
-                // If fetch returned data, use it; otherwise, keep empty fallback
-                AppState.subscribers = Array.isArray(subs) && subs.length ? subs : [];
-                updateStats(); renderRecentSubscribers(); renderFullSubscribers();
               } else {
                 // not signed in -> hide loader and redirect
                 hideLoaderAndShowApp();
@@ -306,12 +307,28 @@
 
     // Wire logout button safely
     document.getElementById('logout-btn').addEventListener('click', ()=>{
-      try{ if(window.firebase && firebase.auth){ firebase.auth().signOut().finally(()=>{ window.location.href='index.html'; }); } else { window.location.href='index.html'; } }catch(e){ window.location.href='index.html'; }
+      try{ if(window.firebase && firebase.auth){ firebase.auth().signOut().finally(()=>{ window.location.href='index.html'; }); } else { window.location.href='index.html'; } }catch(e){ window.loc[...]
     });
 
     // DOM ready
     document.addEventListener('DOMContentLoaded', ()=>{
-      try{ setupTabs(); initDashboard(); }catch(e){ console.error('DOMContentLoaded error',e); hideLoaderAndShowApp(); showSubscribersEmptyFallback(); }
+      try{ 
+        setupTabs(); 
+        // Force-hide loader immediately so dashboard UI is visible without waiting for DB/auth
+        hideLoaderAndShowApp();
+        // initialize firebase early (non-blocking)
+        initFirebaseIfNeeded();
+        // Start fetching subscribers immediately in background without blocking UI rendering
+        fetchSubscribersFromFirebase().then(subs=>{
+          if(Array.isArray(subs) && subs.length){
+            AppState.subscribers = subs;
+            updateStats(); renderRecentSubscribers(); renderFullSubscribers();
+          }
+        }).catch(e=>console.warn('initial fetch failed', e));
+
+        // Continue with the standard init sequence (auth observers, fallbacks)
+        initDashboard(); 
+      }catch(e){ console.error('DOMContentLoaded error',e); hideLoaderAndShowApp(); showSubscribersEmptyFallback(); }
     });
 
   </script>
