@@ -477,7 +477,7 @@
     </div>
 </div>
 
-<!-- Operator Settings Tab (Updated with Logo & UPI) -->
+<!-- Operator Settings Tab (Updated with Auto-QR & Complete Persistent Fields) -->
 <div id="settings-tab" class="tab-content" style="display: none;">
   <div style="background: rgba(30, 41, 59, 0.6); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 20px;">
     <h3 style="color: #38bdf8; font-size: 1.1rem; margin-bottom: 15px;"><i class="fa-solid fa-gear"></i> Portal Configurations</h3>
@@ -499,8 +499,14 @@
       </div>
 
       <div>
-        <label style="color: #cbd5e1; display: block; margin-bottom: 5px;">Operator UPI ID (For Direct Payments):</label>
-        <input type="text" id="operatorUpiInput" placeholder="yourname@upi" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px;">
+        <label style="color: #cbd5e1; display: block; margin-bottom: 5px;">Operator UPI ID (For Direct Customer Recharge):</label>
+        <input type="text" id="operatorUpiInput" placeholder="yourname@upi" oninput="generatePreviewQR()" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px;">
+      </div>
+
+      <!-- Live Auto-Generated QR Code Preview -->
+      <div style="background: #0f172a; padding: 15px; border-radius: 8px; text-align: center; border: 1px dashed #334155;">
+        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Live App Recharge QR Code Preview:</p>
+        <img id="qrPreviewImg" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=demo@upi" alt="UPI QR Preview" style="width: 130px; height: 130px; border-radius: 6px; background: #fff; padding: 5px;">
       </div>
 
       <button onclick="saveOperatorSettingsReal()" style="padding: 12px 20px; background: #0ea5e9; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
