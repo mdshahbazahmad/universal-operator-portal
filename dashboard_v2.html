@@ -274,6 +274,94 @@
             event.preventDefault();
             console.log("Subscriber form submitted");
         }
+
+        // PART 5 LOGIC START
+        let subscribersList = [
+            { id: 'SUB-101', name: 'Rahul Kumar', phone: '9876543210', boxId: 'STB-8801', plan: 'Ultra Fiber 100Mbps - ₹499', status: 'Active' },
+            { id: 'SUB-102', name: 'Amit Sharma', phone: '9123456789', boxId: 'STB-8802', plan: 'Basic HD - ₹299', status: 'Expired' },
+            { id: 'SUB-103', name: 'Pooja Singh', phone: '9988776655', boxId: 'STB-8803', plan: 'Premium Combo - ₹799', status: 'Active' }
+        ];
+
+        function renderSubscriberTable() {
+            const tbody = document.getElementById('subscriber-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            let total = subscribersList.length;
+            let active = 0;
+            let pending = 0;
+
+            subscribersList.forEach((sub, index) => {
+                if (sub.status === 'Active') active++;
+                else pending++;
+
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                tr.innerHTML = `
+                    <td style="padding: 12px;"><strong style="color:#f8fafc;">${sub.name}</strong><br><small style="color:#64748b;">${sub.id}</small></td>
+                    <td style="padding: 12px;">${sub.phone}</td>
+                    <td style="padding: 12px;"><span style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">${sub.boxId}</span></td>
+                    <td style="padding: 12px;">${sub.plan}</td>
+                    <td style="padding: 12px;">
+                        <span style="background: ${sub.status === 'Active' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)'}; color: ${sub.status === 'Active' ? '#10b981' : '#f59e0b'}; padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;">
+                            ${sub.status}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <button onclick="deleteSubscriber(${index})" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Counters
+            document.getElementById('stat-total-subscribers').innerText = total;
+            document.getElementById('stat-active-lines').innerText = active;
+            document.getElementById('stat-pending-lines').innerText = pending;
+            document.getElementById('stat-total-revenue').innerText = '₹' + (active * 499);
+        }
+
+        function deleteSubscriber(index) {
+            if (confirm("Are you sure you want to delete this subscriber?")) {
+                subscribersList.splice(index, 1);
+                renderSubscriberTable();
+            }
+        }
+
+        function searchSubscriberTable() {
+            const query = document.getElementById('table-search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#subscriber-table-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function exportToExcel() {
+            let csvContent = "data:text/csv;charset=utf-8,ID,Name,Phone,Box ID,Plan,Status\n";
+            subscribersList.forEach(s => {
+                csvContent += `${s.id},${s.name},${s.phone},${s.boxId},"${s.plan}",${s.status}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Subscribers_List.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function refreshDashboardData() {
+            renderSubscriberTable();
+        }
+
+        // Initial Call
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSubscriberTable();
+        });
+        // PART 5 LOGIC END
     </script>
 </body>
 </html>
