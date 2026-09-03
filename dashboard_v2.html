@@ -477,16 +477,37 @@
     </div>
 </div>
 
-<!-- Operator Settings Tab -->
+<!-- Operator Settings Tab (Updated with Logo & UPI) -->
 <div id="settings-tab" class="tab-content" style="display: none;">
-    <div style="background: rgba(30, 41, 59, 0.6); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 22px;">
-        <h3 style="color: #38bdf8; font-size: 1.1rem; margin-bottom: 15px;"><i class="fa-solid fa-gear"></i> Portal Configurations</h3>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <label style="color: #cbd5e1;">Portal Name: <input type="text" value="Universal Operator Portal" style="width: 100%; padding: 8px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; margin-top: 4px;"></label>
-            <label style="color: #cbd5e1;">Support Contact: <input type="text" value="+91 9876543210" style="width: 100%; padding: 8px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; margin-top: 4px;"></label>
-            <button onclick="alert('Settings Saved Successfully!')" style="padding: 10px; background: #38bdf8; color: #000; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;">Save Settings</button>
-        </div>
+  <div style="background: rgba(30, 41, 59, 0.6); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 20px;">
+    <h3 style="color: #38bdf8; font-size: 1.1rem; margin-bottom: 15px;"><i class="fa-solid fa-gear"></i> Portal Configurations</h3>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
+      <div>
+        <label style="color: #cbd5e1; display: block; margin-bottom: 5px;">Portal Name / Company Name:</label>
+        <input type="text" id="portalNameInput" value="Universal Operator Portal" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px;">
+      </div>
+
+      <div>
+        <label style="color: #cbd5e1; display: block; margin-bottom: 5px;">Operator Logo URL (App Branding):</label>
+        <input type="text" id="portalLogoInput" placeholder="https://example.com/logo.png" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px;">
+      </div>
+
+      <div>
+        <label style="color: #cbd5e1; display: block; margin-bottom: 5px;">Support Contact Number:</label>
+        <input type="text" id="supportContactInput" value="+91 9876543210" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px;">
+      </div>
+
+      <div>
+        <label style="color: #cbd5e1; display: block; margin-bottom: 5px;">Operator UPI ID (For Direct Payments):</label>
+        <input type="text" id="operatorUpiInput" placeholder="yourname@upi" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px;">
+      </div>
+
+      <button onclick="saveOperatorSettingsReal()" style="padding: 12px 20px; background: #0ea5e9; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+        <i class="fa-solid fa-floppy-disk"></i> Save Settings to Firebase
+      </button>
     </div>
+  </div>
 </div>
 <!-- PART 7 & PART 8 CONTENT END -->
 </body>
