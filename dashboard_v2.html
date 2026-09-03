@@ -12,19 +12,19 @@
         #eagle-loader { position: fixed; inset: 0; background: #0b0f19; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .eagle-spinner { width: 70px; height: 70px; border: 4px solid rgba(56, 189, 248, 0.1); border-top-color: #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .sidebar { width: 260px; background: rgba(15, 23, 42, 0.95); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 20px 15px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; z-index: 100; }
+        .sidebar { width: 260px; background: rgba(15, 23, 42, 0.95); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 20px 15px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; left: 0; top: 0; overflow-y: auto; }
         .brand-logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: #38bdf8; padding-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
         .nav-links { list-style: none; margin-top: 15px; }
         .nav-links li { margin-bottom: 8px; }
         .nav-links a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #94a3b8; text-decoration: none; border-radius: 8px; transition: 0.3s; font-size: 0.9rem; }
         .nav-links a:hover, .nav-links a.active { background: linear-gradient(90deg, #1e293b, #0f172a); color: #38bdf8; border-left: 3px solid #38bdf8; }
         .main-content { margin-left: 260px; flex: 1; padding: 25px; min-width: 0; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 14px 22px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 25px; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 14px 22px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 25px; }
         .weather-time-widget { text-align: right; line-height: 1.3; }
         .live-clock-text { font-weight: 700; font-size: 1.05rem; color: #38bdf8; }
         .live-weather-text { font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
-        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; animation: fadeIn 0.3s ease; }
-        .modal-box { background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.3); width: 90%; max-width: 550px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); transform: translateY(-10px); transition: 0.3s; }
+        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; animation: fadeIn 0.3s ease-in-out; }
+        .modal-box { background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.3); width: 90%; max-width: 550px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 18px; }
         .modal-header h3 { color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
         .close-btn { background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
@@ -54,7 +54,7 @@
             </ul>
         </div>
         <div style="padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08);">
-            <button onclick="handleLogout()" style="width:100%; padding: 10px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer; font-weight: bold;">
+            <button onclick="handleLogout()" style="width:100%; padding: 10px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fa-solid fa-power-off"></i> Logout System
             </button>
         </div>
@@ -71,7 +71,91 @@
             </div>
         </div>
         <div id="dashboard-tab" class="tab-content">
-            <!-- Part 2 HTML content will be appended here -->
+            <!-- PART 2 CONTENT START -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button onclick="openAddSubscriberModal()" style="padding: 10px 18px; background: #0ea5e9; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-user-plus"></i> Add Subscriber
+                    </button>
+                    <button onclick="exportToExcel()" style="padding: 10px 18px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-file-excel"></i> Export Excel
+                    </button>
+                    <label style="padding: 10px 18px; background: #3b82f6; color: #fff; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-file-import"></i> Import Excel
+                        <input type="file" id="excel-import-input" accept=".xlsx, .xls, .csv" onchange="importFromExcel(event)" style="display: none;">
+                    </label>
+                    <button onclick="refreshDashboardData()" style="padding: 10px 14px; background: #1e293b; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; cursor: pointer;">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+                
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <select id="server-protocol-select" style="padding: 9px 12px; background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.85rem;">
+                        <option value="mikrotik">Mikrotik API</option>
+                        <option value="radius">Radius Server</option>
+                        <option value="olt_snmp">OLT SNMP</option>
+                    </select>
+                    <input type="text" id="server-plan-id" placeholder="Plan ID" style="width: 90px; padding: 9px 10px; background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.85rem;">
+                    <input type="number" id="app-price-input" placeholder="App Price (₹)" style="width: 110px; padding: 9px 10px; background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.85rem;">
+                    <input type="number" id="backend-cost-input" placeholder="Cost (₹)" style="width: 90px; padding: 9px 10px; background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.85rem;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 25px;">
+                <div style="background: rgba(30, 41, 59, 0.6); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; justify-content: space-between; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">
+                        <span>TOTAL SUBSCRIBERS</span>
+                        <i class="fa-solid fa-users" style="color: #0ea5e9;"></i>
+                    </div>
+                    <h3 id="stat-total-subscribers" style="font-size: 1.6rem; color: #f8fafc; margin-top: 10px;">0</h3>
+                </div>
+                <div style="background: rgba(30, 41, 59, 0.6); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; justify-content: space-between; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">
+                        <span>ACTIVE LINES</span>
+                        <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+                    </div>
+                    <h3 id="stat-active-lines" style="font-size: 1.6rem; color: #10b981; margin-top: 10px;">0</h3>
+                </div>
+                <div style="background: rgba(30, 41, 59, 0.6); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; justify-content: space-between; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">
+                        <span>PENDING / EXPIRED</span>
+                        <i class="fa-solid fa-clock-rotate-left" style="color: #f59e0b;"></i>
+                    </div>
+                    <h3 id="stat-pending-lines" style="font-size: 1.6rem; color: #f59e0b; margin-top: 10px;">0</h3>
+                </div>
+                <div style="background: rgba(30, 41, 59, 0.6); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; justify-content: space-between; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">
+                        <span>ESTIMATED REVENUE</span>
+                        <i class="fa-solid fa-indian-rupee-sign" style="color: #38bdf8;"></i>
+                    </div>
+                    <h3 id="stat-total-revenue" style="font-size: 1.6rem; color: #38bdf8; margin-top: 10px;">₹0</h3>
+                </div>
+            </div>
+
+            <div style="background: rgba(30, 41, 59, 0.6); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 20px; margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="font-size: 1.05rem; color: #f8fafc;"><i class="fa-solid fa-list" style="color: #38bdf8; margin-right: 8px;"></i> Subscriber Management Table</h3>
+                    <input type="text" id="table-search-input" onkeyup="searchSubscriberTable()" placeholder="Search Name, Phone, Box ID..." style="padding: 8px 12px; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.85rem; width: 220px;">
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; color: #cbd5e1;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(15, 23, 42, 0.5);">
+                                <th style="padding: 12px;">ID / Name</th>
+                                <th style="padding: 12px;">Phone</th>
+                                <th style="padding: 12px;">Box / STB ID</th>
+                                <th style="padding: 12px;">Plan</th>
+                                <th style="padding: 12px;">Status</th>
+                                <th style="padding: 12px; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscriber-table-body">
+                            <!-- Subscriber rows loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- PART 2 CONTENT END -->
         </div>
     </div>
 </body>
