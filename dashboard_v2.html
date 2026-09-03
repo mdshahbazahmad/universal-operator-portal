@@ -29,6 +29,9 @@
     .badge{padding:4px 8px;border-radius:8px;background:#ef4444;color:#fff}
   </style>
 
+  <!-- DESCTRUCTIVE LOADER REMOVAL - immediate CSS override injected BEFORE Firebase scripts -->
+  <style>#eagle-loader { display: none !important; } #app-wrapper { display: block !important; visibility: visible !important; opacity: 1 !important; }</style>
+
   <!-- Firebase compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -58,11 +61,11 @@
       <li><a href="#" data-tab="complaints-tab"> <i class="fa-solid fa-headset"></i> Complaints</a></li>
     </ul>
     <div style="position:relative;top:20px">
-      <button id="logout-btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.08);color:#ef4444"> <i class="fa-solid fa-power-off"></i> Logout</button>
+      <button id="logout-btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.08);color:#ef4444"> <i class="fa-solid fa-power-off"><[...]
     </div>
   </aside>
 
-  <main class="main-content" id="app-wrapper" style="display:none">
+  <main class="main-content" id="app-wrapper" style="display:block;visibility:visible;opacity:1">
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div>
         <h1 style="margin:0;font-size:1.2rem;color:#f8fafc">EAGLE NETWORK SBZ</h1>
@@ -84,13 +87,13 @@
 
       <div class="table-card">
         <h3 style="margin-top:0;color:#38bdf8">Recent Subscribers</h3>
-        <div style="overflow:auto"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Status</th></tr></thead><tbody id="dash-recent-subs-table"><tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td></tr></tbody></table></div>
+        <div style="overflow:auto"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Status</th></tr></thead><tbody id="dash-recent-subs-table"><tr><td colspan="4" style="text-align:ce[...]
       </div>
     </section>
 
     <section id="subscribers-tab" class="tab-section hidden">
       <div class="table-card"><h3 style="margin-top:0;color:#38bdf8">All Subscribers</h3>
-        <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Plan</th><th>Status</th></tr></thead><tbody id="full-subscribers-table-body"><tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:18px">No subscribers found.</td></tr></tbody></table></div>
+        <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Plan</th><th>Status</th></tr></thead><tbody id="full-subscribers-table-body"><tr><td colspan="5" styl[...]
       </div>
     </section>
 
@@ -176,7 +179,7 @@
         if(!tbody) return;
         const list = Array.isArray(AppState.subscribers) ? AppState.subscribers.slice(0,10) : [];
         if(list.length === 0){ showSubscribersEmptyFallback(); return; }
-        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'-')}</td><td>${escapeHtml(s.name||'—')}</td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.status||'—')}</td></tr>`).join('');
+        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'-')}</td><td>${escapeHtml(s.name||'—')}</td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.status||'—')}</td></tr>[...]
       }catch(err){ console.error('renderRecentSubscribers error',err); showSubscribersEmptyFallback(); }
     }
 
@@ -185,7 +188,7 @@
         const tbody = document.getElementById('full-subscribers-table-body'); if(!tbody) return;
         const list = Array.isArray(AppState.subscribers) ? AppState.subscribers : [];
         if(list.length === 0){ tbody.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td></tr>`; return; }
-        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'')}</td><td>${escapeHtml(s.name||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.plan||'')}</td><td>${escapeHtml(s.status||'')}</td></tr>`).join('');
+        tbody.innerHTML = list.map(s=>`<tr><td>${escapeHtml(s.id||'')}</td><td>${escapeHtml(s.name||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.plan||'')}</td><td>${escapeHtml([...]
       }catch(err){ console.error('renderFullSubscribers error',err); const t=document.getElementById('full-subscribers-table-body'); if(t) t.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:#94a3b8;padding:18px\">No subscribers found.</td></tr>`; }
     }
 
@@ -323,7 +326,7 @@
         const logoutBtn = document.getElementById('logout-btn');
         if(logoutBtn){
           logoutBtn.addEventListener('click', ()=>{
-            try{ if(window.firebase && firebase.auth){ firebase.auth().signOut().finally(()=>{ window.location.href='index.html'; }); } else { window.location.href='index.html'; } }catch(e){ window.location.href='index.html'; }
+            try{ if(window.firebase && firebase.auth){ firebase.auth().signOut().finally(()=>{ window.location.href='index.html'; }); } else { window.location.href='index.html'; } }catch(e){ wind[...]
           });
         }
 
@@ -338,15 +341,41 @@
         // Initialize firebase SDK non-blocking
         initFirebaseIfNeeded();
 
-        // Start subscribers fetch completely decoupled in background
-        fetchSubscribersFromFirebase().then((subs)=>{
-          try{
-            if(Array.isArray(subs) && subs.length){
-              AppState.subscribers = subs;
-              updateStats(); renderRecentSubscribers(); renderFullSubscribers();
-            }
-          }catch(e){ console.error('background update error', e); }
-        }).catch(e=>{ console.warn('background fetch failed', e); });
+        // Start subscribers fetch in a background worker (non-blocking) + non-blocking main-thread fallback
+        try{
+          if(window.Worker){
+            const workerCode = `self.onmessage = function(e){\n  const cfg = e.data;\n  const dbUrl = (cfg && cfg.databaseURL) ? cfg.databaseURL.replace(/\/$/,'') : '';\n  const timeoutMs = cfg.timeout || 5000;\n  if(!dbUrl){ self.postMessage({ok:false,reason:'no_db_url'}); return; }\n  const controller = new AbortController();\n  const tid = setTimeout(()=> controller.abort(), timeoutMs);\n  fetch(dbUrl + '/subscribers.json', {signal: controller.signal})\n    .then(r=> r.ok ? r.json() : Promise.reject(new Error('DB fetch failed ' + r.status)))\n    .then(data=>{ clearTimeout(tid); self.postMessage({ok:true,data:data}); })\n    .catch(err=>{ clearTimeout(tid); self.postMessage({ok:false,reason: String(err)}); });\n};`;
+            const blob = new Blob([workerCode], {type: 'application/javascript'});
+            const worker = new Worker(URL.createObjectURL(blob));
+            worker.onmessage = function(ev){
+              try{
+                const msg = ev.data;
+                if(msg && msg.ok && msg.data){
+                  const raw = msg.data;
+                  let subs = [];
+                  if(Array.isArray(raw)) subs = raw.filter(Boolean);
+                  else if(raw && typeof raw === 'object') subs = Object.keys(raw).map(k=> ({ id:k, ...(raw[k]||{}) }));
+                  if(subs.length){
+                    AppState.subscribers = subs;
+                    updateStats(); renderRecentSubscribers(); renderFullSubscribers();
+                  }
+                } else {
+                  console.warn('worker fetch subscribers failed', msg && msg.reason);
+                }
+              }catch(err){ console.error('worker onmessage error',err); }
+            };
+            worker.postMessage({ databaseURL: firebaseConfig.databaseURL, timeout: DB_TIMEOUT_MS });
+
+            // also kick off main-thread non-blocking fetch as a fallback (do not await)
+            fetchSubscribersFromFirebase().then(subs => {
+              try{ if(Array.isArray(subs) && subs.length){ AppState.subscribers = subs; updateStats(); renderRecentSubscribers(); renderFullSubscribers(); } }catch(e){ console.error('background update error', e); }
+            }).catch(e=>{ console.warn('background fetch failed', e); });
+
+          } else {
+            // fallback if Workers not supported: run non-blocking fetch on main thread
+            fetchSubscribersFromFirebase().then(subs=>{ if(Array.isArray(subs)&&subs.length){AppState.subscribers=subs;updateStats();renderRecentSubscribers();renderFullSubscribers();} }).catch(e=>{console.warn('bg fetch failed',e);});
+          }
+        }catch(e){ console.error('background worker init failed', e); fetchSubscribersFromFirebase().then(subs=>{ if(Array.isArray(subs)&&subs.length){AppState.subscribers=subs;updateStats();renderRecentSubscribers();renderFullSubscribers();} }).catch(()=>{}); }
 
         // Continue with standard initialization (auth observer etc.) but UI is already visible
         initDashboard();
