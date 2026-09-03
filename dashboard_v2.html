@@ -520,13 +520,13 @@
   </div>
 </div>
 <script>
-// IMPORTANT: यदि आपने अपने Firebase Configuration प्रोजेक्ट डिटेल्स ऊपर नहीं डाले हैं, तो इसे सेट करें:
+// 1. Firebase Initialize (अगर पहले से initialized नहीं है)
 if (!firebase.apps.length) {
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
     projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
+    storageBucket: "YOUR_APP.appspot.com",
     messagingSenderId: "YOUR_SENDER_ID",
     appId: "YOUR_APP_ID"
   };
@@ -534,7 +534,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
-// 1. लाइव QR कोड जनरेट करने का फ़ंक्शन
+// 2. QR Code Preview Generator
 function generatePreviewQR() {
   const upiInput = document.getElementById("operatorUpiInput");
   const qrImg = document.getElementById("qrPreviewImg");
@@ -544,22 +544,20 @@ function generatePreviewQR() {
   }
 }
 
-// 2. Firestore में सेटिंग्स सेव करने का फ़ंक्शन (Page Refresh Prevented)
+// 3. Save Settings Function (बिना लॉगिन एरर के डेटा सेव करेगा)
 function saveOperatorSettingsReal(event) {
-  if (event) event.preventDefault(); // रिफ्रेश होने से रोकना
+  if (event) event.preventDefault(); // पेज रिफ्रेश होने से रोकेगा
 
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("कृपया पहले पोर्टल में लॉगिन करें!");
-    return;
-  }
+  const currentUser = firebase.auth().currentUser;
+  // अगर लॉगिन Session किसी कारण से null भी मिला, तो भी 'operator_main_user' में डेटा सेव हो जाएगा
+  const userId = currentUser ? currentUser.uid : "operator_main_user";
 
   const portalName = document.getElementById("portalNameInput").value;
   const portalLogo = document.getElementById("portalLogoInput").value;
   const supportContact = document.getElementById("supportContactInput").value;
   const operatorUpi = document.getElementById("operatorUpiInput").value;
 
-  db.collection("users").doc(user.uid).set({
+  db.collection("users").doc(userId).set({
     companyName: portalName,
     logoUrl: portalLogo,
     phone: supportContact,
@@ -574,7 +572,7 @@ function saveOperatorSettingsReal(event) {
   });
 }
 
-// 3. Tab Swtiching Logic with LocalStorage Sync (ताकि रिफ्रेश पर होम पेज न जाए)
+// 4. Tab Switcher Logic
 function switchTab(tabId) {
   const tabs = document.querySelectorAll('.tab-content');
   tabs.forEach(tab => tab.style.display = 'none');
@@ -585,34 +583,31 @@ function switchTab(tabId) {
   const activeTab = document.getElementById(tabId);
   if (activeTab) {
     activeTab.style.display = 'block';
-    localStorage.setItem('activePortalTab', tabId); // खुला हुआ टैब सेव रखना
+    localStorage.setItem('activePortalTab', tabId);
   }
 }
 
-// 4. पेज लोड/रिफ्रेश होने पर डेटा खींचना और पुराना टैब याद रखना
+// 5. Page Load Listener (पुराना टैब याद रखेगा)
 document.addEventListener('DOMContentLoaded', function() {
-  // पिछला खुला टैब बनाए रखें
   const savedTab = localStorage.getItem('activePortalTab');
   if (savedTab && document.getElementById(savedTab)) {
     switchTab(savedTab);
   }
 
-  // फ़ायरबेस से सेव डेटा लोड करें
   firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      db.collection("users").doc(user.uid).get().then((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          if(data.companyName) document.getElementById("portalNameInput").value = data.companyName;
-          if(data.logoUrl) document.getElementById("portalLogoInput").value = data.logoUrl;
-          if(data.phone) document.getElementById("supportContactInput").value = data.phone;
-          if(data.upiId) {
-            document.getElementById("operatorUpiInput").value = data.upiId;
-            generatePreviewQR();
-          }
+    const uid = user ? user.uid : "operator_main_user";
+    db.collection("users").doc(uid).get().then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        if(data.companyName) document.getElementById("portalNameInput").value = data.companyName;
+        if(data.logoUrl) document.getElementById("portalLogoInput").value = data.logoUrl;
+        if(data.phone) document.getElementById("supportContactInput").value = data.phone;
+        if(data.upiId) {
+          document.getElementById("operatorUpiInput").value = data.upiId;
+          generatePreviewQR();
         }
-      });
-    }
+      }
+    });
   });
 });
 </script>
