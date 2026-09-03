@@ -519,22 +519,38 @@
     </div>
   </div>
 </div>
-<!-- PART 7 & PART 8 CONTENT END -->
 <script>
-// Live QR Code Preview
+// IMPORTANT: यदि आपने अपने Firebase Configuration प्रोजेक्ट डिटेल्स ऊपर नहीं डाले हैं, तो इसे सेट करें:
+if (!firebase.apps.length) {
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+// 1. लाइव QR कोड जनरेट करने का फ़ंक्शन
 function generatePreviewQR() {
-  const upi = document.getElementById("operatorUpiInput").value || "demo@upi";
+  const upiInput = document.getElementById("operatorUpiInput");
   const qrImg = document.getElementById("qrPreviewImg");
-  if(qrImg) {
+  if(upiInput && qrImg) {
+    const upi = upiInput.value || "demo@upi";
     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${encodeURIComponent(upi)}%26pn=Operator%26cu=INR`;
   }
 }
 
-// Firestore में सेटिंग्स सेव करने का फ़ंक्शन
-function saveOperatorSettingsReal() {
+// 2. Firestore में सेटिंग्स सेव करने का फ़ंक्शन (Page Refresh Prevented)
+function saveOperatorSettingsReal(event) {
+  if (event) event.preventDefault(); // रिफ्रेश होने से रोकना
+
   const user = firebase.auth().currentUser;
   if (!user) {
-    alert("कृपया पहले लॉगिन करें!");
+    alert("कृपया पहले पोर्टल में लॉगिन करें!");
     return;
   }
 
@@ -558,22 +574,46 @@ function saveOperatorSettingsReal() {
   });
 }
 
-// रिफ्रेश होने पर डेटा लोड करने का फ़ंक्शन
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    db.collection("users").doc(user.uid).get().then((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        if(data.companyName) document.getElementById("portalNameInput").value = data.companyName;
-        if(data.logoUrl) document.getElementById("portalLogoInput").value = data.logoUrl;
-        if(data.phone) document.getElementById("supportContactInput").value = data.phone;
-        if(data.upiId) {
-          document.getElementById("operatorUpiInput").value = data.upiId;
-          generatePreviewQR();
-        }
-      }
-    });
+// 3. Tab Swtiching Logic with LocalStorage Sync (ताकि रिफ्रेश पर होम पेज न जाए)
+function switchTab(tabId) {
+  const tabs = document.querySelectorAll('.tab-content');
+  tabs.forEach(tab => tab.style.display = 'none');
+  
+  const navLinks = document.querySelectorAll('.nav-links a');
+  navLinks.forEach(link => link.classList.remove('active'));
+  
+  const activeTab = document.getElementById(tabId);
+  if (activeTab) {
+    activeTab.style.display = 'block';
+    localStorage.setItem('activePortalTab', tabId); // खुला हुआ टैब सेव रखना
   }
+}
+
+// 4. पेज लोड/रिफ्रेश होने पर डेटा खींचना और पुराना टैब याद रखना
+document.addEventListener('DOMContentLoaded', function() {
+  // पिछला खुला टैब बनाए रखें
+  const savedTab = localStorage.getItem('activePortalTab');
+  if (savedTab && document.getElementById(savedTab)) {
+    switchTab(savedTab);
+  }
+
+  // फ़ायरबेस से सेव डेटा लोड करें
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      db.collection("users").doc(user.uid).get().then((doc) => {
+        if (doc.exists) {
+          const data = doc.data();
+          if(data.companyName) document.getElementById("portalNameInput").value = data.companyName;
+          if(data.logoUrl) document.getElementById("portalLogoInput").value = data.logoUrl;
+          if(data.phone) document.getElementById("supportContactInput").value = data.phone;
+          if(data.upiId) {
+            document.getElementById("operatorUpiInput").value = data.upiId;
+            generatePreviewQR();
+          }
+        }
+      });
+    }
+  });
 });
 </script>
 </body>
