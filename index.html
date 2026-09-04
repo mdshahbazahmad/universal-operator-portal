@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eagle Network SBZ - Universal Operator Portal</title>
+    
+    <!-- FontAwesome Icons & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.4);
+            --accent-gold: #fbbf24;
+            --bg-dark: #070a12;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-dark);
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Top Announcement / Deal Banner */
+        .promo-bar {
+            background: linear-gradient(90deg, #b45309, #d97706, #2563eb);
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 8px 15px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .promo-bar span.highlight {
+            background: #fff;
+            color: #0f172a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        /* Ambient Background FX */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('backgroundpng.jpeg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            filter: blur(10px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .glow-1 {
+            position: fixed;
+            top: -15%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+            animation: pulseGlow 8s infinite alternate;
+        }
+        .glow-2 {
+            position: fixed;
+            bottom: -15%;
+            right: -10%;
+            width: 650px;
+            height: 650px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+            animation: pulseGlow 10s infinite alternate-reverse;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.15); opacity: 1; }
+        }
+
+        /* Header Navigation */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 8%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        .logo img {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-gold);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+        }
+        .logo span.brand-accent {
+            color: var(--primary);
+        }
+
+        .lang-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .lang-selector select {
+            background: transparent;
+            border: none;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+        .lang-selector select option {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        /* Main Layout */
+        main {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            align-items: center;
+            padding: 50px 8%;
+            gap: 60px;
+        }
+        
+        /* Hero Content */
+        .hero-text {
+            max-width: 620px;
+        }
+        .badge-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 20px;
+            color: var(--primary);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-live {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #10b981;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .hero-text h1 {
+            font-size: 3.1rem;
+            line-height: 1.15;
+            font-weight: 800;
+            margin-bottom: 22px;
+            color: #ffffff;
+            letter-spacing: -1px;
+        }
+        .hero-text h1 span {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            line-height: 1.65;
+            margin-bottom: 32px;
+        }
+
+        /* Feature Cards Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .feature-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateX(6px);
+        }
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Auth Card Component */
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            padding: 40px;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            max-width: 460px;
+            justify-self: end;
+            position: relative;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #38bdf8, #fbbf24, #8b5cf6);
+            border-radius: 28px 28px 0 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px;
+            border-radius: 14px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #070a12;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i.icon-left {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.05rem;
+        }
+        .input-wrapper i.toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            cursor: pointer;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 45px 14px 45px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .input-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .forgot-pass-link {
+            display: block;
+            text-align: right;
+            margin-top: 8px;
+            font-size: 0.83rem;
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .auth-error {
+            display: none;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.02rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+            letter-spacing: 0.3px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.6);
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 22px;
+            font-size: 13px;
+            color: #94a3b8;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: auto;
+        }
+
+        [dir="rtl"] {
+            font-family: 'Noto Nastaliq Urdu', 'Plus Jakarta Sans', sans-serif;
+        }
+        [dir="rtl"] .input-wrapper i.icon-left {
+            left: auto;
+            right: 16px;
+        }
+        [dir="rtl"] .input-wrapper i.toggle-password {
+            right: auto;
+            left: 16px;
+        }
+        [dir="rtl"] .forgot-pass-link {
+            text-align: left;
+        }
+
+        @media (max-width: 968px) {
+            main {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .auth-card {
+                justify-self: center;
+            }
+            .hero-text h1 {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Customer Magnet Offer Bar -->
+    <div class="promo-bar">
+        <span class="highlight">🔥 Mega Offer</span> 
+        <span id="txt-promo">Join Eagle Network Today & Get 30 Days Free Premium Automation Support!</span>
+    </div>
+
+    <div class="bg-overlay"></div>
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+
+    <header>
+        <div class="logo">
+            <img src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" alt="Eagle Network SBZ Logo">
+            <span>Eagle <span class="brand-accent">Network</span> SBZ</span>
+        </div>
+        <div class="lang-selector">
+            <i class="fa-solid fa-globe" style="color:var(--primary);"></i>
+            <select id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="en" selected>English</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="ur">اردو (Urdu)</option>
+            </select>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-text">
+            <div class="badge-bar">
+                <div class="badge">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span id="txt-badge">Built for Cable & Wi-Fi Operators</span>
+                </div>
+                <div class="badge badge-live">
+                    <span class="pulse-dot"></span>
+                    <span>99.9% Uptime Verified</span>
+                </div>
+            </div>
+            
+            <h1 id="txt-title">Manage & Expand Your <span>Digital Empire.</span></h1>
+            <p id="txt-desc">India's most trusted operator platform for lightning-fast billing, automated server health management, customer retention, and instantly boosted revenues.</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-users-gear"></i></div>
+                    <div>
+                        <strong style="display:block; color:#fff;" id="feat-1-title">Auto-Billing & Instant Collection</strong>
+                        <span style="font-size:0.88rem; color:#94a3b8;" id="feat-1">Automated WhatsApp payment alerts & instant bill generation.</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-server"></i></div>
+                    <div>
+                        <strong style="display:block; color:#fff;" id="feat-2-title">24/7 Smart Server Monitoring</strong>
+                        <span style="font-size:0.88rem; color:#94a3b8;" id="feat-2">Zero downtime monitoring with real-time health alerts.</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                    <div>
+                        <strong style="display:block; color:#fff;" id="feat-3-title">Direct WhatsApp Support Bot</strong>
+                        <span style="font-size:0.88rem; color:#94a3b8;" id="feat-3">Resolve customer complaints automatically in seconds.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <div class="tab-buttons">
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Register</button>
+            </div>
+
+            <div id="auth-error" class="auth-error" role="alert"></div>
+
+            <!-- Login Form -->
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label id="lbl-login-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope icon-left"></i>
+                        <input type="email" id="login-email" placeholder="operator@eaglenetwork.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-login-pass">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock icon-left"></i>
+                        <input type="password" id="login-pass" placeholder="••••••••" required>
+                        <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('login-pass', this)"></i>
+                    </div>
+                    <a class="forgot-pass-link" onclick="handleForgotPassword()" id="txt-forgot-pass">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-login-submit">Login to Dashboard 🚀</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label id="lbl-reg-name">Operator / Business Name</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-building icon-left"></i>
+                        <input type="text" id="reg-name" placeholder="e.g. Eagle Network Cable" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-reg-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope icon-left"></i>
+                        <input type="email" id="reg-email" placeholder="operator@eaglenetwork.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-reg-pass">Create Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-key icon-left"></i>
+                        <input type="password" id="reg-pass" placeholder="••••••••" required>
+                        <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-reg-submit">Start Free Account 🎉</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Eagle Network SBZ. All Rights Reserved. Universal Operator Portal Engine.</p>
+    </footer>
+
+    <!-- Firebase SDK Compat Version 10.8.0 -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- REAL ACTIVE FIREBASE AUTHENTICATION LOGIC -->
+    <script>
+        // 1. Live Active Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+            authDomain: "universal-portal-dashboard.firebaseapp.com",
+            projectId: "universal-portal-dashboard",
+            storageBucket: "universal-portal-dashboard.firebasestorage.app",
+            messagingSenderId: "403036962443",
+            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // 2. UI Helper Functions
+        function togglePasswordVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function switchTab(type) {
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+            const errBox = document.getElementById('auth-error');
+
+            errBox.style.display = 'none';
+
+            if (type === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                formLogin.style.display = 'block';
+                formRegister.style.display = 'none';
+            } else {
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                formRegister.style.display = 'block';
+                formLogin.style.display = 'none';
+            }
+        }
+
+        // 3. Real Working Login Handler
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-pass').value;
+            const btn = document.getElementById('btn-login-submit');
+            const errBox = document.getElementById('auth-error');
+
+            errBox.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = "Authenticating...";
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    window.location.href = "dashboard_v2.html";
+                })
+                .catch((error) => {
+                    btn.disabled = false;
+                    btn.innerText = "Login to Dashboard 🚀";
+                    errBox.style.display = 'block';
+                    errBox.innerText = error.message;
+                });
+        }
+
+        // 4. Real Working Register Handler
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-pass').value;
+            const btn = document.getElementById('btn-reg-submit');
+            const errBox = document.getElementById('auth-error');
+
+            errBox.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = "Creating Account...";
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return firebase.firestore().collection("users").doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        role: "operator",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    window.location.href = "dashboard_v2.html";
+                })
+                .catch((error) => {
+                    btn.disabled = false;
+                    btn.innerText = "Start Free Account 🎉";
+                    errBox.style.display = 'block';
+                    errBox.innerText = error.message;
+                });
+        }
+
+        // 5. Real Password Reset
+        function handleForgotPassword() {
+            const email = prompt("Enter your registered email address:");
+            if (email) {
+                firebase.auth().sendPasswordResetEmail(email)
+                    .then(() => {
+                        alert("Password reset email sent!");
+                    })
+                    .catch((error) => {
+                        alert("Error: " + error.message);
+                    });
+            }
+        }
+
+        // 6. Multilingual Dictionary
+        const translations = {
+            en: {
+                promo: 'Join Eagle Network Today & Get 30 Days Free Premium Automation Support!',
+                title: 'Manage & Expand Your <span>Digital Empire.</span>',
+                desc: 'India\'s most trusted operator platform for lightning-fast billing, automated server health management, customer retention, and instantly boosted revenues.',
+                badge: 'Built for Cable & Wi-Fi Operators',
+                feat1Title: 'Auto-Billing & Instant Collection',
+                feat1: 'Automated WhatsApp payment alerts & instant bill generation.',
+                feat2Title: '24/7 Smart Server Monitoring',
+                feat2: 'Zero downtime monitoring with real-time health alerts.',
+                feat3Title: 'Direct WhatsApp Support Bot',
+                feat3: 'Resolve customer complaints automatically in seconds.',
+                tabLogin: 'Login',
+                tabRegister: 'Register',
+                lblLoginEmail: 'Email Address',
+                lblLoginPass: 'Password',
+                forgotPass: 'Forgot Password?',
+                btnLoginSubmit: 'Login to Dashboard 🚀',
+                lblRegName: 'Operator / Business Name',
+                lblRegEmail: 'Email Address',
+                lblRegPass: 'Create Password',
+                btnRegSubmit: 'Start Free Account 🎉'
+            },
+            hi: {
+                promo: 'आज ही ईगल नेटवर्क से जुड़ें और 30 दिनों का मुफ़्त ऑटोमेशन सपोर्ट पाएँ!',
+                title: 'अपने डिजिटल साम्राज्य का <span>प्रबंधन और विस्तार करें।</span>',
+                desc: 'तेज़ बिलिंग, ऑटोमेटेड सर्वर हेल्थ, कस्टमर सपोर्ट और कमाई बढ़ाने के लिए भारत का सबसे भरोसेमंद ऑपरेटर प्लेटफ़ॉर्म।',
+                badge: 'केबल और वाई-फाई ऑपरेटरों के लिए निर्मित',
+                feat1Title: 'ऑटो-बिलिंग और तुरंत भुगतान',
+                feat1: 'व्हाट्सएप पेमेंट अलर्ट और त्वरित बिल जनरेशन।',
+                feat2Title: '24/7 स्मार्ट सर्वर निगरानी',
+                feat2: 'रियल-टाइम सर्वर अलर्ट के साथ ज़ीरो डाउनटाइम।',
+                feat3Title: 'व्हाट्सएप सपोर्ट बॉट',
+                feat3: 'ग्राहकों की शिकायतों का सेकंडों में स्वचालित निवारण।',
+                tabLogin: 'लॉगिन',
+                tabRegister: 'रजिस्टर',
+                lblLoginEmail: 'ईमेल आईडी',
+                lblLoginPass: 'पासवर्ड',
+                forgotPass: 'पासवर्ड भूल गए?',
+                btnLoginSubmit: 'डैशबोर्ड में लॉगिन करें 🚀',
+                lblRegName: 'ऑपरेटर / कंपनी का नाम',
+                lblRegEmail: 'ईमेल आईडी',
+                lblRegPass: 'नया पासवर्ड बनाएं',
+                btnRegSubmit: 'फ्री अकाउंट शुरू करें 🎉'
+            },
+            ur: {
+                promo: 'آج ہی ایگل نیٹ ورک میں شامل ہوں اور 30 دن کا مفت آٹومیشن سپورٹ حاصل کریں!',
+                title: 'اپنی سلطنت کا <span>نظم و نسق اور توسیع کریں۔</span>',
+                desc: 'تیز تر بلنگ، خودکار سرور کی دیکھ بھال، اور آمدنی میں اضافے کے لیے ہندوستان کا سب سے قابل اعتماد آپریٹر پلیٹ فارم۔',
+                badge: 'کیبل اور وائی فائی آپریٹرز کے لیے بنایا گیا',
+                feat1Title: 'آٹو بلنگ اور فوری ادائیگی',
+                feat1: 'واٹس ایپ پر ادائیگی کے انتباہات اور فوری بل کی تیاری۔',
+                feat2Title: '24/7 سمارٹ سرور کی نگرانی',
+                feat2: 'فوری اطلاعات کے ساتھ بلا تعطل سرور سپورٹ۔',
+                feat3Title: 'واٹس ایپ سپورٹ بوٹ',
+                feat3: 'کسٹمر کی شکایات کا چند سیکنڈ میں خودکار حل۔',
+                tabLogin: 'لاگ ان',
+                tabRegister: 'رجسٹر',
+                lblLoginEmail: 'ای میل',
+                lblLoginPass: 'پاسورڈ',
+                forgotPass: 'پاسورڈ بھول گئے؟',
+                btnLoginSubmit: 'ڈیش بورڈ میں لاگ ان کریں 🚀',
+                lblRegName: 'آپریٹر / کمپنی کا نام',
+                lblRegEmail: 'ای میل',
+                lblRegPass: 'پاسورڈ بنائیں',
+                btnRegSubmit: 'مفت اکاؤنٹ شروع کریں 🎉'
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang] || translations.en;
+            document.documentElement.dir = (lang === 'ur') ? 'rtl' : 'ltr';
+
+            document.getElementById('txt-promo').innerText = t.promo;
+            document.getElementById('txt-title').innerHTML = t.title;
+            document.getElementById('txt-desc').innerText = t.desc;
+            document.getElementById('txt-badge').innerText = t.badge;
+            
+            document.getElementById('feat-1-title').innerText = t.feat1Title;
+            document.getElementById('feat-1').innerText = t.feat1;
+            document.getElementById('feat-2-title').innerText = t.feat2Title;
+            document.getElementById('feat-2').innerText = t.feat2;
+            document.getElementById('feat-3-title').innerText = t.feat3Title;
+            document.getElementById('feat-3').innerText = t.feat3;
+
+            document.getElementById('tab-login').innerText = t.tabLogin;
+            document.getElementById('tab-register').innerText = t.tabRegister;
+            document.getElementById('lbl-login-email').innerText = t.lblLoginEmail;
+            document.getElementById('lbl-login-pass').innerText = t.lblLoginPass;
+            document.getElementById('txt-forgot-pass').innerText = t.forgotPass;
+            document.getElementById('btn-login-submit').innerText = t.btnLoginSubmit;
+
+            document.getElementById('lbl-reg-name').innerText = t.lblRegName;
+            document.getElementById('lbl-reg-email').innerText = t.lblRegEmail;
+            document.getElementById('lbl-reg-pass').innerText = t.lblRegPass;
+            document.getElementById('btn-reg-submit').innerText = t.btnRegSubmit;
+        }
+    </script>
+</body>
+</html>
