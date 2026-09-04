@@ -520,8 +520,8 @@
   </div>
 </div>
 <script>
-// 1. Firebase Initialize (अगर पहले से initialized नहीं है)
-if (!firebase.apps.length) {
+// 1. फ़ायरबेस कनेक्ट करें
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -532,53 +532,65 @@ if (!firebase.apps.length) {
   };
   firebase.initializeApp(firebaseConfig);
 }
-const db = firebase.firestore();
 
-// 2. QR Code Preview Generator
+// 2. Dynamic QR Preview Generator
 function generatePreviewQR() {
   const upiInput = document.getElementById("operatorUpiInput");
   const qrImg = document.getElementById("qrPreviewImg");
-  if(upiInput && qrImg) {
+  if (upiInput && qrImg) {
     const upi = upiInput.value || "demo@upi";
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${encodeURIComponent(upi)}%26pn=Operator%26cu=INR`;
+    qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent("upi://pay?pa=" + upi + "&pn=Operator&cu=INR");
   }
 }
 
-// 3. Save Settings Function (बिना लॉगिन एरर के डेटा सेव करेगा)
+// 3. Data Save Function (Firebase + LocalStorage)
 function saveOperatorSettingsReal(event) {
-  if (event) event.preventDefault(); // पेज रिफ्रेश होने से रोकेगा
+  if (event) event.preventDefault(); // रिफ्रेश होने से रोकेगा
 
-  const currentUser = firebase.auth().currentUser;
-  // अगर लॉगिन Session किसी कारण से null भी मिला, तो भी 'operator_main_user' में डेटा सेव हो जाएगा
-  const userId = currentUser ? currentUser.uid : "operator_main_user";
+  let userId = "operator_main_user";
+  if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+    userId = firebase.auth().currentUser.uid;
+  }
 
-  const portalName = document.getElementById("portalNameInput").value;
-  const portalLogo = document.getElementById("portalLogoInput").value;
-  const supportContact = document.getElementById("supportContactInput").value;
-  const operatorUpi = document.getElementById("operatorUpiInput").value;
+  const portalName = document.getElementById("portalNameInput") ? document.getElementById("portalNameInput").value : "";
+  const portalLogo = document.getElementById("portalLogoInput") ? document.getElementById("portalLogoInput").value : "";
+  const supportContact = document.getElementById("supportContactInput") ? document.getElementById("supportContactInput").value : "";
+  const operatorUpi = document.getElementById("operatorUpiInput") ? document.getElementById("operatorUpiInput").value : "";
 
-  db.collection("users").doc(userId).set({
+  const dataToSave = {
     companyName: portalName,
     logoUrl: portalLogo,
     phone: supportContact,
     upiId: operatorUpi,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true })
-  .then(() => {
-    alert("सेटिंग्स और QR कोड सफलतापूर्वक फ़ायरबेस में सेव हो गए!");
-  })
-  .catch((error) => {
-    alert("सेव करने में समस्या आई: " + error.message);
-  });
+    updatedAt: new Date().toISOString()
+  };
+
+  // तुरंत ब्राउज़र (LocalStorage) में सेव करें
+  localStorage.setItem('saved_operator_settings', JSON.stringify(dataToSave));
+
+  // फ़ायरबेस सर्वर में सेव करें
+  if (typeof firebase !== 'undefined' && firebase.firestore) {
+    const db = firebase.firestore();
+    db.collection("users").doc(userId).set(dataToSave, { merge: true })
+    .then(function() {
+      alert("सेटिंग्स और QR कोड सफलतापूर्वक सेव हो गए!");
+    })
+    .catch(function(error) {
+      console.log("Firebase Error: ", error);
+      alert("ब्राउज़र में डेटा सेव हो गया है!");
+    });
+  } else {
+    alert("सेटिंग्स ब्राउज़र में सेव हो गई हैं!");
+  }
 }
 
 // 4. Tab Switcher Logic
 function switchTab(tabId) {
   const tabs = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => tab.style.display = 'none');
+  tabs.forEach(function(tab) { tab.style.display = 'none'; });
   
   const navLinks = document.querySelectorAll('.nav-links a');
-  navLinks.forEach(link => link.classList.remove('active'));
+  navLinks.forEach(function(link) { link.classList.remove('active'); });
   
   const activeTab = document.getElementById(tabId);
   if (activeTab) {
@@ -587,28 +599,52 @@ function switchTab(tabId) {
   }
 }
 
-// 5. Page Load Listener (पुराना टैब याद रखेगा)
+// 5. Page Load Listener (Auto-Restore Data)
 document.addEventListener('DOMContentLoaded', function() {
+  // A. पिछला खुला हुआ टैब लोड करें
   const savedTab = localStorage.getItem('activePortalTab');
   if (savedTab && document.getElementById(savedTab)) {
     switchTab(savedTab);
   }
 
-  firebase.auth().onAuthStateChanged((user) => {
-    const uid = user ? user.uid : "operator_main_user";
-    db.collection("users").doc(uid).get().then((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        if(data.companyName) document.getElementById("portalNameInput").value = data.companyName;
-        if(data.logoUrl) document.getElementById("portalLogoInput").value = data.logoUrl;
-        if(data.phone) document.getElementById("supportContactInput").value = data.phone;
-        if(data.upiId) {
-          document.getElementById("operatorUpiInput").value = data.upiId;
-          generatePreviewQR();
-        }
+  // B. सेव किया हुआ डेटा इनपुट बॉक्स में भरें
+  const localSaved = localStorage.getItem('saved_operator_settings');
+  if (localSaved) {
+    try {
+      const data = JSON.parse(localSaved);
+      if (data.companyName && document.getElementById("portalNameInput")) document.getElementById("portalNameInput").value = data.companyName;
+      if (data.logoUrl && document.getElementById("portalLogoInput")) document.getElementById("portalLogoInput").value = data.logoUrl;
+      if (data.phone && document.getElementById("supportContactInput")) document.getElementById("supportContactInput").value = data.phone;
+      if (data.upiId && document.getElementById("operatorUpiInput")) {
+        document.getElementById("operatorUpiInput").value = data.upiId;
+        generatePreviewQR();
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  // C. Firebase Auth Sync
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      const uid = user ? user.uid : "operator_main_user";
+      if (firebase.firestore) {
+        firebase.firestore().collection("users").doc(uid).get().then(function(doc) {
+          if (doc.exists) {
+            const data = doc.data();
+            if (data.companyName && document.getElementById("portalNameInput")) document.getElementById("portalNameInput").value = data.companyName;
+            if (data.logoUrl && document.getElementById("portalLogoInput")) document.getElementById("portalLogoInput").value = data.logoUrl;
+            if (data.phone && document.getElementById("supportContactInput")) document.getElementById("supportContactInput").value = data.phone;
+            if (data.upiId && document.getElementById("operatorUpiInput")) {
+              document.getElementById("operatorUpiInput").value = data.upiId;
+              generatePreviewQR();
+            }
+            localStorage.setItem('saved_operator_settings', JSON.stringify(data));
+          }
+        });
       }
     });
-  });
+  }
 });
 </script>
 </body>
