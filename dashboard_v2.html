@@ -649,3 +649,86 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+<!-- JavaScript Logic -->
+            <script>
+                // Tab Switcher Logic
+                function switchTab(tabName) {
+                    ['dashboard', 'subscribers', 'olt-server', 'whatsapp-alerts', 'settings'].forEach(t => {
+                        const sec = document.getElementById('sec-' + t);
+                        const nav = document.getElementById('nav-' + t);
+                        if (sec) sec.classList.add('hidden');
+                        if (nav) nav.classList.remove('sidebar-active');
+                    });
+                    
+                    const activeSec = document.getElementById('sec-' + tabName);
+                    const activeNav = document.getElementById('nav-' + tabName);
+                    if (activeSec) activeSec.classList.remove('hidden');
+                    if (activeNav) activeNav.classList.add('sidebar-active');
+                }
+
+                // Main Server / OLT API Connection Handler (Fixed Issue)
+                async function connectToOLTServer() {
+                    const url = document.getElementById('olt-url').value.trim();
+                    const username = document.getElementById('olt-username').value.trim();
+                    const password = document.getElementById('olt-password').value.trim();
+                    const apiKey = document.getElementById('olt-apikey').value.trim();
+                    const msg = document.getElementById('olt-connect-msg');
+
+                    if (!url || !username || !password) {
+                        msg.className = "text-sm font-medium text-red-600";
+                        msg.innerText = "कृपया URL, यूजरनेम और पासवर्ड दर्ज करें!";
+                        return;
+                    }
+
+                    msg.className = "text-sm font-medium text-amber-600";
+                    msg.innerText = "सर्वर से कनेक्ट किया जा रहा है...";
+
+                    try {
+                        // Real Fetch Request to OLT/Server API
+                        const response = await fetch(url + '/connect', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': apiKey ? `Bearer ${apiKey}` : ''
+                            },
+                            body: JSON.stringify({ username, password })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            msg.className = "text-sm font-medium text-emerald-600";
+                            msg.innerText = "सफलतापूर्वक सर्वर से जुड़ गया!";
+                            
+                            // Update Dashboard Indicators
+                            document.getElementById('olt-status-dot').className = "w-3 h-3 rounded-full status-online";
+                            document.getElementById('olt-status-text').innerText = "ऑनलाइन (Connected)";
+                            
+                            // Save Settings in LocalStorage for Persistence
+                            localStorage.setItem('eagle_olt_config', JSON.stringify({ url, username, apiKey }));
+                        } else {
+                            throw new Error("सर्वर से प्रतिक्रिया नहीं मिली (HTTP " + response.status + ")");
+                        }
+                    } catch (err) {
+                        // Safe Fallback & Error Handling
+                        msg.className = "text-sm font-medium text-red-600";
+                        msg.innerText = "कनेक्शन विफल: कृपया IP/API Credentials जांचें।";
+                        document.getElementById('olt-status-dot').className = "w-3 h-3 rounded-full status-offline";
+                        document.getElementById('olt-status-text').innerText = "त्रुटि (Disconnected)";
+                    }
+                }
+
+                // Load Saved OLT Config on Startup
+                window.addEventListener('DOMContentLoaded', () => {
+                    const savedConfig = localStorage.getItem('eagle_olt_config');
+                    if (savedConfig) {
+                        const conf = JSON.parse(savedConfig);
+                        if(document.getElementById('olt-url')) document.getElementById('olt-url').value = conf.url || '';
+                        if(document.getElementById('olt-username')) document.getElementById('olt-username').value = conf.username || '';
+                        if(document.getElementById('olt-apikey')) document.getElementById('olt-apikey').value = conf.apiKey || '';
+                    }
+                });
+            </script>
+        </main>
+    </div>
+</body>
+</html>
