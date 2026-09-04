@@ -649,20 +649,38 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <!-- JavaScript Logic -->
             <script>
-                // Tab Switcher Logic
-                function switchTab(tabName) {
-                    ['dashboard', 'subscribers', 'olt-server', 'whatsapp-alerts', 'settings'].forEach(t => {
-                        const sec = document.getElementById('sec-' + t);
-                        const nav = document.getElementById('nav-' + t);
-                        if (sec) sec.classList.add('hidden');
-                        if (nav) nav.classList.remove('sidebar-active');
-                    });
-                    
-                    const activeSec = document.getElementById('sec-' + tabName);
-                    const activeNav = document.getElementById('nav-' + tabName);
-                    if (activeSec) activeSec.classList.remove('hidden');
-                    if (activeNav) activeNav.classList.add('sidebar-active');
-                }
+                // Tab Switcher Logic - Corrected & Fully Working
+function switchTab(tabName) {
+    // 1. All valid tab section keys
+    const allTabs = ['dashboard', 'subscribers', 'olt-server', 'whatsapp-alerts', 'settings'];
+
+    // 2. Hide all sections and remove active styles from all buttons
+    allTabs.forEach(t => {
+        const sec = document.getElementById('sec-' + t);
+        const nav = document.getElementById('nav-' + t);
+
+        if (sec) {
+            sec.classList.add('hidden'); // छिपाएं
+        }
+        if (nav) {
+            nav.classList.remove('sidebar-active'); // एक्टिव स्टाइल हटाएं
+        }
+    });
+
+    // 3. Show selected section and add active style to clicked button
+    const targetSec = document.getElementById('sec-' + tabName);
+    const targetNav = document.getElementById('nav-' + tabName);
+
+    if (targetSec) {
+        targetSec.classList.remove('hidden'); // दिखाएं
+    } else {
+        console.error("Section not found: sec-" + tabName);
+    }
+
+    if (targetNav) {
+        targetNav.classList.add('sidebar-active'); // हाइलाइट करें
+    }
+}
 
                 // Main Server / OLT API Connection Handler (Fixed Issue)
                 async function connectToOLTServer() {
