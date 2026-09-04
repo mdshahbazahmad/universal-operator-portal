@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Dashboard Portal - Operator Control Panel</title>
+
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --bg-dark: #070a12;
+            --sidebar-bg: rgba(15, 23, 42, 0.95);
+            --card-bg: rgba(15, 23, 42, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-dark);
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layout Container */
+        .app-wrapper {
+            display: flex;
+            flex: 1;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Mobile Header Navigation */
+        .mobile-header {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .mobile-header .menu-toggle {
+            font-size: 1.4rem;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        /* Sidebar Navigation */
+        aside.sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .brand-header img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-gold);
+            object-fit: cover;
+        }
+
+        .brand-header h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        /* User Profile Box */
+        .user-footer {
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .user-details {
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .user-details strong {
+            display: block;
+            font-size: 0.9rem;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-details span {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Main Dashboard Content Area */
+        main.dashboard-container {
+            flex: 1;
+            padding: 30px 30px;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        header.dash-header {
+            margin-bottom: 25px;
+        }
+
+        header.dash-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        /* Metrics Cards Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .metric-val {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .dashboard-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 25px;
+            min-height: 300px;
+        }
+
+        /* Mobile View Rules */
+        @media (max-width: 768px) {
+            .app-wrapper {
+                flex-direction: column;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            aside.sidebar {
+                position: fixed;
+                top: 0;
+                left: -290px;
+                height: 100vh;
+                width: 280px;
+                z-index: 300;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            aside.sidebar.open {
+                left: 0;
+            }
+
+            main.dashboard-container {
+                padding: 20px 15px;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Top Bar -->
+    <div class="mobile-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <img src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" style="width:34px; height:34px; border-radius:50%;" alt="Logo">
+            <strong style="font-size:1rem;">Universal Portal</strong>
+        </div>
+        <i class="fa-solid fa-bars menu-toggle" onclick="toggleSidebar()"></i>
+    </div>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand-header">
+                <img src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" alt="Universal Dashboard Portal Logo">
+                <h2>Universal Dashboard Portal</h2>
+            </div>
+
+            <ul class="nav-list">
+                <li class="nav-item active"><a href="#"><i class="fa-solid fa-chart-pie"></i> Overview</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-users"></i> Customers</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Billing</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-server"></i> Server Monitor</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            </ul>
+
+            <div class="user-footer">
+                <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
+                    <i class="fa-solid fa-circle-user" style="font-size:1.8rem; color:var(--primary); flex-shrink:0;"></i>
+                    <div class="user-details">
+                        <strong id="user-display-name">Operator</strong>
+                        <span id="user-display-email">loading...</span>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()" title="Logout"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Area -->
+        <main class="dashboard-container">
+            <header class="dash-header">
+                <h1>Operator Control Dashboard 🚀</h1>
+                <p style="color:#94a3b8; font-size:0.9rem; margin-top:4px;">Universal Dashboard Portal Management Panel</p>
+            </header>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Total Users</span>
+                        <i class="fa-solid fa-users" style="color:var(--primary);"></i>
+                    </div>
+                    <div class="metric-val">1,248</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Monthly Revenue</span>
+                        <i class="fa-solid fa-indian-rupee-sign" style="color:#10b981;"></i>
+                    </div>
+                    <div class="metric-val">₹ 4,85,000</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Active Connections</span>
+                        <i class="fa-solid fa-wifi" style="color:var(--accent-gold);"></i>
+                    </div>
+                    <div class="metric-val">1,190</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Pending Bills</span>
+                        <i class="fa-solid fa-clock" style="color:#ef4444;"></i>
+                    </div>
+                    <div class="metric-val">58</div>
+                </div>
+            </div>
+
+            <div class="dashboard-panel">
+                <h3 style="font-size:1.2rem; color:#fff;">Live System Status</h3>
+                <p style="color:#94a3b8; margin-top:10px; font-size:0.95rem; line-height:1.5;">Your Universal Dashboard Portal system is running smoothly. Automated billing sync and real-time network monitoring are currently active.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+            authDomain: "universal-portal-dashboard.firebaseapp.com",
+            projectId: "universal-portal-dashboard",
+            storageBucket: "universal-portal-dashboard.firebasestorage.app",
+            messagingSenderId: "403036962443",
+            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Sidebar Toggle for Mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Firebase Auth Listener
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('user-display-email').innerText = user.email;
+                firebase.firestore().collection("users").doc(user.uid).get().then((doc) => {
+                    if (doc.exists && doc.data().name) {
+                        document.getElementById('user-display-name').innerText = doc.data().name;
+                    } else {
+                        document.getElementById('user-display-name').innerText = user.displayName || "Operator";
+                    }
+                }).catch(() => {
+                    document.getElementById('user-display-name').innerText = user.displayName || "Operator";
+                });
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        function handleLogout() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = "index.html";
+            });
+        }
+    </script>
+</body>
+</html>
