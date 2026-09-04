@@ -1,6 +1,361 @@
 <!DOCTYPE html>
 <html lang="en" class="dark" dir="ltr">
+<head><!DOCTYPE html>
+<html lang="hi" dir="ltr">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eagle Network SBZ - Operator Control Dashboard</title>
+
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --bg-dark: #070a12;
+            --sidebar-bg: rgba(15, 23, 42, 0.95);
+            --card-bg: rgba(15, 23, 42, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-dark);
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Responsive Layout Container */
+        .app-wrapper {
+            display: flex;
+            flex: 1;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Mobile Header Top Navigation */
+        .mobile-header {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .mobile-header .menu-toggle {
+            font-size: 1.4rem;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        /* Sidebar Navigation */
+        aside.sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .brand-header img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-gold);
+        }
+
+        .brand-header h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 12px;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .user-footer {
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* Main Dashboard Content Area */
+        main.dashboard-container {
+            flex: 1;
+            padding: 30px 20px;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        header.dash-header {
+            margin-bottom: 25px;
+        }
+
+        header.dash-header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        /* Metric Cards Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            padding: 18px;
+            border-radius: 16px;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .metric-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .dashboard-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 20px;
+            min-height: 300px;
+        }
+
+        /* Mobile View Rules (फिक्स: मोबाइल पर पूरा खुलेगा) */
+        @media (max-width: 768px) {
+            .app-wrapper {
+                flex-direction: column;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            aside.sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                height: 100vh;
+                width: 260px;
+                z-index: 300;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            aside.sidebar.open {
+                left: 0;
+            }
+
+            main.dashboard-container {
+                padding: 15px;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Top Bar -->
+    <div class="mobile-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <img src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" style="width:32px; height:32px; border-radius:50%;" alt="Logo">
+            <strong style="font-size:1rem;">Eagle SBZ</strong>
+        </div>
+        <i class="fa-solid fa-bars menu-toggle" onclick="toggleSidebar()"></i>
+    </div>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand-header">
+                <img src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" alt="Logo">
+                <h2>Eagle SBZ</h2>
+            </div>
+
+            <ul class="nav-list">
+                <li class="nav-item active"><a href="#"><i class="fa-solid fa-chart-pie"></i> ओवरव्यू</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-users"></i> ग्राहक</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> बिलिंग</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-server"></i> सर्वर मॉनिटर</a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-gear"></i> सेटिंग्स</a></li>
+            </ul>
+
+            <div class="user-footer">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-circle-user" style="font-size:1.6rem; color:var(--primary);"></i>
+                    <div>
+                        <strong style="display:block; font-size:0.85rem;" id="user-display-name">Operator</strong>
+                        <span style="font-size:0.7rem; color:#94a3b8;" id="user-display-email">loading...</span>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Area -->
+        <main class="dashboard-container">
+            <header class="dash-header">
+                <h1>ऑपरेटर डैशबोर्ड 🚀</h1>
+                <p style="color:#94a3b8; font-size:0.85rem;">Eagle Network Universal Operator Control Panel</p>
+            </header>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>कुल ग्राहक (Total Users)</span>
+                        <i class="fa-solid fa-users" style="color:var(--primary);"></i>
+                    </div>
+                    <div class="metric-val">1,248</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>मासिक आय (Monthly Revenue)</span>
+                        <i class="fa-solid fa-indian-rupee-sign" style="color:#10b981;"></i>
+                    </div>
+                    <div class="metric-val">₹ 4,85,000</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>सक्रिय कनेक्शन (Active)</span>
+                        <i class="fa-solid fa-wifi" style="color:var(--accent-gold);"></i>
+                    </div>
+                    <div class="metric-val">1,190</div>
+                </div>
+            </div>
+
+            <div class="dashboard-panel">
+                <h3>सक्रिय सर्वर स्थिति (Live System Status)</h3>
+                <p style="color:#94a3b8; margin-top:10px;">आपका Eagle Network सिस्टम सफलतापूर्वक चल रहा है। ऑटो-बिलिंग और WhatsApp अलर्ट एक्टिव हैं।</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+            authDomain: "universal-portal-dashboard.firebaseapp.com",
+            projectId: "universal-portal-dashboard",
+            storageBucket: "universal-portal-dashboard.firebasestorage.app",
+            messagingSenderId: "403036962443",
+            appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Sidebar Toggle for Mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Firebase Auth Listener
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('user-display-email').innerText = user.email;
+                firebase.firestore().collection("users").doc(user.uid).get().then((doc) => {
+                    if (doc.exists && doc.data().name) {
+                        document.getElementById('user-display-name').innerText = doc.data().name;
+                    }
+                });
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        function handleLogout() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = "index.html";
+            });
+        }
+    </script>
+</body>
+</html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eagle Network SBZ - Universal Operator Portal</title>
