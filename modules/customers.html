@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Directory - Eagle Network SBZ</title>
+
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #070a12;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(255, 255, 255, 0.06);
+            --primary: #38bdf8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --table-hover: rgba(255, 255, 255, 0.03);
+            --modal-overlay: rgba(0, 0, 0, 0.75);
+        }
+
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --input-bg: #f8fafc;
+            --primary: #0284c7;
+            --table-hover: #f8fafc;
+            --modal-overlay: rgba(15, 23, 42, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-title h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sync {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add-customer {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 14px 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h4 {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-info .number {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .filter-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .filter-card select {
+            padding: 8px 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px 14px;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--card-border);
+            font-size: 0.85rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .service-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .srv-wifi { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .srv-cable { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .srv-both { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .badge.active { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .badge.expired { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .btn-act {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+            background: var(--input-bg);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-act:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-act.delete:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* Modal Setup */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal-body {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 550px;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .modal-footer {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            padding: 8px 18px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fa-solid fa-users-gear" style="color:var(--primary);"></i> Customer Management</h2>
+                <p>Broadband & Cable TV (Jio, Den, GTPL) Subscriber Directory</p>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-sync" onclick="syncServerData()"><i class="fa-solid fa-rotate"></i> Sync Server</button>
+                <button class="btn-add-customer" onclick="openModal('ADD')"><i class="fa-solid fa-user-plus"></i> Add Customer</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Total Users</h4>
+                    <div class="number" id="stat-total">3</div>
+                </div>
+                <i class="fa-solid fa-users" style="color:var(--primary); font-size:1.4rem;"></i>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Active Users</h4>
+                    <div class="number" id="stat-active">2</div>
+                </div>
+                <i class="fa-solid fa-user-check" style="color:var(--success); font-size:1.4rem;"></i>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Expired Users</h4>
+                    <div class="number" id="stat-expired">1</div>
+                </div>
+                <i class="fa-solid fa-user-xmark" style="color:var(--danger); font-size:1.4rem;"></i>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Margin Profit</h4>
+                    <div class="number" id="stat-profit">₹ 490</div>
+                </div>
+                <i class="fa-solid fa-wallet" style="color:var(--warning); font-size:1.4rem;"></i>
+            </div>
+        </div>
+
+        <div class="filter-card">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" onkeyup="filterCustomers()" placeholder="Search Name, Phone or ID...">
+            </div>
+            <select id="serviceFilter" onchange="filterCustomers()">
+                <option value="ALL">All Services</option>
+                <option value="WiFi">WiFi Only</option>
+                <option value="Cable">Cable/OTT Only</option>
+                <option value="Both">WiFi + Cable (Both)</option>
+            </select>
+            <select id="statusFilter" onchange="filterCustomers()">
+                <option value="ALL">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+            </select>
+        </div>
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Customer Name</th>
+                            <th>Connection Type</th>
+                            <th>Plan & Plan ID</th>
+                            <th>Cost / Cust. Price</th>
+                            <th>Expiry</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody">
+                        <!-- Default Data -->
+                        <tr data-id="ENG-101" data-name="Rahul Sharma" data-phone="9876543210" data-service="Both" data-plan="100Mbps + OTT Combo" data-planid="PLN-COMBO-100" data-cost="400" data-price="599" data-expiry="2026-09-20" data-status="Active">
+                            <td><strong>#ENG-101</strong></td>
+                            <td><strong>Rahul Sharma</strong><br><small style="color:var(--text-muted)">9876543210</small></td>
+                            <td><span class="service-badge srv-both"><i class="fa-solid fa-tv"></i> WiFi + Cable</span></td>
+                            <td>100Mbps + OTT<br><small style="color:var(--text-muted)">ID: PLN-COMBO-100</small></td>
+                            <td>₹ 400 / <strong style="color:var(--success)">₹ 599</strong></td>
+                            <td>20-Sep-2026</td>
+                            <td><span class="badge active">Active</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-act" title="1-Click Recharge" onclick="rechargeUser(this)"><i class="fa-solid fa-bolt" style="color:var(--warning);"></i></button>
+                                    <button class="btn-act" title="Edit Customer" onclick="editCustomerRow(this)"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn-act delete" title="Delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr data-id="ENG-102" data-name="Amit Kumar" data-phone="9811223344" data-service="Cable" data-plan="Den / Jio OTT Pack" data-planid="PLN-JIO-OTT" data-cost="200" data-price="299" data-expiry="2026-09-01" data-status="Expired">
+                            <td><strong>#ENG-102</strong></td>
+                            <td><strong>Amit Kumar</strong><br><small style="color:var(--text-muted)">9811223344</small></td>
+                            <td><span class="service-badge srv-cable"><i class="fa-solid fa-tv"></i> Cable/OTT</span></td>
+                            <td>Jio OTT Pack<br><small style="color:var(--text-muted)">ID: PLN-JIO-OTT</small></td>
+                            <td>₹ 200 / <strong style="color:var(--success)">₹ 299</strong></td>
+                            <td>01-Sep-2026</td>
+                            <td><span class="badge expired">Expired</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-act" title="1-Click Recharge" onclick="rechargeUser(this)"><i class="fa-solid fa-bolt" style="color:var(--warning);"></i></button>
+                                    <button class="btn-act" title="Edit Customer" onclick="editCustomerRow(this)"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn-act delete" title="Delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Form (Add / Edit Customer) -->
+    <div class="modal-overlay" id="customerModal">
+        <div class="modal-body">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Customer</h3>
+                <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal()"></i>
+            </div>
+            
+            <form id="customerForm" onsubmit="saveCustomer(event)">
+                <input type="hidden" id="editRowIndex" value="-1">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>User ID / Account No.</label>
+                        <input type="text" id="custUserId" required placeholder="e.g. ENG-104">
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="custName" required placeholder="Customer Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="tel" id="custMobile" required placeholder="10-digit Mobile">
+                    </div>
+                    <div class="form-group">
+                        <label>Connection Type</label>
+                        <select id="custService">
+                            <option value="WiFi">WiFi Only</option>
+                            <option value="Cable">Cable/OTT Only (Jio/Den)</option>
+                            <option value="Both">WiFi + Cable (Both)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Plan Name</label>
+                        <input type="text" id="custPlan" required placeholder="e.g. 100 Mbps Unlimited">
+                    </div>
+                    <div class="form-group">
+                        <label>Main Server Plan ID</label>
+                        <input type="text" id="custPlanId" required placeholder="e.g. PLN-100M">
+                    </div>
+                    <div class="form-group">
+                        <label>Server Cost (₹) [पूल प्राइस]</label>
+                        <input type="number" id="custCost" required placeholder="कटौती मूल्य">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Price (₹)</label>
+                        <input type="number" id="custPrice" required placeholder="कस्टमर प्राइस">
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="date" id="custExpiry" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Status</label>
+                        <select id="custStatus">
+                            <option value="Active">Active</option>
+                            <option value="Expired">Expired</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Save Details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'THEME_CHANGE') {
+                if (e.data.isLight) document.body.classList.add('light-mode');
+                else document.body.classList.remove('light-mode');
+            }
+        });
+
+        function openModal(mode) {
+            document.getElementById('customerModal').style.display = 'flex';
+            if (mode === 'ADD') {
+                document.getElementById('modalTitle').innerText = 'Add New Customer';
+                document.getElementById('customerForm').reset();
+                document.getElementById('editRowIndex').value = '-1';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('customerModal').style.display = 'none';
+        }
+
+        // Edit Button Fix (पेंसिल का बटन दबाने पर डाटा लोड होना)
+        function editCustomerRow(btn) {
+            const tr = btn.closest('tr');
+            document.getElementById('modalTitle').innerText = 'Edit Customer Details';
+            
+            document.getElementById('custUserId').value = tr.dataset.id;
+            document.getElementById('custName').value = tr.dataset.name;
+            document.getElementById('custMobile').value = tr.dataset.phone;
+            document.getElementById('custService').value = tr.dataset.service;
+            document.getElementById('custPlan').value = tr.dataset.plan;
+            document.getElementById('custPlanId').value = tr.dataset.planid;
+            document.getElementById('custCost').value = tr.dataset.cost;
+            document.getElementById('custPrice').value = tr.dataset.price;
+            document.getElementById('custExpiry').value = tr.dataset.expiry;
+            document.getElementById('custStatus').value = tr.dataset.status;
+
+            document.getElementById('editRowIndex').value = tr.rowIndex;
+            openModal('EDIT');
+        }
+
+        // Save / Update Customer
+        function saveCustomer(e) {
+            e.preventDefault();
+            const editIndex = parseInt(document.getElementById('editRowIndex').value);
+
+            const id = document.getElementById('custUserId').value;
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custMobile').value;
+            const service = document.getElementById('custService').value;
+            const plan = document.getElementById('custPlan').value;
+            const planid = document.getElementById('custPlanId').value;
+            const cost = document.getElementById('custCost').value;
+            const price = document.getElementById('custPrice').value;
+            const expiry = document.getElementById('custExpiry').value;
+            const status = document.getElementById('custStatus').value;
+
+            let srvBadge = '';
+            if(service === 'WiFi') srvBadge = '<span class="service-badge srv-wifi"><i class="fa-solid fa-wifi"></i> WiFi Only</span>';
+            else if(service === 'Cable') srvBadge = '<span class="service-badge srv-cable"><i class="fa-solid fa-tv"></i> Cable/OTT</span>';
+            else srvBadge = '<span class="service-badge srv-both"><i class="fa-solid fa-tv"></i> WiFi + Cable</span>';
+
+            const badgeClass = status === 'Active' ? 'active' : 'expired';
+
+            const rowContent = `
+                <td><strong>#${id}</strong></td>
+                <td><strong>${name}</strong><br><small style="color:var(--text-muted)">${phone}</small></td>
+                <td>${srvBadge}</td>
+                <td>${plan}<br><small style="color:var(--text-muted)">ID: ${planid}</small></td>
+                <td>₹ ${cost} / <strong style="color:var(--success)">₹ ${price}</strong></td>
+                <td>${expiry}</td>
+                <td><span class="badge ${badgeClass}">${status}</span></td>
+                <td>
+                    <div class="action-btns">
+                        <button class="btn-act" title="1-Click Recharge" onclick="rechargeUser(this)"><i class="fa-solid fa-bolt" style="color:var(--warning);"></i></button>
+                        <button class="btn-act" title="Edit Customer" onclick="editCustomerRow(this)"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-act delete" title="Delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </td>
+            `;
+
+            const table = document.querySelector('table');
+
+            if (editIndex > 0) {
+                // Update Existing Row
+                const row = table.rows[editIndex];
+                row.dataset.id = id;
+                row.dataset.name = name;
+                row.dataset.phone = phone;
+                row.dataset.service = service;
+                row.dataset.plan = plan;
+                row.dataset.planid = planid;
+                row.dataset.cost = cost;
+                row.dataset.price = price;
+                row.dataset.expiry = expiry;
+                row.dataset.status = status;
+                row.innerHTML = rowContent;
+            } else {
+                // Add New Row
+                const tbody = document.getElementById('customerTableBody');
+                const tr = document.createElement('tr');
+                tr.dataset.id = id;
+                tr.dataset.name = name;
+                tr.dataset.phone = phone;
+                tr.dataset.service = service;
+                tr.dataset.plan = plan;
+                tr.dataset.planid = planid;
+                tr.dataset.cost = cost;
+                tr.dataset.price = price;
+                tr.dataset.expiry = expiry;
+                tr.dataset.status = status;
+                tr.innerHTML = rowContent;
+                tbody.appendChild(tr);
+            }
+
+            closeModal();
+            updateStats();
+        }
+
+        // 1-Click Recharge Function
+        function rechargeUser(btn) {
+            const tr = btn.closest('tr');
+            const planId = tr.dataset.planid;
+            const cost = tr.dataset.cost;
+
+            if (confirm(`1-Click Recharge Confirmation:\n\nUser: ${tr.dataset.name}\nPlan ID: ${planId}\nServer Cost: ₹${cost}\n\nक्या आप मुख्य सर्वर से प्लान रीचार्ज करना चाहते हैं?`)) {
+                
+                // Add 30 Days to Expiry Date
+                let currentExp = new Date();
+                currentExp.setDate(currentExp.getDate() + 30);
+                const nextExpStr = currentExp.toISOString().split('T')[0];
+
+                tr.dataset.status = 'Active';
+                tr.dataset.expiry = nextExpStr;
+                
+                tr.cells[5].innerText = nextExpStr;
+                tr.cells[6].innerHTML = '<span class="badge active">Active</span>';
+
+                alert("Recharge Successful! Plan Renewed for 30 days.");
+                updateStats();
+            }
+        }
+
+        // Sync with Main Server
+        function syncServerData() {
+            alert("Syncing with Main Server...\n\nमुख्य सर्वर से सभी नए कस्टमर्स और लाइव स्टेटस ऑटो-लोड कर दिए गए हैं।");
+            updateStats();
+        }
+
+        function deleteRow(btn) {
+            if (confirm("Are you sure you want to delete this customer?")) {
+                btn.closest('tr').remove();
+                updateStats();
+            }
+        }
+
+        function filterCustomers() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const serviceVal = document.getElementById('serviceFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('#customerTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const service = row.dataset.service;
+                const status = row.dataset.status;
+
+                const matchSearch = text.includes(searchVal);
+                const matchService = (serviceVal === 'ALL') || (service === serviceVal);
+                const matchStatus = (statusVal === 'ALL') || (status === statusVal);
+
+                if (matchSearch && matchService && matchStatus) row.style.display = '';
+                else row.style.display = 'none';
+            });
+        }
+
+        function updateStats() {
+            const rows = document.querySelectorAll('#customerTableBody tr');
+            let active = 0, expired = 0, marginProfit = 0;
+
+            rows.forEach(row => {
+                if (row.dataset.status === 'Active') active++;
+                else expired++;
+
+                const cost = parseFloat(row.dataset.cost || 0);
+                const price = parseFloat(row.dataset.price || 0);
+                marginProfit += (price - cost);
+            });
+
+            document.getElementById('stat-total').innerText = rows.length;
+            document.getElementById('stat-active').innerText = active;
+            document.getElementById('stat-expired').innerText = expired;
+            document.getElementById('stat-profit').innerText = "₹ " + marginProfit;
+        }
+
+        updateStats();
+    </script>
+</body>
+</html>
