@@ -309,6 +309,57 @@
             header.top-header { padding: 0 12px; }
             .header-title span { display: none; }
         }
+        /* 1. Top Header Bar को सही फ्लेक्स लेआउट देना */
+header.top-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Weather & Clock Container को सुंदर और दाएँ (Right) तरफ सेट करना */
+.weather-clock-card {
+    display: flex !important;
+    flex-direction: row !important; /* एक लाइन में रखने के लिए */
+    align-items: center !important;
+    gap: 15px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    margin-left: auto !important; /* दाएँ तरफ पुश करने के लिए */
+}
+
+/* 3. अंदर के टेक्स्ट का साइज और एलाइनमेंट सही करना */
+.location-weather-box, .clock-date-box {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.location-title, .weather-details, #clock-time, #clock-date {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+}
+
+#clock-time {
+    font-weight: bold !important;
+    font-size: 14px !important;
+    color: var(--primary, #00d2ff) !important;
+}
+
+/* डिवाइडर लाइन को वर्टिकल करना */
+.weather-clock-card hr {
+    display: block !important;
+    height: 25px !important;
+    width: 1px !important;
+    border: none !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    margin: 0 5px !important;
+}
     </style>
 </head>
 <body>
