@@ -470,80 +470,122 @@
             }
         }
 
-        // Live Clock & Date Update
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('live-time').innerText = now.toLocaleTimeString();
-            document.getElementById('live-date').innerText = now.toLocaleDateString('en-IN', {
-                day: '2-digit', month: 'short', year: 'numeric'
-            });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+        // ==========================================
+// 1. Live Time + Day + Date Engine
+// ==========================================
+function updateClockAndDay() {
+    const now = new Date();
 
-        // Live Auto-Location & Weather Fetcher
-        function fetchLocationAndWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
+    // 1. Time Format (12-Hour format with AM/PM)
+    const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+    const timeString = now.toLocaleTimeString('en-US', timeOptions);
 
-                    // Open Meteo API for Temperature
-                    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.current_weather) {
-                                document.getElementById('live-temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
-                            }
-                        }).catch(() => {
-                            document.getElementById('live-temp').innerText = "30°C";
-                        });
+    // 2. Day & Date Format (e.g., Sunday, 06 Sep 2026)
+    const dateOptions = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+    const dateString = now.toLocaleDateString('en-US', dateOptions);
 
-                    // Reverse Geocoding API for Area & City
-                    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
-                        .then(res => res.json())
-                        .then(data => {
-                            const address = data.address;
-                            const area = address.suburb || address.neighbourhood || address.residential || address.village || "";
-                            const city = address.city || address.town || address.state_district || "India";
-                            document.getElementById('live-location').innerText = area ? `${area}, ${city}` : city;
-                        }).catch(() => {
-                            document.getElementById('live-location').innerText = "Delhi, India";
-                        });
+    const timeEl = document.getElementById('clock-time');
+    const dateEl = document.getElementById('clock-date');
 
-                }, () => {
-                    document.getElementById('live-location').innerText = "Location Enabled Off";
-                    document.getElementById('live-temp').innerText = "--°C";
-                });
-            } else {
-                document.getElementById('live-location').innerText = "India";
+    if (timeEl) timeEl.innerText = timeString;
+    if (dateEl) dateEl.innerText = dateString; // यहाँ Sunday, Friday जैसा दिन दिखेगा
+}
+
+setInterval(updateClockAndDay, 1000);
+updateClockAndDay();
+
+
+// ==========================================
+// 2. Dynamic Auto-Location & Live Weather Engine
+// ==========================================
+function initAutoWeather() {
+    // अगर यूज़र ने लोकेशन परमिशन दी है
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                // 1. Coordinates से शहर का नाम (Reverse Geocoding)
+                try {
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                    const geoData = await geoRes.json();
+                    
+                    const city = geoData.address.city || geoData.address.town || geoData.address.suburb || geoData.address.state_district || "Unknown Location";
+                    const state = geoData.address.state || "";
+                    
+                    const locationEl = document.getElementById('user-location');
+                    if (locationEl) locationEl.innerText = `${city}${state ? ', ' + state : ''}`;
+                } catch (e) {
+                    console.log("City name fetch error:", e);
+                }
+
+                // 2. उस लोकेशन का मौसम फ़ेच करना
+                fetchWeatherData(lat, lon);
+            },
+            (error) => {
+                // अगर यूज़र लोकेशन परमिशन Block कर दे, तो Default (Shahdara, Delhi) दिखाएगा
+                console.log("Location permission denied, using default location.");
+                fetchWeatherData(28.67, 77.28); 
             }
-        }
-        fetchLocationAndWeather();
+        );
+    } else {
+        // अगर ब्राउज़र लोकेशन सपोर्ट न करे
+        fetchWeatherData(28.67, 77.28);
+    }
+}
 
-        // Firebase Auth Listener
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                document.getElementById('user-display-email').innerText = user.email;
-                firebase.firestore().collection("users").doc(user.uid).get().then((doc) => {
-                    if (doc.exists && doc.data().name) {
-                        document.getElementById('user-display-name').innerText = doc.data().name;
-                    } else {
-                        document.getElementById('user-display-name').innerText = user.displayName || "Operator";
-                    }
-                }).catch(() => {
-                    document.getElementById('user-display-name').innerText = user.displayName || "Operator";
-                });
-            } else {
-                window.location.href = "index.html";
+// मौसम का डेटा API से लाने का फ़ंक्शन
+async function fetchWeatherData(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data && data.current_weather) {
+            const temp = Math.round(data.current_weather.temperature);
+            const weatherCode = data.current_weather.weathercode;
+
+            const tempEl = document.getElementById('weather-temp');
+            if (tempEl) tempEl.innerText = `${temp}°C`;
+
+            let description = "साफ़ मौसम";
+            let icon = "☀️";
+
+            if (weatherCode === 0) {
+                description = "साफ़ आसमान";
+                icon = "☀️";
+            } else if (weatherCode >= 1 && weatherCode <= 3) {
+                description = "हल्के बादल";
+                icon = "⛅";
+            } else if (weatherCode >= 45 && weatherCode <= 48) {
+                description = "धुंध / कोहरा";
+                icon = "🌫️";
+            } else if (weatherCode >= 51 && weatherCode <= 67) {
+                description = "हल्की बारिश";
+                icon = "🌧️";
+            } else if (weatherCode >= 80 && weatherCode <= 82) {
+                description = "तेज़ बारिश";
+                icon = "🌧️⚡";
+            } else if (weatherCode >= 95) {
+                description = "आंधी / तूफान";
+                icon = "⛈️";
             }
-        });
 
-        function handleLogout() {
-            firebase.auth().signOut().then(() => {
-                window.location.href = "index.html";
-            });
+            const descEl = document.getElementById('weather-desc');
+            const iconEl = document.getElementById('weather-icon');
+
+            if (descEl) descEl.innerText = description;
+            if (iconEl) iconEl.innerText = icon;
         }
+    } catch (error) {
+        console.error("Weather error:", error);
+    }
+}
+
+// पेज लोड होते ही ऑटो-लोकेशन वेदर चालू करें
+initAutoWeather();
     </script>
 </body>
 </html>
