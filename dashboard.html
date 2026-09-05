@@ -384,32 +384,29 @@
                     <span>Operator Control Panel</span>
                 </div>
 
-                <!-- Live Control Widgets & Theme -->
-                <div class="widgets-group">
-                    
-                    <!-- Live Location -->
-                    <div class="widget-box">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span id="live-location">Detecting Location...</span>
-                    </div>
+                <!-- Live Weather, Location & Clock Widget -->
+<div class="weather-clock-card">
+    <!-- 1. Live Location & Temperature Box -->
+    <div class="location-weather-box">
+        <div class="location-title">
+            <i class="fas fa-map-marker-alt"></i>
+            <span id="user-location">लोकेशन लोड हो रही है...</span>
+        </div>
+        <div class="weather-details">
+            <span id="weather-temp">--°C</span>
+            <span id="weather-icon">🌤️</span>
+            <span id="weather-desc">मौसम लोड हो रहा है...</span>
+        </div>
+    </div>
 
-                    <!-- Live Date -->
-                    <div class="widget-box date-box">
-                        <i class="fa-solid fa-calendar-days"></i>
-                        <span id="live-date">--/--/----</span>
-                    </div>
+    <hr style="border: 0.5px solid rgba(255,255,255,0.2); margin: 10px 0;">
 
-                    <!-- Live Time -->
-                    <div class="widget-box">
-                        <i class="fa-solid fa-clock"></i>
-                        <span id="live-time">00:00:00 AM</span>
-                    </div>
-
-                    <!-- Live Temp -->
-                    <div class="widget-box temp-box">
-                        <i class="fa-solid fa-temperature-half" style="color:var(--accent-gold);"></i>
-                        <span id="live-temp">--°C</span>
-                    </div>
+    <!-- 2. Time, Day & Date Box -->
+    <div class="clock-date-box">
+        <div id="clock-time">00:00:00 AM</div>
+        <div id="clock-date">Loading Day & Date...</div>
+    </div>
+</div>
 
                     <!-- Light/Dark Mode Switcher -->
                     <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle Theme">
