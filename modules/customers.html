@@ -1,1 +1,208 @@
-modules/customers.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - Universal Portal</title>
+    
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: #070a12;
+            color: #f8fafc;
+            padding: 10px;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .module-title h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .module-title p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .btn-add {
+            background: #38bdf8;
+            color: #070a12;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add:hover {
+            background: #0284c7;
+            color: #fff;
+        }
+
+        /* Search & Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            outline: none;
+        }
+
+        /* Table Styling */
+        .table-container {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.88rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btns i {
+            margin-right: 12px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        .action-btns i:hover {
+            color: #38bdf8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-header">
+        <div class="module-title">
+            <h2>Customer Directory 👥</h2>
+            <p>Manage and monitor all active subscriber accounts</p>
+        </div>
+        <button class="btn-add"><i class="fa-solid fa-plus"></i> Add New Customer</button>
+    </div>
+
+    <div class="filter-bar">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search by name, ID, or phone number...">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Name</th>
+                    <th>Plan</th>
+                    <th>Status</th>
+                    <th>Billing Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#USR-1082</td>
+                    <td>Rahul Sharma</td>
+                    <td>50 Mbps Unlimited</td>
+                    <td><span class="status-badge active">Active</span></td>
+                    <td>10 Sep 2026</td>
+                    <td class="action-btns">
+                        <i class="fa-solid fa-pen-to-square" title="Edit"></i>
+                        <i class="fa-solid fa-trash" title="Delete"></i>
+                    </td>
+                </tr>
+                <tr>
+                    <td>#USR-1083</td>
+                    <td>Aman Verma</td>
+                    <td>100 Mbps Pro</td>
+                    <td><span class="status-badge active">Active</span></td>
+                    <td>15 Sep 2026</td>
+                    <td class="action-btns">
+                        <i class="fa-solid fa-pen-to-square" title="Edit"></i>
+                        <i class="fa-solid fa-trash" title="Delete"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
