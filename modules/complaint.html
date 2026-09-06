@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Complaints & Field Tracker</title>
+    <!-- FontAwesome Icons & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet OpenStreetMap (Free Google Maps Alternative for Marker Tracking) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            padding: 20px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-gold);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #94a3b8;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: #000;
+        }
+
+        .btn-telegram {
+            background: #0088cc;
+            color: #fff;
+        }
+
+        #map {
+            height: 350px;
+            border-radius: 12px;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .complaint-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .complaint-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .config-box {
+            background: rgba(0, 136, 204, 0.1);
+            border: 1px solid rgba(0, 136, 204, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <i class="fa-solid fa-headset"></i> Customer Complaint & Field Tracker
+    </div>
+
+    <!-- Telegram Bot Config Option -->
+    <div class="config-box">
+        <strong><i class="fa-paper-plane"></i> Telegram Owner Notification Setup:</strong>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <input type="text" id="tgBotToken" placeholder="Telegram Bot Token" style="flex:1; padding:6px; background:#000; border:1px solid #333; color:#fff; border-radius:4px;">
+            <input type="text" id="tgChatId" placeholder="Owner Chat ID" style="flex:1; padding:6px; background:#000; border:1px solid #333; color:#fff; border-radius:4px;">
+            <button class="btn btn-telegram" onclick="saveTelegramSettings()" style="padding:6px 12px;"><i class="fa-solid fa-save"></i> Save</button>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <!-- Left Column: Add Complaint & Worker Management -->
+        <div>
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-title"><i class="fa-solid fa-plus-circle"></i> नई शिकायत दर्ज करें</div>
+                <form id="complaintForm" onsubmit="addComplaint(event)">
+                    <div class="form-group">
+                        <label>ग्राहक का नाम</label>
+                        <input type="text" id="custName" required placeholder="उदा. रमेश कुमार">
+                    </div>
+                    <div class="form-group">
+                        <label>मोबाइल नंबर</label>
+                        <input type="tel" id="custPhone" required placeholder="9876543210">
+                    </div>
+                    <div class="form-group">
+                        <label>पता / इलाका</label>
+                        <input type="text" id="custAddress" required placeholder="उदा. हाउस 42, ब्लॉक B, मेन रोड">
+                    </div>
+                    <div class="form-group" style="display:flex; gap:10px;">
+                        <div style="flex:1;">
+                            <label>Latitude (Lat)</label>
+                            <input type="text" id="custLat" placeholder="28.6139" value="28.6139">
+                        </div>
+                        <div style="flex:1;">
+                            <label>Longitude (Lng)</label>
+                            <input type="text" id="custLng" placeholder="77.2090" value="77.2090">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>शिकायत का विवरण</label>
+                        <textarea id="complaintDesc" rows="2" required placeholder="इंटरनेट बंद है / केबल नो सिग्नल"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>असाइन वर्कर चुनिए</label>
+                        <select id="workerSelect" required>
+                            <option value="">-- वर्कर चुनें --</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn"><i class="fa-solid fa-paper-plane"></i> दर्ज करें और अलर्ट भेजें</button>
+                </form>
+            </div>
+
+            <!-- Manage Workers Section -->
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-users"></i> वर्कर जोड़ें (Field Team)</div>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="newWorkerName" placeholder="वर्कर का नाम" style="flex:1; padding:8px; background:#000; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <input type="tel" id="newWorkerPhone" placeholder="व्हाट्सएप नंबर" style="flex:1; padding:8px; background:#000; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <button class="btn" onclick="addWorker()"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="workersList" style="list-style:none; font-size:0.85rem; color:#cbd5e1;"></ul>
+            </div>
+        </div>
+
+        <!-- Right Column: Complaints List & Google Maps View -->
+        <div>
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-title"><i class="fa-solid fa-map-location-dot"></i> कस्टमर लोकेशन मैप View</div>
+                <div id="map"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-list-check"></i> शिकायतों की सूची</div>
+                <div id="complaintList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Stores
+        let workers = JSON.parse(localStorage.getItem('isp_workers')) || [
+            { name: "सुनील कुमार (टेक)", phone: "919876543210" }
+        ];
+
+        let complaints = JSON.parse(localStorage.getItem('isp_complaints')) || [];
+
+        let map, markers = [];
+
+        // Initialize Page
+        window.onload = function() {
+            initMap();
+            loadWorkers();
+            renderComplaints();
+            
+            // Load saved Telegram credentials
+            document.getElementById('tgBotToken').value = localStorage.getItem('tg_bot_token') || '';
+            document.getElementById('tgChatId').value = localStorage.getItem('tg_chat_id') || '';
+        };
+
+        // Initialize Map
+        function initMap() {
+            map = L.map('map').setView([28.6139, 77.2090], 12); // Default Location (Delhi)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
+        }
+
+        // Save Telegram Credentials
+        function saveTelegramSettings() {
+            const token = document.getElementById('tgBotToken').value;
+            const chatId = document.getElementById('tgChatId').value;
+            localStorage.setItem('tg_bot_token', token);
+            localStorage.setItem('tg_chat_id', chatId);
+            alert("Telegram settings saved!");
+        }
+
+        // Send Telegram Notification to Owner
+        function sendTelegramNotification(complaint) {
+            const token = localStorage.getItem('tg_bot_token');
+            const chatId = localStorage.getItem('tg_chat_id');
+
+            if (!token || !chatId) return;
+
+            const text = `🚨 *नई कस्टमर शिकायत!* \n\n👤 *नाम:* ${complaint.name}\n📞 *फोन:* ${complaint.phone}\n📍 *पता:* ${complaint.address}\n📝 *समस्या:* ${complaint.desc}\n👨‍🔧 *असाइन वर्कर:* ${complaint.workerName}\n\n🗺️ *Map Location:* https://maps.google.com/?q=${complaint.lat},${complaint.lng}`;
+
+            fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text,
+                    parse_mode: 'Markdown'
+                })
+            }).catch(err => console.error("Telegram notification failed", err));
+        }
+
+        // Add New Worker
+        function addWorker() {
+            const name = document.getElementById('newWorkerName').value;
+            const phone = document.getElementById('newWorkerPhone').value;
+
+            if (name && phone) {
+                workers.push({ name, phone });
+                localStorage.setItem('isp_workers', JSON.stringify(workers));
+                document.getElementById('newWorkerName').value = '';
+                document.getElementById('newWorkerPhone').value = '';
+                loadWorkers();
+            }
+        }
+
+        function loadWorkers() {
+            const select = document.getElementById('workerSelect');
+            const list = document.getElementById('workersList');
+            select.innerHTML = '<option value="">-- वर्कर चुनें --</option>';
+            list.innerHTML = '';
+
+            workers.forEach((w, index) => {
+                select.innerHTML += `<option value="${index}">${w.name}</option>`;
+                list.innerHTML += `<li><i class="fa-solid fa-user"></i> ${w.name} (${w.phone})</li>`;
+            });
+        }
+
+        // Add Complaint
+        function addComplaint(e) {
+            e.preventDefault();
+
+            const workerIndex = document.getElementById('workerSelect').value;
+            const selectedWorker = workers[workerIndex];
+
+            const newComplaint = {
+                id: Date.now(),
+                name: document.getElementById('custName').value,
+                phone: document.getElementById('custPhone').value,
+                address: document.getElementById('custAddress').value,
+                lat: document.getElementById('custLat').value,
+                lng: document.getElementById('custLng').value,
+                desc: document.getElementById('complaintDesc').value,
+                workerName: selectedWorker.name,
+                workerPhone: selectedWorker.phone,
+                status: 'Pending'
+            };
+
+            complaints.push(newComplaint);
+            localStorage.setItem('isp_complaints', JSON.stringify(complaints));
+
+            // Send Telegram Alert to Owner
+            sendTelegramNotification(newComplaint);
+
+            document.getElementById('complaintForm').reset();
+            renderComplaints();
+        }
+
+        // Send WhatsApp Message to Assigned Worker
+        function sendWhatsAppToWorker(id) {
+            const c = complaints.find(item => item.id === id);
+            if (!c) return;
+
+            const msg = `*शिकायत असाइन अलर्ट* 🛠️\n\n*ग्राहक:* ${c.name}\n*फोन:* ${c.phone}\n*पता:* ${c.address}\n*समस्या:* ${c.desc}\n\n*गूगल मैप लोकेशन:* https://maps.google.com/?q=${c.lat},${c.lng}`;
+            
+            const url = `https://wa.me/${c.workerPhone}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        // Render Complaints & Map Pins
+        function renderComplaints() {
+            const list = document.getElementById('complaintList');
+            list.innerHTML = '';
+
+            // Clear old markers
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            complaints.forEach(c => {
+                // Add list item
+                list.innerHTML += `
+                    <div class="complaint-item">
+                        <div class="complaint-header">
+                            <span>${c.name} (${c.phone})</span>
+                            <span class="badge-pending">${c.status}</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:#94a3b8; margin-bottom:8px;">
+                            📍 ${c.address} | 👨‍🔧 ${c.workerName}
+                        </div>
+                        <div style="font-size:0.85rem; margin-bottom:8px;">
+                            " ${c.desc} "
+                        </div>
+                        <button class="btn btn-whatsapp" style="padding:4px 10px; font-size:0.8rem;" onclick="sendWhatsAppToWorker(${c.id})">
+                            <i class="fa-brands fa-whatsapp"></i> वर्कर को WhatsApp भेजें
+                        </button>
+                    </div>
+                `;
+
+                // Add Map Pin
+                if (c.lat && c.lng) {
+                    const marker = L.marker([c.lat, c.lng]).addTo(map)
+                        .bindPopup(`<b>${c.name}</b><br>${c.address}<br><b>समस्या:</b> ${c.desc}`);
+                    markers.push(marker);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
