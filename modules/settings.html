@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Settings & Custom Branding</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --success: #22c55e;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-dark); color: #f8fafc; padding: 20px; }
+
+        .header-title { display: flex; align-items: center; justify-content: space-between; font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: var(--primary); }
+
+        /* Tabs Styling */
+        .tabs-header { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .tab-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #94a3b8; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
+        .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; backdrop-filter: blur(10px); margin-bottom: 20px; }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; color: var(--accent-gold); }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; outline: none; }
+
+        .btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+        /* Preview Header Box */
+        .header-preview { background: #1e293b; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .header-preview img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+
+        .qr-preview-box { text-align: center; padding: 15px; background: #fff; border-radius: 12px; width: fit-content; margin-top: 10px; }
+        .qr-preview-box img { width: 160px; height: 160px; }
+        .qr-info { color: #000; font-size: 0.8rem; margin-top: 5px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <span><i class="fa-solid fa-sliders"></i> System Control & Custom Branding</span>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-header">
+        <button class="tab-btn active" id="btnAdminTab" onclick="switchTab('adminTab')"><i class="fa-solid fa-paint-roller"></i> Dashboard Branding & Master</button>
+        <button class="tab-btn" onclick="switchTab('excelTab')"><i class="fa-solid fa-file-excel"></i> Excel Import / Export</button>
+        <button class="tab-btn" onclick="switchTab('operatorTab')"><i class="fa-solid fa-user-gear"></i> Operator Profile & UPI QR</button>
+    </div>
+
+    <!-- TAB 1: MASTER ADMIN & BRANDING SETTINGS -->
+    <div id="adminTab" class="tab-content active">
+        <!-- Live Header Preview -->
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-eye"></i> डैशबोर्ड हेडर लाइव प्रिव्यू (Header Branding)</span></div>
+            <div class="header-preview">
+                <img id="previewLogoImg" src="https://via.placeholder.com/150" alt="Company Logo">
+                <div>
+                    <h3 id="previewIspName" style="font-size: 1.1rem; color: #fff;">Eagle Network SBZ</h3>
+                    <p id="previewIspTagline" style="font-size: 0.8rem; color: #94a3b8;">High-Speed Fiber Broadband</p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group"><label>ISP / कंपनी का नाम</label><input type="text" id="ispName" placeholder="उदा. Eagle Network SBZ" oninput="updateLivePreview()"></div>
+                <div class="form-group"><label>टैगलाइन (Tagline)</label><input type="text" id="ispTagline" placeholder="उदा. High-Speed Fiber Broadband" oninput="updateLivePreview()"></div>
+                <div class="form-group"><label>कंपनी का लोगो URL / फ़ाइल लिंक</label><input type="text" id="ispLogoUrl" placeholder="https://example.com/logo.png" oninput="updateLivePreview()"></div>
+                <div class="form-group"><label>हेल्पलाइन सपोर्ट नंबर</label><input type="tel" id="ispSupportPhone" placeholder="9876543210"></div>
+                <div class="form-group"><label>डिफ़ॉल्ट मैप अक्षांश (Lat)</label><input type="text" id="defaultLat" value="28.6139"></div>
+                <div class="form-group"><label>डिफ़ॉल्ट मैप देशांतर (Lng)</label><input type="text" id="defaultLng" value="77.2090"></div>
+            </div>
+            <button class="btn" onclick="saveMasterSettings()"><i class="fa-solid fa-floppy-disk"></i> ब्रांडिंग व मास्टर सेटिंग्स सेव करें</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-robot"></i> Automation & Telegram API Setup</span></div>
+            <div class="form-grid">
+                <div class="form-group"><label>Telegram Bot Token</label><input type="text" id="tgToken"></div>
+                <div class="form-group"><label>Telegram Owner Chat ID</label><input type="text" id="tgChat"></div>
+            </div>
+            <button class="btn" onclick="saveMasterSettings()"><i class="fa-solid fa-floppy-disk"></i> API सेटिंग्स सेव करें</button>
+        </div>
+    </div>
+
+    <!-- TAB 2: EXCEL IMPORT & EXPORT -->
+    <div id="excelTab" class="tab-content">
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-file-import"></i> कस्टमर डेटा फ़ाइल अपलोड (Import CSV/Excel)</span></div>
+            <div class="form-group">
+                <label>पुराने ग्राहकों की CSV/Excel फ़ाइल चुनें</label>
+                <input type="file" id="csvFileInput" accept=".csv">
+            </div>
+            <button class="btn btn-warning" onclick="importCSV()"><i class="fa-solid fa-upload"></i> फ़ाइल से ग्राहक अपलोड करें</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-file-export"></i> रिपोर्ट व बैकअप डाउनलोड (Export Data)</span></div>
+            <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:15px;">1-क्लिक में अपनी सभी शिकायतों, कस्टमर लिस्ट और लेन-देन का बैकअप CSV फ़ाइल में डाउनलोड करें।</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-success" onclick="exportComplaintsCSV()"><i class="fa-solid fa-download"></i> शिकायतें एक्सपोर्ट करें (CSV)</button>
+                <button class="btn btn-success" onclick="exportCustomersCSV()"><i class="fa-solid fa-download"></i> कस्टमर लिस्ट एक्सपोर्ट करें (CSV)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: OPERATOR PROFILE & UPI QR GENERATOR -->
+    <div id="operatorTab" class="tab-content">
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-qrcode"></i> Operator Dynamic UPI & QR Code Generator</span></div>
+            <div class="form-grid">
+                <div class="form-group"><label>ऑपरेटर UPI ID (उदा. 9876543210@paytm)</label><input type="text" id="opUpiId" placeholder="9876543210@paytm" oninput="generatePreviewQR()"></div>
+                <div class="form-group"><label>खाताधारक का नाम (Payee Name)</label><input type="text" id="opPayeeName" placeholder="उदा. Rahul Net Service" oninput="generatePreviewQR()"></div>
+            </div>
+
+            <!-- Auto Generated Dynamic QR Code Preview -->
+            <div style="margin-top:15px;">
+                <label style="font-size:0.85rem; color:#94a3b8;">ऐप / कस्टमर के लिए जनरेट हुआ QR कोड:</label>
+                <div class="qr-preview-box">
+                    <img id="qrImage" src="" alt="UPI QR Code">
+                    <div class="qr-info" id="qrTextInfo">Scan to Pay</div>
+                </div>
+            </div>
+            <br>
+            <button class="btn" onclick="saveOperatorSettings()"><i class="fa-solid fa-floppy-disk"></i> UPI & प्रोफाइल सेव करें</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-key"></i> ऑपरेटर सुरक्षा व पासवर्ड</span></div>
+            <div class="form-grid">
+                <div class="form-group"><label>नया लॉगिन पासवर्ड</label><input type="password" id="opPassword" placeholder="******"></div>
+            </div>
+            <button class="btn btn-warning" onclick="saveOperatorPassword()"><i class="fa-solid fa-lock"></i> पासवर्ड अपडेट करें</button>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            loadSettings();
+            generatePreviewQR();
+            checkUserRole();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function checkUserRole() {
+            const role = localStorage.getItem('user_role') || 'admin';
+            if (role === 'operator') {
+                document.getElementById('btnAdminTab').style.display = 'none';
+                switchTab('operatorTab');
+            }
+        }
+
+        function updateLivePreview() {
+            const name = document.getElementById('ispName').value || 'Eagle Network SBZ';
+            const tagline = document.getElementById('ispTagline').value || 'High-Speed Fiber Broadband';
+            const logo = document.getElementById('ispLogoUrl').value || 'https://via.placeholder.com/150';
+
+            document.getElementById('previewIspName').innerText = name;
+            document.getElementById('previewIspTagline').innerText = tagline;
+            document.getElementById('previewLogoImg').src = logo;
+        }
+
+        function saveMasterSettings() {
+            localStorage.setItem('isp_name', document.getElementById('ispName').value);
+            localStorage.setItem('isp_tagline', document.getElementById('ispTagline').value);
+            localStorage.setItem('isp_logo', document.getElementById('ispLogoUrl').value);
+            localStorage.setItem('isp_phone', document.getElementById('ispSupportPhone').value);
+            localStorage.setItem('default_lat', document.getElementById('defaultLat').value);
+            localStorage.setItem('default_lng', document.getElementById('defaultLng').value);
+            localStorage.setItem('tg_bot_token', document.getElementById('tgToken').value);
+            localStorage.setItem('tg_chat_id', document.getElementById('tgChat').value);
+            alert("ब्रांडिंग व मास्टर सेटिंग्स सेव हो गई हैं! मुख्य डैशबोर्ड हेडर अब अपडेट हो जाएगा।");
+        }
+
+        function saveOperatorSettings() {
+            localStorage.setItem('op_upi_id', document.getElementById('opUpiId').value);
+            localStorage.setItem('op_payee_name', document.getElementById('opPayeeName').value);
+            alert("ऑपरेटर UPI और प्रोफाइल सेटिंग्स सेव हो गई हैं!");
+        }
+
+        function saveOperatorPassword() {
+            const pwd = document.getElementById('opPassword').value;
+            if(pwd) {
+                localStorage.setItem('op_password', pwd);
+                alert("पासवर्ड बदल दिया गया है!");
+            }
+        }
+
+        function loadSettings() {
+            document.getElementById('ispName').value = localStorage.getItem('isp_name') || '';
+            document.getElementById('ispTagline').value = localStorage.getItem('isp_tagline') || '';
+            document.getElementById('ispLogoUrl').value = localStorage.getItem('isp_logo') || '';
+            document.getElementById('ispSupportPhone').value = localStorage.getItem('isp_phone') || '';
+            document.getElementById('defaultLat').value = localStorage.getItem('default_lat') || '28.6139';
+            document.getElementById('defaultLng').value = localStorage.getItem('default_lng') || '77.2090';
+            document.getElementById('tgToken').value = localStorage.getItem('tg_bot_token') || '';
+            document.getElementById('tgChat').value = localStorage.getItem('tg_chat_id') || '';
+
+            document.getElementById('opUpiId').value = localStorage.getItem('op_upi_id') || '9876543210@paytm';
+            document.getElementById('opPayeeName').value = localStorage.getItem('op_payee_name') || 'Net Provider';
+
+            updateLivePreview();
+        }
+
+        function generatePreviewQR() {
+            const upiId = document.getElementById('opUpiId').value || '9876543210@paytm';
+            const payeeName = encodeURIComponent(document.getElementById('opPayeeName').value || 'Net Provider');
+            
+            const upiUrl = `upi://pay?pa=${upiId}&pn=${payeeName}&cu=INR`;
+            const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+            
+            document.getElementById('qrImage').src = qrApi;
+            document.getElementById('qrTextInfo').innerText = upiId;
+        }
+
+        function exportComplaintsCSV() {
+            const complaints = JSON.parse(localStorage.getItem('isp_complaints')) || [];
+            if(complaints.length === 0) return alert("कोई डेटा उपलब्ध नहीं है!");
+
+            let csvContent = "data:text/csv;charset=utf-8,TicketNo,Name,Phone,Address,Desc,Status\n";
+            complaints.forEach(c => {
+                csvContent += `"${c.ticketNo}","${c.name}","${c.phone}","${c.address}","${c.desc}","${c.status}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Complaints_Report.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+
+        function importCSV() {
+            const fileInput = document.getElementById('csvFileInput');
+            if (!fileInput.files.length) return alert("कृपया CSV फ़ाइल चुनें!");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n');
+                alert(`${lines.length - 1} रिकॉर्ड्स सफलतापूर्वक रीड किए गए!`);
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+    </script>
+</body>
+</html>
