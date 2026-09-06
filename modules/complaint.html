@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Complaints & Field Tracker</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --success: #22c55e;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-dark); color: #f8fafc; padding: 20px; position: relative; }
+
+        .header-title { display: flex; align-items: center; justify-content: space-between; font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: var(--primary); }
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        @media (max-width: 900px) { .grid-container { grid-template-columns: 1fr; } }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; backdrop-filter: blur(10px); position: relative; z-index: 1; }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; color: var(--accent-gold); }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #94a3b8; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; outline: none; }
+
+        .btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+        .btn-whatsapp { background: #25d366; color: #000; }
+        .btn-telegram { background: #0088cc; color: #fff; }
+        .btn-success { background: #22c55e; color: #fff; }
+        .btn-broadcast { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+        .btn-map { background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: #fff; }
+
+        /* Map styling & Fix for Overlapping */
+        .map-card-container { position: relative; z-index: 10; }
+        #map { height: 320px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border-color); transition: all 0.3s ease; position: relative; z-index: 1; }
+
+        /* Full Screen Map Fix - Overlay Highest Z-Index */
+        .map-card-container.fullscreen-active {
+            position: fixed !important;
+            top: 0; left: 0; width: 100vw !important; height: 100vh !important;
+            z-index: 999999 !important;
+            background: var(--bg-dark);
+            padding: 10px;
+            border-radius: 0;
+        }
+
+        .map-card-container.fullscreen-active #map {
+            height: calc(100vh - 60px) !important;
+            border-radius: 0;
+            margin-top: 0;
+        }
+
+        .complaint-item { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+        .complaint-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 6px; }
+        .ticket-no { background: rgba(56, 189, 248, 0.2); color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; }
+        .source-badge { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; }
+        .badge-done { background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; }
+
+        .config-box { background: rgba(0, 136, 204, 0.1); border: 1px solid rgba(0, 136, 204, 0.3); padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 0.85rem; }
+        
+        .tab-btn { background: transparent; border: 1px solid var(--border-color); color: #94a3b8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .tab-btn.active { background: var(--primary); color: #000; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <span><i class="fa-solid fa-headset"></i> Customer Complaints & Field Tracker</span>
+        <button class="btn btn-telegram" onclick="simulateOnlineAppComplaint()"><i class="fa-solid fa-mobile-screen-button"></i> टेस्ट ऐप कंप्लेंट प्राप्त करें</button>
+    </div>
+
+    <!-- Telegram Setup Box -->
+    <div class="config-box">
+        <strong><i class="fa-paper-plane"></i> Telegram Owner Alert Settings:</strong>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <input type="text" id="tgBotToken" placeholder="Telegram Bot Token" style="flex:1; padding:6px; background:#000; border:1px solid #333; color:#fff; border-radius:4px;">
+            <input type="text" id="tgChatId" placeholder="Owner Chat ID" style="flex:1; padding:6px; background:#000; border:1px solid #333; color:#fff; border-radius:4px;">
+            <button class="btn btn-telegram" onclick="saveTelegramSettings()"><i class="fa-solid fa-save"></i> Save</button>
+        </div>
+    </div>
+
+    <!-- Broadcast Message Box -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title"><span><i class="fa-solid fa-bullhorn"></i> ब्रॉडकास्ट नोटिस (सभी ग्राहकों/चैनल पर संदेश भेजें)</span></div>
+        <div class="form-group">
+            <textarea id="broadcastMsg" rows="2" placeholder="उदा. गली नंबर 3 में केबल कट गया है, 6 से 7 बजे तक सर्विस बंद रहेगी।"></textarea>
+        </div>
+        <button class="btn btn-broadcast" onclick="sendBroadcastToAll()"><i class="fa-solid fa-paper-plane"></i> ब्रॉडकास्ट अलर्ट भेजें</button>
+    </div>
+
+    <div class="grid-container">
+        <!-- Left Column: Manual Form & Workers -->
+        <div>
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-title"><span><i class="fa-solid fa-plus-circle"></i> नई शिकायत दर्ज करें (Manual/Field Entry)</span></div>
+                <form id="complaintForm" onsubmit="addManualComplaint(event)">
+                    <div class="form-group"><label>ग्राहक का नाम</label><input type="text" id="custName" required placeholder="उदा. रमेश कुमार"></div>
+                    <div class="form-group"><label>मोबाइल नंबर</label><input type="tel" id="custPhone" required placeholder="9876543210"></div>
+                    <div class="form-group"><label>पता / गली नंबर</label><input type="text" id="custAddress" required placeholder="उदा. हाउस 12, गली नंबर 4"></div>
+                    <div class="form-group" style="display:flex; gap:10px;">
+                        <div style="flex:1;"><label>Lat</label><input type="text" id="custLat" value="28.6139"></div>
+                        <div style="flex:1;"><label>Lng</label><input type="text" id="custLng" value="77.2090"></div>
+                    </div>
+                    <div class="form-group"><label>समस्या का विवरण</label><textarea id="complaintDesc" rows="2" required placeholder="इंटरनेट बंद है / केबल नो सिग्नल"></textarea></div>
+                    <button type="submit" class="btn"><i class="fa-solid fa-ticket"></i> नया टिकट जनरेट करें</button>
+                </form>
+            </div>
+
+            <!-- Field Workers Section -->
+            <div class="card">
+                <div class="card-title"><span><i class="fa-solid fa-users"></i> वर्कर सूची (Field Staff)</span></div>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="newWorkerName" placeholder="वर्कर का नाम" style="flex:1; padding:8px; background:#000; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <input type="tel" id="newWorkerPhone" placeholder="WhatsApp नंबर" style="flex:1; padding:8px; background:#000; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <button class="btn" onclick="addWorker()"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="workersList" style="list-style:none; font-size:0.85rem; color:#cbd5e1;"></ul>
+            </div>
+        </div>
+
+        <!-- Right Column: Map & Complaints Tracker -->
+        <div>
+            <!-- Map Card with Corrected Fullscreen Layering -->
+            <div class="card map-card-container" id="mapCardContainer" style="margin-bottom: 20px;">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-map-location-dot"></i> लाइव कस्टमर मैप</span>
+                    <button class="btn btn-map" id="mapToggleBtn" onclick="toggleMapFullscreen()"><i class="fa-solid fa-expand"></i> फुल स्क्रीन</button>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <!-- Complaints List with Tabs -->
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-list-check"></i> शिकायतों की सूची</span>
+                    <div>
+                        <button class="tab-btn active" id="tabPendingBtn" onclick="switchTab('Pending')">पेंडिंग</button>
+                        <button class="tab-btn" id="tabSolvedBtn" onclick="switchTab('Completed')">हल हो गई (Solved)</button>
+                    </div>
+                </div>
+                <div id="complaintList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let workers = JSON.parse(localStorage.getItem('isp_workers')) || [
+            { name: "सुनील कुमार (टेक)", phone: "919876543210" }
+        ];
+
+        let complaints = JSON.parse(localStorage.getItem('isp_complaints')) || [];
+        let currentTab = 'Pending';
+        let map, markers = [];
+
+        window.onload = function() {
+            initMap();
+            loadWorkers();
+            renderComplaints();
+            document.getElementById('tgBotToken').value = localStorage.getItem('tg_bot_token') || '';
+            document.getElementById('tgChatId').value = localStorage.getItem('tg_chat_id') || '';
+
+            // Auto-sync polling every 3 seconds to auto-receive app complaints
+            setInterval(autoFetchAppComplaints, 3000);
+        };
+
+        function initMap() {
+            map = L.map('map').setView([28.6139, 77.2090], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+        }
+
+        function toggleMapFullscreen() {
+            const container = document.getElementById('mapCardContainer');
+            const btn = document.getElementById('mapToggleBtn');
+
+            if (container.classList.contains('fullscreen-active')) {
+                container.classList.remove('fullscreen-active');
+                btn.innerHTML = '<i class="fa-solid fa-expand"></i> फुल स्क्रीन';
+            } else {
+                container.classList.add('fullscreen-active');
+                btn.innerHTML = '<i class="fa-solid fa-compress"></i> सामान्य साइज';
+            }
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        function saveTelegramSettings() {
+            localStorage.setItem('tg_bot_token', document.getElementById('tgBotToken').value);
+            localStorage.setItem('tg_chat_id', document.getElementById('tgChatId').value);
+            alert("Telegram settings saved!");
+        }
+
+        function sendTelegramNotification(c, isSolved = false) {
+            const token = localStorage.getItem('tg_bot_token');
+            const chatId = localStorage.getItem('tg_chat_id');
+            if (!token || !chatId) return;
+
+            let text = "";
+            if(isSolved) {
+                text = `✅ *शिकायत का समाधान हो गया (${c.ticketNo})!*\n👤 *ग्राहक:* ${c.name}\n📝 *काम हुआ:* ${c.actionTaken || 'समस्या हल की गई'}`;
+            } else {
+                text = `🚨 *नई कस्टमर शिकायत (${c.ticketNo})!* \n📌 *जरिया:* ${c.source}\n👤 *नाम:* ${c.name}\n📞 *फोन:* ${c.phone}\n📍 *पता:* ${c.address}\n📝 *समस्या:* ${c.desc}\n\n🗺️ *Map Location:* https://maps.google.com/?q=${c.lat},${c.lng}`;
+            }
+
+            fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'Markdown' })
+            }).catch(e => console.error(e));
+        }
+
+        function sendBroadcastToAll() {
+            const msg = document.getElementById('broadcastMsg').value;
+            if (!msg) return alert("कृपया पहले ब्रॉडकास्ट मैसेज लिखें!");
+
+            const token = localStorage.getItem('tg_bot_token');
+            const chatId = localStorage.getItem('tg_chat_id');
+
+            if (token && chatId) {
+                fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text: `📢 *जनरल ब्रॉडकास्ट सूचना:*\n\n${msg}`, parse_mode: 'Markdown' })
+                });
+            }
+
+            alert("ब्रॉडकास्ट मैसेज भेज दिया गया है!");
+            document.getElementById('broadcastMsg').value = '';
+        }
+
+        function addManualComplaint(e) {
+            e.preventDefault();
+            const ticketNo = "#TKT-" + Math.floor(1000 + Math.random() * 9000);
+
+            const newC = {
+                id: Date.now(),
+                ticketNo: ticketNo,
+                name: document.getElementById('custName').value,
+                phone: document.getElementById('custPhone').value,
+                address: document.getElementById('custAddress').value,
+                lat: document.getElementById('custLat').value,
+                lng: document.getElementById('custLng').value,
+                desc: document.getElementById('complaintDesc').value,
+                source: 'Portal (Manual)',
+                status: 'Pending',
+                assignedWorkerIndex: "",
+                actionTaken: ""
+            };
+
+            complaints.unshift(newC);
+            localStorage.setItem('isp_complaints', JSON.stringify(complaints));
+            sendTelegramNotification(newC);
+            document.getElementById('complaintForm').reset();
+            renderComplaints();
+        }
+
+        function autoFetchAppComplaints() {
+            // ऑटो सिंक चेक: बाहरी ऐप API / Local Storage का ऑटो-अपडेट चेक करने के लिए
+            let updatedComplaints = JSON.parse(localStorage.getItem('isp_complaints')) || [];
+            if (updatedComplaints.length !== complaints.length) {
+                complaints = updatedComplaints;
+                renderComplaints();
+            }
+        }
+
+        function simulateOnlineAppComplaint() {
+            const ticketNo = "#TKT-" + Math.floor(1000 + Math.random() * 9000);
+            const onlineC = {
+                id: Date.now(),
+                ticketNo: ticketNo,
+                name: "सुमित वर्मा (ऑनलाइन ऐप)",
+                phone: "9811223344",
+                address: "फ्लैट 302, ग्रीन वैली अपार्टमेंट",
+                lat: "28.6200",
+                lng: "77.2100",
+                desc: "राउटर में रेड लाइट आ रही है",
+                source: 'Online App',
+                status: 'Pending',
+                assignedWorkerIndex: "",
+                actionTaken: ""
+            };
+
+            complaints.unshift(onlineC);
+            localStorage.setItem('isp_complaints', JSON.stringify(complaints));
+            sendTelegramNotification(onlineC);
+            renderComplaints();
+        }
+
+        function markComplaintSolved(id) {
+            const c = complaints.find(item => item.id === id);
+            if (!c) return;
+
+            const action = prompt("क्या काम हुआ? (उदा. नया राउटर लगाया / तार स्प्लिसिंग किया):", "समस्या हल कर दी गई");
+            if (action !== null) {
+                c.status = 'Completed';
+                c.actionTaken = action;
+                localStorage.setItem('isp_complaints', JSON.stringify(complaints));
+                sendTelegramNotification(c, true);
+                renderComplaints();
+            }
+        }
+
+        function updateWorkerAssignment(complaintId, workerIdx) {
+            const c = complaints.find(item => item.id === complaintId);
+            if (c) {
+                c.assignedWorkerIndex = workerIdx;
+                localStorage.setItem('isp_complaints', JSON.stringify(complaints));
+            }
+        }
+
+        function sendWhatsApp(id) {
+            const c = complaints.find(item => item.id === id);
+            if (!c || c.assignedWorkerIndex === "") {
+                alert("कृपया पहले वर्कर चुनें!");
+                return;
+            }
+            const w = workers[c.assignedWorkerIndex];
+            const msg = `*शिकायत असाइन (${c.ticketNo})* 🛠️\n\n*ग्राहक:* ${c.name}\n*फोन:* ${c.phone}\n*पता:* ${c.address}\n*समस्या:* ${c.desc}\n\n*गूगल मैप:* https://maps.google.com/?q=${c.lat},${c.lng}`;
+            window.open(`https://wa.me/${w.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function addWorker() {
+            const name = document.getElementById('newWorkerName').value;
+            const phone = document.getElementById('newWorkerPhone').value;
+            if (name && phone) {
+                workers.push({ name, phone });
+                localStorage.setItem('isp_workers', JSON.stringify(workers));
+                document.getElementById('newWorkerName').value = '';
+                document.getElementById('newWorkerPhone').value = '';
+                loadWorkers();
+                renderComplaints();
+            }
+        }
+
+        function loadWorkers() {
+            const list = document.getElementById('workersList');
+            list.innerHTML = '';
+            workers.forEach(w => {
+                list.innerHTML += `<li><i class="fa-solid fa-user"></i> ${w.name} (${w.phone})</li>`;
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabPendingBtn').classList.toggle('active', tab === 'Pending');
+            document.getElementById('tabSolvedBtn').classList.toggle('active', tab === 'Completed');
+            renderComplaints();
+        }
+
+        function renderComplaints() {
+            const list = document.getElementById('complaintList');
+            list.innerHTML = '';
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            const filteredComplaints = complaints.filter(c => c.status === currentTab);
+
+            if (filteredComplaints.length === 0) {
+                list.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:20px;">कोई शिकायत उपलब्ध नहीं है</div>`;
+            }
+
+            filteredComplaints.forEach(c => {
+                let optionsHtml = '<option value="">-- वर्कर चुनें --</option>';
+                workers.forEach((w, idx) => {
+                    const sel = (c.assignedWorkerIndex == idx) ? 'selected' : '';
+                    optionsHtml += `<option value="${idx}" ${sel}>${w.name}</option>`;
+                });
+
+                if (currentTab === 'Pending') {
+                    list.innerHTML += `
+                        <div class="complaint-item">
+                            <div class="complaint-header">
+                                <div><span class="ticket-no">${c.ticketNo}</span> <strong>${c.name}</strong> (${c.phone})</div>
+                                <span class="source-badge">${c.source}</span>
+                            </div>
+                            <div style="font-size:0.85rem; color:#94a3b8; margin-bottom:6px;">📍 ${c.address}</div>
+                            <div style="font-size:0.85rem; margin-bottom:10px; color:#e2e8f0;">" ${c.desc} "</div>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <select style="flex:1; padding:6px; background:#000; color:#fff; border:1px solid #444; border-radius:6px; font-size:0.8rem;" onchange="updateWorkerAssignment(${c.id}, this.value)">
+                                    ${optionsHtml}
+                                </select>
+                                <button class="btn btn-whatsapp" onclick="sendWhatsApp(${c.id})"><i class="fa-brands fa-whatsapp"></i> Send</button>
+                                <button class="btn btn-success" onclick="markComplaintSolved(${c.id})"><i class="fa-solid fa-check"></i> Solved</button>
+                            </div>
+                        </div>
+                    `;
+
+                    if (c.lat && c.lng) {
+                        const m = L.marker([c.lat, c.lng]).addTo(map)
+                            .bindPopup(`<b>${c.ticketNo} - ${c.name}</b><br>${c.address}<br><b>समस्या:</b> ${c.desc}`);
+                        markers.push(m);
+                    }
+                } else {
+                    list.innerHTML += `
+                        <div class="complaint-item" style="border-color: rgba(34, 197, 94, 0.3);">
+                            <div class="complaint-header">
+                                <div><span class="ticket-no">${c.ticketNo}</span> <strong>${c.name}</strong></div>
+                                <span class="badge-done">Solved</span>
+                            </div>
+                            <div style="font-size:0.85rem; color:#94a3b8; margin-bottom:4px;">📍 ${c.address}</div>
+                            <div style="font-size:0.85rem; color:#22c55e;"><strong>काम हुआ:</strong> ${c.actionTaken || 'समस्या हल की गई'}</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
