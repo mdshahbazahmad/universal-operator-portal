@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="hi" dir="ltr" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portal - Ultimate AI & System Guide</title>
+
+    <!-- FontAwesome & Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --border: rgba(255, 255, 255, 0.15);
+            --user-msg: #0284c7;
+            --ai-msg: #334155;
+            --danger: #ef4444;
+        }
+
+        body.light-mode {
+            --bg-color: #faf7ee;
+            --card-bg: #f3eee0;
+            --text-main: #0f172a;
+            --text-sub: #334155;
+            --primary: #0284c7;
+            --border: #d6ceb8;
+            --user-msg: #0284c7;
+            --ai-msg: #eae3d2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', 'Noto Nastaliq Urdu', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .title-box h2 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .controls-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .lang-select {
+            background: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-sub);
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+            color: var(--accent-gold);
+            font-size: 1rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.88rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .feature-card ul {
+            margin-top: 8px;
+            padding-left: 20px;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .chat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: var(--user-msg);
+            color: #ffffff;
+        }
+
+        .msg.ai {
+            align-self: flex-start;
+            background: var(--ai-msg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .msg img.uploaded-img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 6px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--border);
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input-area input[type="text"] {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .chat-btn {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .chat-btn.recording {
+            background: var(--danger);
+            color: #fff;
+            animation: pulse 1s infinite;
+        }
+
+        .chat-btn.send-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        html[dir="rtl"] .feature-card ul {
+            padding-left: 0;
+            padding-right: 20px;
+        }
+        html[dir="rtl"] .msg.user { align-self: flex-start; }
+        html[dir="rtl"] .msg.ai { align-self: flex-end; }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="title-box">
+            <h2 id="lbl-title"><i class="fa-solid fa-robot"></i> Advanced AI & Portal Master Guide</h2>
+        </div>
+        <div class="controls-box">
+            <i class="fa-solid fa-language" style="color:var(--primary);"></i>
+            <select class="lang-select" id="langSelect" onchange="changeLanguage()">
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="en">English</option>
+                <option value="ur">اردو (Urdu)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="tab-buttons">
+        <div class="tab-btn active" id="btn-tab-manual" onclick="switchTab('manual')">
+            <i class="fa-solid fa-book-open"></i> <span id="lbl-tab-manual">विस्तृत मैन्युअल (Full Manual)</span>
+        </div>
+        <div class="tab-btn" id="btn-tab-ai" onclick="switchTab('ai')">
+            <i class="fa-solid fa-brain"></i> <span id="lbl-tab-ai">स्मार्ट AI असिस्टेंट (AI Assistant)</span>
+        </div>
+    </div>
+
+    <div id="section-manual" class="content-section active">
+        <div id="features-container"></div>
+    </div>
+
+    <div id="section-ai" class="content-section">
+        <div class="chat-box">
+            <div class="chat-messages" id="chatMessages">
+                <div class="msg ai" id="ai-welcome-msg">
+                    नमस्ते! मैं इस ISP पोर्टल का मास्टर AI हूँ। आप मुझसे बोलकर (Voice 🎙️) या स्क्रीनशॉट भेजकर (Screenshot 📷) भी सवाल पूछ सकते हैं!
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <!-- Hidden Image Input -->
+                <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+                
+                <!-- Image Attach Button -->
+                <button class="chat-btn" onclick="document.getElementById('imageInput').click()" title="स्क्रीनशॉट अपलोड करें">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+
+                <!-- Voice Input Button -->
+                <button class="chat-btn" id="micBtn" onclick="toggleVoiceRecognition()" title="बोलकर पूछें">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+                <!-- Text Input -->
+                <input type="text" id="userInput" placeholder="बोलें, टाइप करें या स्क्रीनशॉट भेजें..." onkeypress="handleKeyPress(event)">
+                
+                <!-- Send Button -->
+                <button class="chat-btn send-btn" onclick="sendAiMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const portalFeatures = [
+            {
+                id: "recharge_customer",
+                keywords: ["recharge", "रिचार्ज", "रिन्यू", "renew", "एक्टिव", "active", "बिजली", "तार", "plug", "power", "plan", "प्लान", "चालू", "expired", "एक्सपायर", "पैकेज", "package", "रीचार्ज"],
+                icon: "fa-bolt",
+                title: {
+                    hi: "कस्टमर रिचार्ज एवं रिन्यू (Customer Recharge System)",
+                    en: "Customer Recharge & Renewal",
+                    ur: "کسٹمر ریچارج اور تجدید"
+                },
+                desc: {
+                    hi: "किसी भी ग्राहक का नया रिचार्ज करने या बंद पड़े कनेक्शन को तुरंत चालू करने की पूरी प्रक्रिया।",
+                    en: "Complete procedure to recharge or reactivate expired connections instantly.",
+                    ur: "کسٹمر کا ریچارج کرنے اور معطل کنکشن کو فعال کرنے کا طریقہ۔"
+                },
+                steps: {
+                    hi: [
+                        "साइडबार से <strong>Customers</strong> वाले ऑप्शन पर क्लिक करके लिस्ट खोलें।",
+                        "जिस कस्टमर का रिचार्ज करना है, उसका नाम सर्च बार में ढूँढें।",
+                        "कस्टमर के नाम के आगे बने <strong>'बिजली/तार' (⚡ Power Renew Button)</strong> पर क्लिक करें।",
+                        "पॉपअप विंडो में अपना प्लान/पैकेज चुनें।",
+                        "<strong>'Confirm Recharge'</strong> बटन दबाते ही कस्टमर तुरंत Active हो जाएगा।"
+                    ],
+                    en: [
+                        "Open 'Customers' module from sidebar.",
+                        "Search customer by name or phone number.",
+                        "Click the ⚡ Power / Renew icon next to the customer.",
+                        "Select subscription plan & duration.",
+                        "Click 'Confirm Recharge' to activate instantly."
+                    ],
+                    ur: [
+                        "کسٹمر مینو کھولیں۔",
+                        "نام یا فون نمبر تلاش کریں۔",
+                        "بجلی کے نشان (⚡) پر کلک کریں۔",
+                        "پیکج منتخب کریں اور ریچارج کی تصدیق کریں۔"
+                    ]
+                }
+            },
+            {
+                id: "add_customer",
+                keywords: ["new customer", "add customer", "नया कस्टमर", "ग्राहक जोड़ें", "नया कनेक्शन", "रजिस्टर", "register", "نیا کسٹمر"],
+                icon: "fa-user-plus",
+                title: {
+                    hi: "नया ग्राहक जोड़ना (Add New Connection)",
+                    en: "Add New Customer",
+                    ur: "نیا کسٹمر شامل کرنا"
+                },
+                desc: {
+                    hi: "पोर्टल में नया ब्रॉडबैंड यूजर रजिस्टर करने की जानकारी।",
+                    en: "Step-by-step to register a new user connection.",
+                    ur: "نیا انٹرنیٹ کنکشن درج کرنے کا طریقہ۔"
+                },
+                steps: {
+                    hi: [
+                        "<strong>Customers</strong> पेज पर ऊपर दाहिने तरफ बने <strong>'+ Add Customer'</strong> बटन पर क्लिक करें।",
+                        "ग्राहक का नाम, मोबाइल नंबर, पूरा पता और प्लान भरें।",
+                        "<strong>'Save Customer'</strong> बटन दबाएं।"
+                    ],
+                    en: [
+                        "Click '+ Add Customer' on top right of Customers page.",
+                        "Fill Name, Mobile, Address, and Plan details.",
+                        "Click Save."
+                    ],
+                    ur: [
+                        "Add Customer بٹن پر کلک کریں۔",
+                        "تفصیلات بھر کر سیو کریں۔"
+                    ]
+                }
+            },
+            {
+                id: "billing_invoice",
+                keywords: ["billing", "bill", "invoice", "receipt", "रसीद", "बिल", "पेमेंट", "payment", "कलेक्शन", "بلنگ"],
+                icon: "fa-file-invoice-dollar",
+                title: {
+                    hi: "बिलिंग एवं रसीद (Billing & Receipts)",
+                    en: "Billing & Invoicing",
+                    ur: "بلنگ اور رسیدیں"
+                },
+                desc: {
+                    hi: "पेमेंट एंट्री करना, बिल जनरेट करना और रसीद भेजना।",
+                    en: "Generate payment receipts & collect cash/online dues.",
+                    ur: "رسیدیں بنانا اور ادائیگیاں درج کرنا۔"
+                },
+                steps: {
+                    hi: [
+                        "<strong>Billing</strong> सेक्शन में जाएँ।",
+                        "कस्टमर का नाम ढूँढें और <strong>'Mark Paid'</strong> पर क्लिक करें।",
+                        "व्हाट्सएप पर रसीद भेजने के लिए <strong>'Send PDF'</strong> दबाएँ।"
+                    ],
+                    en: [
+                        "Open Billing module.",
+                        "Search customer to view pending dues.",
+                        "Click 'Mark Paid' upon payment reception."
+                    ],
+                    ur: [
+                        "بلنگ مینو کھولیں اور ادائیگی درج کریں۔"
+                    ]
+                }
+            }
+        ];
+
+        let currentLang = "hi";
+        let isRecording = false;
+        let recognition = null;
+
+        const labels = {
+            hi: {
+                title: "स्मार्ट एआई व पोर्टल मास्टर गाइड",
+                manualTab: "विस्तृत मैन्युअल (Full Manual)",
+                aiTab: "स्मार्ट AI असिस्टेंट (AI Assistant)",
+                welcome: "नमस्ते! मैं इस ISP पोर्टल का मास्टर AI हूँ। आप मुझसे बोलकर (Voice 🎙️) या स्क्रीनशॉट भेजकर (Screenshot 📷) भी सवाल पूछ सकते हैं!",
+                placeholder: "बोलें, टाइप करें या स्क्रीनशॉट भेजें...",
+                noResult: "मैं आपकी बात समझ रहा हूँ, लेकिन सही फ़ीचर जानने के लिए 'रिचार्ज', 'नया कस्टमर' या 'बिलिंग' जैसे शब्द कहें या स्क्रीनशॉट भेजें।"
+            },
+            en: {
+                title: "Smart AI & Portal Master Guide",
+                manualTab: "Comprehensive Manual",
+                aiTab: "Smart AI Assistant",
+                welcome: "Hello! Ask me questions via Voice 🎙️, Text or by uploading Screenshots 📷!",
+                placeholder: "Speak, type or upload screenshot...",
+                noResult: "Try asking specifically about 'Recharge', 'Add Customer' or 'Billing'."
+            },
+            ur: {
+                title: "اسمارٹ اے آئی اور ماسٹر گائیڈ",
+                manualTab: "تفصیلی مینول",
+                aiTab: "اے آئی اسسٹنٹ",
+                welcome: "السلام علیکم! آپ مجھ سے بول کر یا اسکرین شاٹ بھیج کر بھی سوال پوچھ سکتے ہیں۔",
+                placeholder: "بولیں، ٹائپ کریں یا تصویر بھیجیں...",
+                noResult: "معذرت، اس کا جواب نہیں ملا۔ ریچارج، بلنگ یا سرور کے متعلق پوچھیں۔"
+            }
+        };
+
+        function renderManualGuide() {
+            const container = document.getElementById('features-container');
+            container.innerHTML = "";
+
+            portalFeatures.forEach(feat => {
+                const card = document.createElement('div');
+                card.className = "feature-card";
+                let stepsList = feat.steps[currentLang].map(step => `<li>${step}</li>`).join("");
+
+                card.innerHTML = `
+                    <h3><i class="fa-solid ${feat.icon}"></i> ${feat.title[currentLang]}</h3>
+                    <p>${feat.desc[currentLang]}</p>
+                    <ul>${stepsList}</ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function changeLanguage() {
+            currentLang = document.getElementById('langSelect').value;
+            const htmlRoot = document.getElementById('html-root');
+
+            htmlRoot.setAttribute('dir', currentLang === 'ur' ? 'rtl' : 'ltr');
+
+            document.getElementById('lbl-title').innerHTML = `<i class="fa-solid fa-robot"></i> ${labels[currentLang].title}`;
+            document.getElementById('lbl-tab-manual').innerText = labels[currentLang].manualTab;
+            document.getElementById('lbl-tab-ai').innerText = labels[currentLang].aiTab;
+            document.getElementById('userInput').placeholder = labels[currentLang].placeholder;
+            document.getElementById('ai-welcome-msg').innerText = labels[currentLang].welcome;
+
+            renderManualGuide();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+
+            if (tab === 'manual') {
+                document.getElementById('btn-tab-manual').classList.add('active');
+                document.getElementById('section-manual').classList.add('active');
+            } else {
+                document.getElementById('btn-tab-ai').classList.add('active');
+                document.getElementById('section-ai').classList.add('active');
+            }
+        }
+
+        // --- Voice Recognition Feature ---
+        function toggleVoiceRecognition() {
+            const micBtn = document.getElementById('micBtn');
+            const inputEl = document.getElementById('userInput');
+
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("आपके ब्राउज़र में वॉइस फ़ीचर सपोर्टेड नहीं है। कृपया गूगल क्रोम (Google Chrome) का इस्तेमाल करें।");
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+
+            recognition.lang = currentLang === 'hi' ? 'hi-IN' : (currentLang === 'ur' ? 'ur-PK' : 'en-US');
+            recognition.interimResults = false;
+
+            recognition.onstart = function() {
+                isRecording = true;
+                micBtn.classList.add('recording');
+                inputEl.placeholder = "सुन रहा हूँ... बोलिए!";
+            };
+
+            recognition.onresult = function(event) {
+                const speechResult = event.results[0][0].transcript;
+                inputEl.value = speechResult;
+                sendAiMessage(); // ऑटोमेटिकली मैसेज सेंड कर देगा
+            };
+
+            recognition.onerror = function() {
+                stopMicUI();
+            };
+
+            recognition.onend = function() {
+                stopMicUI();
+            };
+
+            recognition.start();
+        }
+
+        function stopMicUI() {
+            isRecording = false;
+            document.getElementById('micBtn').classList.remove('recording');
+            document.getElementById('userInput').placeholder = labels[currentLang].placeholder;
+        }
+
+        // --- Screenshot / Image Upload Feature ---
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgUrl = event.target.result;
+                const chatMessages = document.getElementById('chatMessages');
+
+                // User Message with Image
+                const userMsg = document.createElement('div');
+                userMsg.className = "msg user";
+                userMsg.innerHTML = `स्क्रीनशॉट भेजा गया:<br><img src="${imgUrl}" class="uploaded-img">`;
+                chatMessages.appendChild(userMsg);
+
+                // AI Analyzing Simulation Response
+                setTimeout(() => {
+                    const aiMsg = document.createElement('div');
+                    aiMsg.className = "msg ai";
+                    aiMsg.innerHTML = `<strong><i class="fa-solid fa-circle-check"></i> स्क्रीनशॉट प्राप्त हुआ!</strong><br>
+                    स्क्रीनशॉट की जाँच की जा रही है... ऐसा लगता है कि यह डैशबोर्ड/रीचार्ज विंडो का स्क्रीनशॉट है।<br><br>
+                    <strong>सुझाव:</strong> यदि आपको यहाँ कोई एरर दिख रहा है, तो कृपया नाम के आगे बने ⚡ (Power Icon) बटन को फिर से दबाकर रिन्यू करें या अपना इंटरनेट/सर्वर चेक करें।`;
+                    
+                    chatMessages.appendChild(aiMsg);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 800);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- Text Search & Match Engine ---
+        function sendAiMessage() {
+            const inputEl = document.getElementById('userInput');
+            const userRawText = inputEl.value.trim();
+            if (!userRawText) return;
+
+            const query = userRawText.toLowerCase();
+            const chatMessages = document.getElementById('chatMessages');
+
+            const userMsg = document.createElement('div');
+            userMsg.className = "msg user";
+            userMsg.innerText = userRawText;
+            chatMessages.appendChild(userMsg);
+
+            inputEl.value = "";
+
+            let matchedFeature = portalFeatures.find(f => {
+                return f.keywords.some(kw => query.includes(kw)) ||
+                       f.title[currentLang].toLowerCase().includes(query) ||
+                       f.desc[currentLang].toLowerCase().includes(query);
+            });
+
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = "msg ai";
+
+                if (matchedFeature) {
+                    aiMsg.innerHTML = `<strong><i class="fa-solid ${matchedFeature.icon}"></i> ${matchedFeature.title[currentLang]}</strong><br>${matchedFeature.desc[currentLang]}<br><br><strong>तरीका / Steps:</strong><br><ol style="padding-left:18px;">` + 
+                    matchedFeature.steps[currentLang].map(s => `<li style="margin-bottom:4px;">${s}</li>`).join("") + `</ol>`;
+                } else {
+                    aiMsg.innerText = labels[currentLang].noResult;
+                }
+
+                chatMessages.appendChild(aiMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 300);
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendAiMessage();
+        }
+
+        window.onload = function() {
+            renderManualGuide();
+        };
+    </script>
+</body>
+</html>
