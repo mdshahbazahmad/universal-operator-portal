@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="hi" dir="ltr" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Portal - Help & AI Guide</title>
+
+    <!-- FontAwesome & Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --border: rgba(255, 255, 255, 0.1);
+            --user-msg: #0284c7;
+            --ai-msg: #334155;
+        }
+
+        /* Light Theme Overrides */
+        body.light-mode {
+            --bg-color: #faf7ee;
+            --card-bg: #f3eee0;
+            --text-main: #0f172a;
+            --text-sub: #334155;
+            --primary: #0284c7;
+            --border: #d6ceb8;
+            --user-msg: #0284c7;
+            --ai-msg: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', 'Noto Nastaliq Urdu', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .title-box h2 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .controls-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .lang-select {
+            background: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-sub);
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        /* View Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Manual List Style */
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+            color: var(--accent-gold);
+            font-size: 1rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.88rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .feature-card ul {
+            margin-top: 8px;
+            padding-left: 20px;
+            color: var(--text-sub);
+            font-size: 0.82rem;
+        }
+
+        /* AI Chatbot Section */
+        .chat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: var(--user-msg);
+            color: #ffffff;
+        }
+
+        .msg.ai {
+            align-self: flex-start;
+            background: var(--ai-msg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--border);
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .chat-input-area button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* Urdu Alignment Rules */
+        html[dir="rtl"] .feature-card ul {
+            padding-left: 0;
+            padding-right: 20px;
+        }
+        html[dir="rtl"] .msg.user {
+            align-self: flex-start;
+        }
+        html[dir="rtl"] .msg.ai {
+            align-self: flex-end;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header-container">
+        <div class="title-box">
+            <h2 id="lbl-title"><i class="fa-solid fa-circle-question"></i> Help & System Guide</h2>
+        </div>
+        <div class="controls-box">
+            <i class="fa-solid fa-language" style="color:var(--primary);"></i>
+            <select class="lang-select" id="langSelect" onchange="changeLanguage()">
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="en">English</option>
+                <option value="ur">اردو (Urdu)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Mode Selector Tabs -->
+    <div class="tab-buttons">
+        <div class="tab-btn active" id="btn-tab-manual" onclick="switchTab('manual')">
+            <i class="fa-solid fa-book-open"></i> <span id="lbl-tab-manual">लिखित गाइड (Manual)</span>
+        </div>
+        <div class="tab-btn" id="btn-tab-ai" onclick="switchTab('ai')">
+            <i class="fa-solid fa-robot"></i> <span id="lbl-tab-ai">एआई सहायक (AI Support)</span>
+        </div>
+    </div>
+
+    <!-- TAB 1: Documented Manual List (Auto Generated Features) -->
+    <div id="section-manual" class="content-section active">
+        <div id="features-container">
+            <!-- Dynamic Cards Loaded Via JS -->
+        </div>
+    </div>
+
+    <!-- TAB 2: Interactive AI Assistant Chat -->
+    <div id="section-ai" class="content-section">
+        <div class="chat-box">
+            <div class="chat-messages" id="chatMessages">
+                <div class="msg ai" id="ai-welcome-msg">
+                    नमस्ते! मैं आपका ऑपरेटर एआई असिस्टेंट हूँ। आप मुझसे इस पोर्टल के किसी भी फ़ीचर के बारे में सवाल पूछ सकते हैं।
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="userInput" placeholder="अपना प्रश्न यहाँ लिखें..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendAiMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Central Dynamic Knowledge Database (When you add new features, just append them here)
+        const portalFeatures = [
+            {
+                id: "customers",
+                icon: "fa-users",
+                title: {
+                    hi: "कस्टमर्स मॉड्यूल (Customer Ops)",
+                    en: "Customers Module",
+                    ur: "کسٹمرز ماڈیول"
+                },
+                desc: {
+                    hi: "इस मॉड्यूल में सभी ग्राहकों की सूची, नया ग्राहक जोड़ने, रिचार्ज स्टेटस और प्लान अपडेट करने की सुविधा है।",
+                    en: "Manage customer profiles, add new connections, track recharge statuses, and update plans.",
+                    ur: "اس ماڈیول میں تمام کسٹمرز کی فہرست، نیا کسٹمر شامل کرنے اور ریچارج کی تفصیلات موجود ہیں۔"
+                },
+                steps: {
+                    hi: ["नया ग्राहक जोड़ने के लिए 'Add Customer' बटन पर क्लिक करें।", "रिचार्ज खत्म होने वाले ग्राहकों को फ़िल्टर करके अलर्ट भेजें।"],
+                    en: ["Click 'Add Customer' button to register new user.", "Filter active/expired clients to send notifications."],
+                    ur: ["نیا کسٹمر شامل کرنے کے لیے 'Add Customer' بٹن پر کلک کریں۔", "معطل یا ختم شدہ کسٹمرز کو فلٹر کریں۔"]
+                }
+            },
+            {
+                id: "billing",
+                icon: "fa-file-invoice-dollar",
+                title: {
+                    hi: "बिलिंग एवं पेमेंट (Billing)",
+                    en: "Billing & Invoicing",
+                    ur: "بلنگ اور ادائیگیاں"
+                },
+                desc: {
+                    hi: "यहाँ से ग्राहकों के लिए इनवॉइस/रसीद जनरेट करें, पेंडिंग पेमेंट चेक करें और कलेक्शन रिपोर्ट देखें।",
+                    en: "Generate payment receipts, track unpaid dues, and print financial invoices.",
+                    ur: "یہاں سے کسٹمرز کی رسیدیں بنائیں اور بقایا جات چیک کریں۔"
+                },
+                steps: {
+                    hi: ["ग्राहक सर्च करके 'Generate Receipt' दबाएं।", "मासिक कलेक्शन देखने के लिए रिपोर्ट सेक्शन चुनें।"],
+                    en: ["Search client and click 'Generate Receipt'.", "Check collection summary report."],
+                    ur: ["کسٹمر تلاش کر کے رسید حاصل کریں۔", "ماہانہ رپورٹ دیکھیں۔"]
+                }
+            },
+            {
+                id: "server",
+                icon: "fa-server",
+                title: {
+                    hi: "सर्वर मॉनिटर (Server Monitor)",
+                    en: "Server Monitor",
+                    ur: "سرور مانیٹر"
+                },
+                desc: {
+                    hi: "मुख्य माइक्रो टिक (MikroTik) राउटर और रेडियस सर्वर की लाइव ऑनलाइन/ऑफलाइन स्थिति देखें।",
+                    en: "Real-time monitoring of MikroTik routers, NAS status, and active bandwidth.",
+                    ur: "مائیکروٹک راؤٹر اور سرورز کی آن لائن صورتحال دیکھیں۔"
+                },
+                steps: {
+                    hi: ["ग्रीन सिग्नल ऑनलाइन दर्शाया जाता है।", "रेड सिग्नल होने पर राउटर रीस्टार्ट करें या सर्वर चेक करें।"],
+                    en: ["Green indicates Online status.", "Red status implies router or auth failure."],
+                    ur: ["سبز نشان آن لائن ظاہر کرتا ہے۔", "سرور بند ہونے پر لال نشان آتا ہے۔"]
+                }
+            },
+            {
+                id: "complaint",
+                icon: "fa-headset",
+                title: {
+                    hi: "कस्टमर शिकायत (Complaints)",
+                    en: "Customer Complaints",
+                    ur: "کسٹمر کی شکایات"
+                },
+                desc: {
+                    hi: "ग्राहकों की आने वाली शिकायतों को दर्ज करें और फील्ड वर्कर को असाइन करके स्टेटस ट्रैक करें।",
+                    en: "Log customer complaints and assign field staff for quick resolution.",
+                    ur: "کسٹمرز کی شکایت درج کریں اور حل کے لیے ورکر کو بھیجیں۔"
+                },
+                steps: {
+                    hi: ["शिकायत मिलने पर टिकट दर्ज करें।", "समस्या हल होने पर 'Solved' पर टिक करें।"],
+                    en: ["Create ticket upon receiving complaint.", "Mark as 'Solved' once fixed."],
+                    ur: ["شکایت کا ٹکٹ درج کریں۔", "مسئلہ حل ہونے پر Solved کریں۔"]
+                }
+            },
+            {
+                id: "whatsapp",
+                icon: "fa-comments",
+                title: {
+                    hi: "व्हाट्सएप अलर्ट (WhatsApp Gateway)",
+                    en: "WhatsApp Alerts",
+                    ur: "واٹس ایپ الرٹس"
+                },
+                desc: {
+                    hi: "ग्राहकों को बिल रिमाइंडर, पेमेंट रसीद और नेटवर्क डाउनटाइम का संदेश व्हाट्सएप पर भेजें।",
+                    en: "Send automated billing reminders, payment receipts, and downtime alerts via WhatsApp.",
+                    ur: "کسٹمرز کو بل کے میسج اور اطلاع واٹس ایپ پر بھیجیں۔"
+                },
+                steps: {
+                    hi: ["मैसेज टेम्पलेट चुनें।", "'Send Alert' पर क्लिक करके मैसेज डिलीवर करें।"],
+                    en: ["Select alert message template.", "Click 'Send Alert' to trigger WhatsApp msg."],
+                    ur: ["ٹیمپلیٹ منتخب کریں اور میسج بھیجیں۔"]
+                }
+            },
+            {
+                id: "settings",
+                icon: "fa-gear",
+                title: {
+                    hi: "सिस्टम सेटिंग्स (Settings)",
+                    en: "System Settings",
+                    ur: "سسٹم سیٹنگز"
+                },
+                desc: {
+                    hi: "ISP का नाम, लोगो, डार्क/लाइट थीम मोड और पैकेज प्लान्स की जानकारी बदलें।",
+                    en: "Configure ISP Branding (Name, Logo), UI Themes, and Subscription Packages.",
+                    ur: "آئی ایس پی کا نام، لوگو اور پیکج تبدیل کریں۔"
+                },
+                steps: {
+                    hi: ["नया लोगो/नाम डालकर 'Save' पर क्लिक करें।", "यह पूरे डैशबोर्ड में अपडेट हो जाएगा।"],
+                    en: ["Upload logo or update ISP name, then click Save.", "Changes reflect globally across portal."],
+                    ur: ["نیا لوگو ڈال کر سیو کریں۔"]
+                }
+            }
+        ];
+
+        let currentLang = "hi";
+
+        // UI Text Labels
+        const labels = {
+            hi: {
+                title: "हेल्प व सिस्टम गाइड",
+                manualTab: "लिखित गाइड (Manual)",
+                aiTab: "एआई सहायक (AI Support)",
+                welcome: "नमस्ते! मैं आपका ऑपरेटर एआई असिस्टेंट हूँ। आप मुझसे इस पोर्टल के किसी भी फ़ीचर के बारे में सवाल पूछ सकते हैं।",
+                placeholder: "अपना प्रश्न यहाँ लिखें...",
+                noResult: "क्षमा करें, मुझे इस प्रश्न का सटीक उत्तर नहीं मिला। कृपया Customers, Billing, Server या Complaint जैसे शब्दों का प्रयोग करें।"
+            },
+            en: {
+                title: "Help & System Guide",
+                manualTab: "Documented Manual",
+                aiTab: "AI Assistant",
+                welcome: "Hello! I am your Operator AI Assistant. Feel free to ask anything about this portal.",
+                placeholder: "Type your query here...",
+                noResult: "Sorry, I couldn't find a direct answer. Please try keywords like Customers, Billing, Server, or Complaints."
+            },
+            ur: {
+                title: "مدد اور سسٹم گائیڈ",
+                manualTab: "تحریری گائیڈ",
+                aiTab: "اے آئی اسسٹنٹ",
+                welcome: "السلام علیکم! میں آپ کا اے آئی اسسٹنٹ ہوں۔ آپ اس پورٹل کے کسی بھی فیچر کے بارے میں پوچھ سکتے ہیں۔",
+                placeholder: "اپنا سوال یہاں لکھیں...",
+                noResult: "معذرت، اس کا جواب نہیں ملا۔ کسٹمر، بلنگ یا سرور سے متعلق سوال پوچھیں۔"
+            }
+        };
+
+        // Render Features List
+        function renderManualGuide() {
+            const container = document.getElementById('features-container');
+            container.innerHTML = "";
+
+            portalFeatures.forEach(feat => {
+                const card = document.createElement('div');
+                card.className = "feature-card";
+
+                let stepsList = feat.steps[currentLang].map(step => `<li>${step}</li>`).join("");
+
+                card.innerHTML = `
+                    <h3><i class="fa-solid ${feat.icon}"></i> ${feat.title[currentLang]}</h3>
+                    <p>${feat.desc[currentLang]}</p>
+                    <ul>${stepsList}</ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Handle Language Switch
+        function changeLanguage() {
+            currentLang = document.getElementById('langSelect').value;
+            const htmlRoot = document.getElementById('html-root');
+
+            // Handle RTL for Urdu
+            if (currentLang === 'ur') {
+                htmlRoot.setAttribute('dir', 'rtl');
+            } else {
+                htmlRoot.setAttribute('dir', 'ltr');
+            }
+
+            // Update Header & Tabs Labels
+            document.getElementById('lbl-title').innerHTML = `<i class="fa-solid fa-circle-question"></i> ${labels[currentLang].title}`;
+            document.getElementById('lbl-tab-manual').innerText = labels[currentLang].manualTab;
+            document.getElementById('lbl-tab-ai').innerText = labels[currentLang].aiTab;
+            document.getElementById('userInput').placeholder = labels[currentLang].placeholder;
+            document.getElementById('ai-welcome-msg').innerText = labels[currentLang].welcome;
+
+            renderManualGuide();
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+
+            if (tab === 'manual') {
+                document.getElementById('btn-tab-manual').classList.add('active');
+                document.getElementById('section-manual').classList.add('active');
+            } else {
+                document.getElementById('btn-tab-ai').classList.add('active');
+                document.getElementById('section-ai').classList.add('active');
+            }
+        }
+
+        // Smart AI Logic Engine
+        function sendAiMessage() {
+            const inputEl = document.getElementById('userInput');
+            const query = inputEl.value.trim().toLowerCase();
+            if (!query) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+
+            // Add User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = "msg user";
+            userMsg.innerText = inputEl.value;
+            chatMessages.appendChild(userMsg);
+
+            inputEl.value = "";
+
+            // Search Matching Feature
+            let matchedFeature = portalFeatures.find(f => 
+                query.includes(f.id) || 
+                f.title[currentLang].toLowerCase().includes(query) ||
+                f.desc[currentLang].toLowerCase().includes(query)
+            );
+
+            // Generate AI Response
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = "msg ai";
+
+                if (matchedFeature) {
+                    aiMsg.innerHTML = `<strong>${matchedFeature.title[currentLang]}</strong><br>${matchedFeature.desc[currentLang]}<br><br><strong>Steps:</strong><br>${matchedFeature.steps[currentLang].join("<br>")}`;
+                } else {
+                    aiMsg.innerText = labels[currentLang].noResult;
+                }
+
+                chatMessages.appendChild(aiMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 400);
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendAiMessage();
+        }
+
+        // Listen to Parent Theme Change
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'THEME_CHANGE') {
+                if (event.data.isLight) {
+                    document.body.classList.add('light-mode');
+                } else {
+                    document.body.classList.remove('light-mode');
+                }
+            }
+        });
+
+        // Initialize Page
+        window.onload = function() {
+            renderManualGuide();
+        };
+    </script>
+</body>
+</html>
