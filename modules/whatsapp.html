@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp & SMS Alerts - Eagle Network SBZ</title>
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #070a12;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(255, 255, 255, 0.06);
+            --primary: #25D366; /* WhatsApp Green */
+            --primary-hover: #1da851;
+            --info: #38bdf8;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --table-hover: rgba(255, 255, 255, 0.03);
+            --modal-overlay: rgba(0, 0, 0, 0.75);
+        }
+
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --input-bg: #f8fafc;
+            --primary: #16a34a;
+            --table-hover: #f8fafc;
+            --modal-overlay: rgba(15, 23, 42, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-title h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h4 {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-info .number {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        /* Bulk & Custom Message Box */
+        .custom-msg-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .custom-msg-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .msg-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .msg-grid { grid-template-columns: 1fr; }
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 10px;
+            outline: none;
+            resize: none;
+            font-size: 0.88rem;
+        }
+
+        .btn-wa {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-wa:hover { background: var(--primary-hover); }
+
+        .filter-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box input, .filter-card select {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .filter-card select {
+            padding-left: 12px;
+            width: auto;
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px 14px;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--card-border);
+            font-size: 0.85rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .badge.expiring { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .badge.expired { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .btn-send-single {
+            background: #25D366;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .btn-send-single:hover { background: #1da851; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fa-brands fa-whatsapp" style="color:var(--primary);"></i> WhatsApp Alerts & Reminders</h2>
+                <p>Send 1-Click Recharge Notifications, Bill Reminders & Custom Messages</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Expiring in 3 Days</h4>
+                    <div class="number" style="color:var(--warning);">8 Customers</div>
+                </div>
+                <i class="fa-solid fa-hourglass-half" style="color:var(--warning); font-size:1.5rem;"></i>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Expired Today</h4>
+                    <div class="number" style="color:var(--danger);">3 Customers</div>
+                </div>
+                <i class="fa-solid fa-triangle-exclamation" style="color:var(--danger); font-size:1.5rem;"></i>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Reminders Sent Today</h4>
+                    <div class="number" style="color:var(--primary);">12 Sent</div>
+                </div>
+                <i class="fa-brands fa-whatsapp" style="color:var(--primary); font-size:1.5rem;"></i>
+            </div>
+        </div>
+
+        <!-- Custom / Network Alert Box -->
+        <div class="custom-msg-card">
+            <h3><i class="fa-solid fa-bullhorn" style="color:var(--info);"></i> Quick Template Generator</h3>
+            <div class="msg-grid">
+                <div>
+                    <textarea id="customTemplateText" placeholder="Type custom announcement or select a template from right side..."></textarea>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn-wa" style="background:var(--info);" onclick="useTemplate('welcome')"><i class="fa-solid fa-user-plus"></i> New User Welcome</button>
+                    <button class="btn-wa" style="background:var(--warning);" onclick="useTemplate('maintenance')"><i class="fa-solid fa-wrench"></i> Network Maintenance Alert</button>
+                    <button class="btn-wa" style="background:var(--primary);" onclick="useTemplate('recharge')"><i class="fa-solid fa-rotate-right"></i> Recharge Reminder</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-card">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="Search Name, User ID or Phone...">
+            </div>
+            <select id="expiryFilter" onchange="filterUsers()">
+                <option value="ALL">All Due Customers</option>
+                <option value="Expiring">Expiring Soon (1-3 Days)</option>
+                <option value="Expired">Already Expired</option>
+            </select>
+        </div>
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID & Name</th>
+                            <th>Mobile No.</th>
+                            <th>Current Plan</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Send 1-Click WhatsApp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="waTableBody">
+                        <tr>
+                            <td><strong>Rahul Sharma</strong><br><small style="color:var(--text-muted)">#ENG-101</small></td>
+                            <td>9876543210</td>
+                            <td>100 Mbps Unlimited (₹599)</td>
+                            <td>08-Sep-2026</td>
+                            <td><span class="badge expiring">Expiring in 2 Days</span></td>
+                            <td style="text-align: center;">
+                                <a href="#" class="btn-send-single" onclick="sendWhatsApp('9876543210', 'Rahul Sharma', '100 Mbps Unlimited', '599', '08-Sep-2026')">
+                                    <i class="fa-brands fa-whatsapp"></i> Send Alert
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Amit Kumar</strong><br><small style="color:var(--text-muted)">#ENG-102</small></td>
+                            <td>9123456789</td>
+                            <td>50 Mbps Starter (₹299)</td>
+                            <td>06-Sep-2026</td>
+                            <td><span class="badge expired">Expired Today</span></td>
+                            <td style="text-align: center;">
+                                <a href="#" class="btn-send-single" onclick="sendWhatsApp('9123456789', 'Amit Kumar', '50 Mbps Starter', '299', '06-Sep-2026')">
+                                    <i class="fa-brands fa-whatsapp"></i> Send Alert
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Listen Theme Toggle
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'THEME_CHANGE') {
+                if (e.data.isLight) document.body.classList.add('light-mode');
+                else document.body.classList.remove('light-mode');
+            }
+        });
+
+        // Quick Message Templates
+        function useTemplate(type) {
+            const txt = document.getElementById('customTemplateText');
+            if (type === 'welcome') {
+                txt.value = "Welcome to Eagle Network Broadband! 🚀\nYour WiFi Connection is now ACTIVE.\nUser ID: ENG-10X\nWiFi Speed: 100 Mbps\nFor any support or recharge, reply to this message.";
+            } else if (type === 'maintenance') {
+                txt.value = "⚠️ Important Maintenance Alert!\nDear Customer, Due to fiber line maintenance, your internet service may face temporary disruption today between 2:00 PM to 4:00 PM. We regret the inconvenience.";
+            } else if (type === 'recharge') {
+                txt.value = "Dear Customer,\nYour Broadband Plan is EXPIRING SOON. Please recharge today to enjoy uninterrupted high-speed internet service.\nPay Online via UPI/GPay: eagle@upi";
+            }
+        }
+
+        // Direct WhatsApp Link Generator
+        function sendWhatsApp(phone, name, plan, price, expiry) {
+            let customMsg = document.getElementById('customTemplateText').value.trim();
+
+            let finalMessage = "";
+            if (customMsg !== "") {
+                finalMessage = `Hi ${name},\n\n${customMsg}`;
+            } else {
+                finalMessage = `Hi *${name}*,\n\nYour *Eagle Network* Broadband Plan (*${plan}* - ₹${price}) is expiring on *${expiry}*.\n\nTo avoid internet disconnection, please recharge your plan.\n\n*Pay via UPI/GPay:* eagle@upi\n\n_Thank you for choosing Eagle Network!_`;
+            }
+
+            const encodedMsg = encodeURIComponent(finalMessage);
+            const waUrl = `https://wa.me/91${phone}?text=${encodedMsg}`;
+            
+            window.open(waUrl, '_blank');
+        }
+
+        // Filter Function
+        function filterUsers() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const filterVal = document.getElementById('expiryFilter').value;
+            const rows = document.querySelectorAll('#waTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const badgeText = row.querySelector('.badge').innerText;
+
+                const matchSearch = text.includes(searchVal);
+                let matchFilter = true;
+
+                if (filterVal === 'Expiring') matchFilter = badgeText.includes('Expiring');
+                if (filterVal === 'Expired') matchFilter = badgeText.includes('Expired');
+
+                if (matchSearch && matchFilter) row.style.display = '';
+                else row.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
