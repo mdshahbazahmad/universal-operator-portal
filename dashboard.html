@@ -560,6 +560,17 @@
         }
 
         initAutoWeather();
+    window.onload = function() {
+    const name = localStorage.getItem('isp_name') || 'Eagle Network SBZ';
+    const logo = localStorage.getItem('isp_logo') || 'logo.png';
+    
+    if(document.getElementById('headerIspName')) {
+        document.getElementById('headerIspName').innerText = name;
+    }
+    if(document.getElementById('headerIspLogo')) {
+        document.getElementById('headerIspLogo').src = logo;
+    }
+};
     </script>
 </body>
 </html>
