@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Server & Headend Monitor - Eagle Network SBZ</title>
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #070a12;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(255, 255, 255, 0.06);
+            --primary: #38bdf8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #a855f7;
+            --modal-overlay: rgba(0, 0, 0, 0.8);
+        }
+
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --input-bg: #f8fafc;
+            --primary: #0284c7;
+            --modal-overlay: rgba(15, 23, 42, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-title h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .btn-add-server {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h4 {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-info .number {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        /* Server Cards Grid */
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .server-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 18px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .server-card.admin-primary {
+            border-color: var(--primary);
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .server-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .server-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+        }
+
+        .server-icon.tv {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--purple);
+        }
+
+        .server-name h3 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .server-name span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-pill.online { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .status-pill.offline { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .server-details {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid var(--card-border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.82rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-item label {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+        }
+
+        .detail-item span {
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .server-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sync {
+            flex: 1;
+            padding: 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-sync:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal-body {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 520px;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .modal-footer {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            padding: 8px 18px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fa-solid fa-server" style="color:var(--primary);"></i> Multi-Server & DCN Headend Sync</h2>
+                <p>Connect and Monitor Wi-Fi OLT Routers & DCN Cable TV Headend Servers</p>
+            </div>
+
+            <button class="btn-add-server" onclick="openModal()"><i class="fa-solid fa-plus"></i> Connect New Server</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Connected Servers</h4>
+                    <div class="number" id="totalServersCount">3 Active</div>
+                </div>
+                <i class="fa-solid fa-network-wired" style="color:var(--primary); font-size:1.5rem;"></i>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Wi-Fi OLT Active Users</h4>
+                    <div class="number" style="color:var(--success);">248 Online</div>
+                </div>
+                <i class="fa-solid fa-wifi" style="color:var(--success); font-size:1.5rem;"></i>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>DCN TV Active STBs</h4>
+                    <div class="number" style="color:var(--purple);">180 Boxes</div>
+                </div>
+                <i class="fa-solid fa-tv" style="color:var(--purple); font-size:1.5rem;"></i>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.1rem; margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-shield-halved" style="color:var(--primary);"></i> Active Connected Servers
+        </h3>
+
+        <!-- Dynamic Server Cards Grid -->
+        <div class="servers-grid" id="serversGrid">
+            
+            <!-- Default Main Admin Server 1: Broadband OLT -->
+            <div class="server-card admin-primary">
+                <div class="server-header">
+                    <div class="server-title">
+                        <div class="server-icon"><i class="fa-solid fa-wifi"></i></div>
+                        <div class="server-name">
+                            <h3>Main Broadband OLT <small style="background:var(--primary); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.65rem;">ADMIN SERVER</small></h3>
+                            <span>Syrotech 8-Port PON OLT</span>
+                        </div>
+                    </div>
+                    <span class="status-pill online"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Connected</span>
+                </div>
+                <div class="server-details">
+                    <div class="detail-item">
+                        <label>IP Address</label>
+                        <span>192.168.1.100</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Bandwidth Usage</label>
+                        <span>840 Mbps / 1 Gbps</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Active ONUs / Modems</label>
+                        <span>185 Active / 2 Offline</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Last Facebook-Style Sync</label>
+                        <span style="color:var(--success);">Just Now</span>
+                    </div>
+                </div>
+                <div class="server-actions">
+                    <button class="btn-sync" onclick="syncServer(this)"><i class="fa-solid fa-rotate-right"></i> Auto-Sync Data</button>
+                </div>
+            </div>
+
+            <!-- Default Server 2: DCN Cable TV Headend -->
+            <div class="server-card">
+                <div class="server-header">
+                    <div class="server-title">
+                        <div class="server-icon tv"><i class="fa-solid fa-tv"></i></div>
+                        <div class="server-name">
+                            <h3>DCN Cable TV Headend</h3>
+                            <span>CAS / SMS Digital TV Server</span>
+                        </div>
+                    </div>
+                    <span class="status-pill online"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Connected</span>
+                </div>
+                <div class="server-details">
+                    <div class="detail-item">
+                        <label>Server IP / Host</label>
+                        <span>10.0.0.50</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Active Set-Top Boxes</label>
+                        <span>180 Active STBs</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Total Broadcasters</label>
+                        <span>124 Channels Transmitting</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Last Sync</label>
+                        <span style="color:var(--success);">2 mins ago</span>
+                    </div>
+                </div>
+                <div class="server-actions">
+                    <button class="btn-sync" onclick="syncServer(this)"><i class="fa-solid fa-rotate-right"></i> Auto-Sync Data</button>
+                </div>
+            </div>
+
+            <!-- Default Server 3: Backup Airtel Uplink -->
+            <div class="server-card">
+                <div class="server-header">
+                    <div class="server-title">
+                        <div class="server-icon"><i class="fa-solid fa-network-wired"></i></div>
+                        <div class="server-name">
+                            <h3>Airtel Secondary Uplink</h3>
+                            <span>Mikrotik CCR Router</span>
+                        </div>
+                    </div>
+                    <span class="status-pill online"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Standby</span>
+                </div>
+                <div class="server-details">
+                    <div class="detail-item">
+                        <label>IP Address</label>
+                        <span>103.44.12.1</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Uptime</label>
+                        <span>45 Days Non-stop</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Type</label>
+                        <span>Failover Backup</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Last Sync</label>
+                        <span style="color:var(--success);">5 mins ago</span>
+                    </div>
+                </div>
+                <div class="server-actions">
+                    <button class="btn-sync" onclick="syncServer(this)"><i class="fa-solid fa-rotate-right"></i> Auto-Sync Data</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Connect New Server Modal -->
+    <div class="modal-overlay" id="serverModal">
+        <div class="modal-body">
+            <div class="modal-header">
+                <h3>Connect New Server / Headend</h3>
+                <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal()"></i>
+            </div>
+            
+            <form onsubmit="saveServer(event)">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>Server Name / Alias</label>
+                        <input type="text" id="srvName" required placeholder="e.g. Jio Primary OLT or DCN Headend 2">
+                    </div>
+                    <div class="form-group">
+                        <label>Server Category</label>
+                        <select id="srvType">
+                            <option value="wifi">Wi-Fi / Broadband OLT Router</option>
+                            <option value="tv">DCN Digital TV CAS Server</option>
+                            <option value="uplink">Uplink / Mikrotik Gateway</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Server Role</label>
+                        <select id="srvRole">
+                            <option value="Secondary">Secondary Server</option>
+                            <option value="Admin">Primary Admin Server</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>IP Address / Domain</label>
+                        <input type="text" id="srvIp" required placeholder="e.g. 192.168.1.1">
+                    </div>
+                    <div class="form-group">
+                        <label>API Port / Secret Key</label>
+                        <input type="text" id="srvPort" required placeholder="e.g. 8728 or API Key">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Test & Connect Server</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Listen Theme Change
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'THEME_CHANGE') {
+                if (e.data.isLight) document.body.classList.add('light-mode');
+                else document.body.classList.remove('light-mode');
+            }
+        });
+
+        function openModal() { document.getElementById('serverModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('serverModal').style.display = 'none'; }
+
+        // Sync Simulation (Facebook-Style Auto Fetch)
+        function syncServer(btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching Data...`;
+            btn.style.opacity = '0.7';
+
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--success);"></i> Data Synced!`;
+                btn.style.opacity = '1';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }, 1200);
+        }
+
+        // Save New Server Function
+        function saveServer(e) {
+            e.preventDefault();
+            const name = document.getElementById('srvName').value;
+            const type = document.getElementById('srvType').value;
+            const role = document.getElementById('srvRole').value;
+            const ip = document.getElementById('srvIp').value;
+
+            const grid = document.getElementById('serversGrid');
+            const card = document.createElement('div');
+            card.className = `server-card ${role === 'Admin' ? 'admin-primary' : ''}`;
+
+            const iconClass = type === 'tv' ? 'fa-tv' : (type === 'wifi' ? 'fa-wifi' : 'fa-network-wired');
+            const iconBg = type === 'tv' ? 'tv' : '';
+
+            card.innerHTML = `
+                <div class="server-header">
+                    <div class="server-title">
+                        <div class="server-icon ${iconBg}"><i class="fa-solid ${iconClass}"></i></div>
+                        <div class="server-name">
+                            <h3>${name} ${role === 'Admin' ? '<small style="background:var(--primary); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.65rem;">ADMIN SERVER</small>' : ''}</h3>
+                            <span>Connected via IP / API</span>
+                        </div>
+                    </div>
+                    <span class="status-pill online"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Connected</span>
+                </div>
+                <div class="server-details">
+                    <div class="detail-item">
+                        <label>IP Address</label>
+                        <span>${ip}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Auto-Sync Status</label>
+                        <span style="color:var(--success);">Active</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Data Upload</label>
+                        <span>100% Synced</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Last Sync</label>
+                        <span style="color:var(--success);">Just Now</span>
+                    </div>
+                </div>
+                <div class="server-actions">
+                    <button class="btn-sync" onclick="syncServer(this)"><i class="fa-solid fa-rotate-right"></i> Auto-Sync Data</button>
+                </div>
+            `;
+
+            grid.appendChild(card);
+            
+            // Update total servers count
+            const countElem = document.getElementById('totalServersCount');
+            const currentCount = document.querySelectorAll('.server-card').length;
+            countElem.innerText = `${currentCount} Active`;
+
+            closeModal();
+            alert(`Server "${name}" successfully connected and synced!`);
+        }
+    </script>
+</body>
+</html>
