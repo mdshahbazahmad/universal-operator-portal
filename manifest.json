@@ -1,0 +1,24 @@
+{
+  "short_name": "Eagle SBZ",
+  "name": "Eagle Network SBZ - Universal Operator Portal",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#070a12",
+  "theme_color": "#38bdf8",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "./"
+}
