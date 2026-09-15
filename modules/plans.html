@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recharge & New Connection Plans Management</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --accent-gold: #fbbf24;
+            --success: #22c55e;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-dark); color: #f8fafc; padding: 20px; }
+
+        .header-title { display: flex; align-items: center; justify-content: space-between; font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: var(--primary); }
+
+        /* Tabs Header Styling (Setting style) */
+        .tabs-header { display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; }
+        .tab-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #94a3b8; padding: 12px 22px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; }
+        .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 22px; backdrop-filter: blur(10px); margin-bottom: 25px; }
+        .card-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; color: var(--accent-gold); }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; outline: none; font-size: 0.9rem; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+
+        .btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        /* Plan Table Styling */
+        .plan-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .plan-table th, .plan-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.88rem; }
+        .plan-table th { color: #94a3b8; background: rgba(0,0,0,0.25); font-weight: 600; }
+
+        .badge-type { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .type-internet { background: rgba(56, 189, 248, 0.2); color: var(--primary); border: 1px solid var(--primary); }
+        .type-tv { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+        .type-combo { background: rgba(34, 197, 94, 0.2); color: var(--success); border: 1px solid var(--success); }
+
+        .margin-tag { color: var(--success); font-size: 0.8rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <span><i class="fa-solid fa-list-check"></i> Recharge & Connection Plans Management</span>
+    </div>
+
+    <!-- Main Navigation Header Tabs (Like settings.html) -->
+    <div class="tabs-header">
+        <button class="tab-btn active" id="btnRechargeTab" onclick="switchTab('rechargeTab', event)">
+            <i class="fa-solid fa-bolt"></i> 1. Recharge Plans Engine (Internet, TV & OTT)
+        </button>
+        <button class="tab-btn" id="btnConnectionTab" onclick="switchTab('connectionTab', event)">
+            <i class="fa-solid fa-plug"></i> 2. New Connection Plans Engine (ONT/Router & Combo)
+        </button>
+    </div>
+
+    <!-- TAB 1: RECHARGE PLANS ENGINE -->
+    <div id="rechargeTab" class="tab-content active">
+        <div class="card">
+            <div class="card-title">
+                <span><i class="fa-solid fa-plus-circle"></i> Add / Edit Recharge Plan</span>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>प्लान कैटेगरी (Service Category)</label>
+                    <select id="recCategory" onchange="toggleCategoryFields()">
+                        <option value="INTERNET">Broadband Internet Only</option>
+                        <option value="DTH_TV">DTH / Digital Cable TV</option>
+                        <option value="INTERNET_TV_COMBO">Internet + TV Combo</option>
+                        <option value="CHANNEL_ADDON">TV Extra Channel Add-on (उदा. Colors/Sports)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>प्लान का नाम (Plan Name)</label>
+                    <input type="text" id="recName" placeholder="उदा. 100Mbps Ultra + TV Combo">
+                </div>
+
+                <div class="form-group">
+                    <label style="color:var(--primary);">Main Server Plan ID / Profile Name *</label>
+                    <input type="text" id="recServerId" placeholder="उदा. PROF_100M_30D (Radius/MikroTik ID)">
+                </div>
+
+                <div class="form-group">
+                    <label>इंटरनेट स्पीड (Mbps)</label>
+                    <input type="text" id="recSpeed" placeholder="उदा. 100 Mbps (N/A for TV)">
+                </div>
+
+                <div class="form-group">
+                    <label>वैधता (Validity)</label>
+                    <select id="recValidity">
+                        <option value="30 Days">30 दिन (1 महीना)</option>
+                        <option value="90 Days">90 दिन (3 महीना)</option>
+                        <option value="180 Days">180 दिन (6 महीना)</option>
+                        <option value="365 Days">365 दिन (1 साल)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="color:#ef4444;">मुख्य सर्वर लागत मूल्य (Server Cost Price ₹)</label>
+                    <input type="number" id="recServerCost" placeholder="उदा. 350 (सर्वर से जो कटेगा)" oninput="calculateMargin('rec')">
+                </div>
+
+                <div class="form-group">
+                    <label style="color:var(--success);">ग्राहक विक्रय मूल्य (Customer Selling Price ₹)</label>
+                    <input type="number" id="recPrice" placeholder="उदा. 500 (ग्राहक जो देगा)" oninput="calculateMargin('rec')">
+                </div>
+
+                <div class="form-group">
+                    <label>ऑपरेटर मार्जिन (Profit Calculation)</label>
+                    <input type="text" id="recMargin" placeholder="Profit ₹0" readonly style="color:var(--success); font-weight:bold;">
+                </div>
+
+                <div class="form-group" id="ottGroup">
+                    <label>OTT ऐप सब्सक्रिप्शन (यदि लागू हो)</label>
+                    <input type="text" id="recOtt" placeholder="उदा. Disney+ Hotstar, Zee5, SonyLIV">
+                </div>
+
+                <div class="form-group" id="channelGroup">
+                    <label>TV चैनल / पैक डिटेल्स (यदि TV शामिल है)</label>
+                    <input type="text" id="recChannels" placeholder="उदा. 350+ Live Channels + Colors HD">
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="saveRechargePlan()">
+                <i class="fa-solid fa-floppy-disk"></i> रिचार्ज प्लान सेव करें
+            </button>
+        </div>
+
+        <!-- Recharge Plans Table -->
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-list"></i> सक्रिय रिचार्ज प्लान्स की लिस्ट</span></div>
+            <table class="plan-table">
+                <thead>
+                    <tr>
+                        <th>प्रकार</th>
+                        <th>प्लान नाम</th>
+                        <th>Server Plan ID</th>
+                        <th>स्पीड / डिटेल्स</th>
+                        <th>वैधता</th>
+                        <th>सर्वर कॉस्ट (₹)</th>
+                        <th>कस्टमर प्राइस (₹)</th>
+                        <th>मार्जिन (Profit)</th>
+                        <th>एक्शन</th>
+                    </tr>
+                </thead>
+                <tbody id="rechargeTableBody">
+                    <!-- Dynamic Rows Loaded Here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 2: NEW CONNECTION PLANS ENGINE -->
+    <div id="connectionTab" class="tab-content">
+        <div class="card">
+            <div class="card-title">
+                <span><i class="fa-solid fa-plus-circle"></i> Add New Connection Offer / Installation Plan</span>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>कनेक्शन प्रकार (Type)</label>
+                    <select id="connType">
+                        <option value="WITH_ROUTER">With Dual-Band Fiber Router / ONT</option>
+                        <option value="WITHOUT_ROUTER">Without Router (Customer Own Router)</option>
+                        <option value="SETTOP_BOX_COMBO">Set-Top Box + Fiber Router Combo</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>कनेक्शन पैकेज नाम</label>
+                    <input type="text" id="connName" placeholder="उदा. Fiber Dual Band Starter Offer">
+                </div>
+
+                <div class="form-group">
+                    <label style="color:var(--primary);">Default Initial Server Plan ID *</label>
+                    <input type="text" id="connServerId" placeholder="उदा. INIT_100M_FREE3M">
+                </div>
+
+                <div class="form-group">
+                    <label>मुफ्त इंटरनेट वैधता (Bundled Free Period)</label>
+                    <select id="connFreePeriod">
+                        <option value="1 Month Free">1 महीना फ्री इंटरनेट</option>
+                        <option value="3 Months Free">3 महीने फ्री इंटरनेट</option>
+                        <option value="6 Months Free">6 महीने फ्री इंटरनेट</option>
+                        <option value="Installation Only">कोई फ्री इंटरनेट नहीं (केवल सेटअप)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="color:#ef4444;">डिवाइस व सेटअप लागत (Hardware Cost Price ₹)</label>
+                    <input type="number" id="connCostPrice" placeholder="उदा. 1800" oninput="calculateMargin('conn')">
+                </div>
+
+                <div class="form-group">
+                    <label style="color:var(--success);">न्यू कनेक्शन कुल कीमत (Installation Price ₹)</label>
+                    <input type="number" id="connPrice" placeholder="उदा. 2500" oninput="calculateMargin('conn')">
+                </div>
+
+                <div class="form-group">
+                    <label>ऑपरेटर मार्जिन (Setup Margin)</label>
+                    <input type="text" id="connMargin" placeholder="Profit ₹0" readonly style="color:var(--success); font-weight:bold;">
+                </div>
+
+                <div class="form-group">
+                    <label>शामिल हार्डवेयर/सामग्री की जानकारी</label>
+                    <input type="text" id="connHardware" placeholder="उदा. Dual Band ONT + 100m Fiber Cable + Patch Cord">
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="saveConnectionPlan()">
+                <i class="fa-solid fa-floppy-disk"></i> न्यू कनेक्शन ऑफर सेव करें
+            </button>
+        </div>
+
+        <!-- Connection Plans Table -->
+        <div class="card">
+            <div class="card-title"><span><i class="fa-solid fa-list"></i> नए कनेक्शन ऑफर्स की लिस्ट</span></div>
+            <table class="plan-table">
+                <thead>
+                    <tr>
+                        <th>प्रकार</th>
+                        <th>ऑफर नाम</th>
+                        <th>Default Server ID</th>
+                        <th>हार्डवेयर व फ्री पीरियड</th>
+                        <th>हार्डवेयर लागत</th>
+                        <th>कुल इंस्टॉल प्राइस</th>
+                        <th>मार्जिन</th>
+                        <th>एक्शन</th>
+                    </tr>
+                </thead>
+                <tbody id="connectionTableBody">
+                    <!-- Dynamic Rows Loaded Here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            renderRechargePlans();
+            renderConnectionPlans();
+        };
+
+        function switchTab(tabId, evt) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            }
+        }
+
+        function calculateMargin(type) {
+            if (type === 'rec') {
+                const cost = parseFloat(document.getElementById('recServerCost').value) || 0;
+                const price = parseFloat(document.getElementById('recPrice').value) || 0;
+                const margin = price - cost;
+                document.getElementById('recMargin').value = `Profit: ₹${margin}`;
+            } else {
+                const cost = parseFloat(document.getElementById('connCostPrice').value) || 0;
+                const price = parseFloat(document.getElementById('connPrice').value) || 0;
+                const margin = price - cost;
+                document.getElementById('connMargin').value = `Profit: ₹${margin}`;
+            }
+        }
+
+        /* --- RECHARGE PLANS LOGIC --- */
+        function saveRechargePlan() {
+            const category = document.getElementById('recCategory').value;
+            const name = document.getElementById('recName').value.trim();
+            const serverId = document.getElementById('recServerId').value.trim();
+            const speed = document.getElementById('recSpeed').value.trim() || 'N/A';
+            const validity = document.getElementById('recValidity').value;
+            const cost = document.getElementById('recServerCost').value.trim();
+            const price = document.getElementById('recPrice').value.trim();
+            const ott = document.getElementById('recOtt').value.trim();
+            const channels = document.getElementById('recChannels').value.trim();
+
+            if (!name || !serverId || !price) {
+                alert("कृपया प्लान का नाम, Server Plan ID और कस्टमर प्राइस अवश्य भरें!");
+                return;
+            }
+
+            const plans = JSON.parse(localStorage.getItem('portal_recharge_plans')) || [];
+            const newPlan = {
+                id: Date.now(),
+                category, name, serverId, speed, validity,
+                cost: cost || 0,
+                price: price,
+                ott: ott || 'None',
+                channels: channels || 'None'
+            };
+
+            plans.push(newPlan);
+            localStorage.setItem('portal_recharge_plans', JSON.stringify(plans));
+
+            // Firebase Sync if active
+            if (window.firebase && firebase.auth().currentUser) {
+                const uid = firebase.auth().currentUser.uid;
+                firebase.firestore().collection('operators').doc(uid).collection('recharge_plans').add(newPlan).catch(e => console.error(e));
+            }
+
+            clearRechargeForm();
+            renderRechargePlans();
+            alert("रिचार्ज प्लान सफलतापूर्वक सेव हो गया!");
+        }
+
+        function renderRechargePlans() {
+            const plans = JSON.parse(localStorage.getItem('portal_recharge_plans')) || [
+                { id: 1, category: 'INTERNET', name: '100Mbps Ultra Fiber', serverId: 'PROF_100M_30D', speed: '100 Mbps', validity: '30 Days', cost: 350, price: 500, ott: 'None', channels: 'None' },
+                { id: 2, category: 'INTERNET_TV_COMBO', name: 'Smart Fiber + HD TV Combo', serverId: 'PROF_COMBO_150M', speed: '150 Mbps', validity: '30 Days', cost: 600, price: 850, ott: 'Disney+ Hotstar', channels: '300+ Channels' }
+            ];
+
+            const tbody = document.getElementById('rechargeTableBody');
+            tbody.innerHTML = '';
+
+            plans.forEach(plan => {
+                const margin = plan.price - plan.cost;
+                let badgeClass = 'type-internet';
+                if (plan.category === 'DTH_TV' || plan.category === 'CHANNEL_ADDON') badgeClass = 'type-tv';
+                if (plan.category === 'INTERNET_TV_COMBO') badgeClass = 'type-combo';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="badge-type ${badgeClass}">${plan.category}</span></td>
+                        <td><strong>${plan.name}</strong><br><small style="color:#94a3b8;">OTT: ${plan.ott}</small></td>
+                        <td><code style="color:var(--primary);">${plan.serverId}</code></td>
+                        <td>${plan.speed}<br><small style="color:#94a3b8;">TV: ${plan.channels}</small></td>
+                        <td>${plan.validity}</td>
+                        <td style="color:#ef4444;">₹${plan.cost}</td>
+                        <td style="color:var(--accent-gold); font-weight:bold;">₹${plan.price}</td>
+                        <td><span class="margin-tag">+₹${margin}</span></td>
+                        <td>
+                            <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteRechargePlan(${plan.id})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteRechargePlan(id) {
+            let plans = JSON.parse(localStorage.getItem('portal_recharge_plans')) || [];
+            plans = plans.filter(p => p.id !== id);
+            localStorage.setItem('portal_recharge_plans', JSON.stringify(plans));
+            renderRechargePlans();
+        }
+
+        function clearRechargeForm() {
+            document.getElementById('recName').value = '';
+            document.getElementById('recServerId').value = '';
+            document.getElementById('recSpeed').value = '';
+            document.getElementById('recServerCost').value = '';
+            document.getElementById('recPrice').value = '';
+            document.getElementById('recMargin').value = '';
+            document.getElementById('recOtt').value = '';
+            document.getElementById('recChannels').value = '';
+        }
+
+        /* --- NEW CONNECTION PLANS LOGIC --- */
+        function saveConnectionPlan() {
+            const type = document.getElementById('connType').value;
+            const name = document.getElementById('connName').value.trim();
+            const serverId = document.getElementById('connServerId').value.trim();
+            const freePeriod = document.getElementById('connFreePeriod').value;
+            const costPrice = document.getElementById('connCostPrice').value.trim();
+            const price = document.getElementById('connPrice').value.trim();
+            const hardware = document.getElementById('connHardware').value.trim();
+
+            if (!name || !serverId || !price) {
+                alert("कृपया कनेक्शन पैकेज नाम, Default Server ID और कुल कीमत भरें!");
+                return;
+            }
+
+            const connPlans = JSON.parse(localStorage.getItem('portal_connection_plans')) || [];
+            const newConn = {
+                id: Date.now(),
+                type, name, serverId, freePeriod,
+                costPrice: costPrice || 0,
+                price: price,
+                hardware: hardware || 'Standard ONT'
+            };
+
+            connPlans.push(newConn);
+            localStorage.setItem('portal_connection_plans', JSON.stringify(connPlans));
+
+            clearConnectionForm();
+            renderConnectionPlans();
+            alert("न्यू कनेक्शन ऑफर सफलतापूर्वक सेव हो गया!");
+        }
+
+        function renderConnectionPlans() {
+            const connPlans = JSON.parse(localStorage.getItem('portal_connection_plans')) || [
+                { id: 1, type: 'WITH_ROUTER', name: 'Dual Band Fiber Starter Pack', serverId: 'INIT_100M_FREE3M', freePeriod: '3 Months Free', costPrice: 1600, price: 2500, hardware: 'Dual-Band ONT + Cable' }
+            ];
+
+            const tbody = document.getElementById('connectionTableBody');
+            tbody.innerHTML = '';
+
+            connPlans.forEach(plan => {
+                const margin = plan.price - plan.costPrice;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="badge-type type-combo">${plan.type}</span></td>
+                        <td><strong>${plan.name}</strong></td>
+                        <td><code style="color:var(--primary);">${plan.serverId}</code></td>
+                        <td>${plan.hardware}<br><small style="color:var(--accent-gold);">${plan.freePeriod}</small></td>
+                        <td style="color:#ef4444;">₹${plan.costPrice}</td>
+                        <td style="color:var(--success); font-weight:bold;">₹${plan.price}</td>
+                        <td><span class="margin-tag">+₹${margin}</span></td>
+                        <td>
+                            <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteConnectionPlan(${plan.id})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteConnectionPlan(id) {
+            let connPlans = JSON.parse(localStorage.getItem('portal_connection_plans')) || [];
+            connPlans = connPlans.filter(p => p.id !== id);
+            localStorage.setItem('portal_connection_plans', JSON.stringify(connPlans));
+            renderConnectionPlans();
+        }
+
+        function clearConnectionForm() {
+            document.getElementById('connName').value = '';
+            document.getElementById('connServerId').value = '';
+            document.getElementById('connCostPrice').value = '';
+            document.getElementById('connPrice').value = '';
+            document.getElementById('connMargin').value = '';
+            document.getElementById('connHardware').value = '';
+        }
+    </script>
+</body>
+</html>
