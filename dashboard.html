@@ -2,9 +2,12 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <!-- user-scalable=yes से अब मोबाइल पर Zoom काम करेगा -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Eagle Network SBZ - Universal Portal</title>
+
+    <!-- PWA Manifest & Theme Color -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#070a12">
 
     <!-- FontAwesome & Google Fonts -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -12,7 +15,6 @@
 
     <style>
         :root {
-            /* Dark Theme Settings */
             --primary: #38bdf8;
             --accent-gold: #fbbf24;
             --bg-dark: #070a12;
@@ -24,16 +26,15 @@
             --widget-bg: rgba(255, 255, 255, 0.08);
         }
 
-        /* Light Theme Settings - Soft Warm Mild Yellow/Cream Tone with Super Bold Text */
         body.light-theme {
-            --bg-dark: #faf7ee;          /* Soft Cream / Mild Yellow Tint */
-            --text-color: #0f172a;       /* Deep High-Contrast Dark Text */
-            --text-muted: #1e293b;       /* Strong Solid Sub-text */
-            --sidebar-bg: #f3eee0;       /* Slightly Richer Cream Side Panel */
-            --header-bg: #f3eee0;        /* Matching Top Bar Background */
-            --border-color: #d6ceb8;     /* Clear Solid Border */
-            --widget-bg: #eae3d2;        /* Highlight Box Cream */
-            --primary: #0284c7;          /* High Contrast Blue */
+            --bg-dark: #faf7ee;
+            --text-color: #0f172a;
+            --text-muted: #1e293b;
+            --sidebar-bg: #f3eee0;
+            --header-bg: #f3eee0;
+            --border-color: #d6ceb8;
+            --widget-bg: #eae3d2;
+            --primary: #0284c7;
         }
 
         * {
@@ -49,18 +50,43 @@
             width: 100%;
             background: var(--bg-dark);
             color: var(--text-color);
-            font-weight: 700;             /* Enhanced Legibility */
+            font-weight: 700;
+        }
+
+        /* Top Editable Promo / Notice Box */
+        .promo-bar-box {
+            background: linear-gradient(90deg, #b45309, #d97706, #2563eb);
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 8px 15px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 210;
+        }
+        .promo-bar-box span.highlight {
+            background: #fff;
+            color: #0f172a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
         }
 
         .app-wrapper {
             display: flex;
-            height: 100vh;
+            height: calc(100vh - 35px);
             width: 100vw;
             overflow: hidden;
             position: relative;
         }
 
-        /* Mobile Top Bar */
         .mobile-header {
             display: none;
             justify-content: space-between;
@@ -77,9 +103,8 @@
             cursor: pointer;
         }
 
-        /* Sidebar Navigation */
         aside.sidebar {
-            width: 230px;
+            width: 240px;
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border-color);
             display: flex;
@@ -125,6 +150,7 @@
             flex-direction: column;
             gap: 6px;
             flex: 1;
+            overflow-y: auto;
         }
 
         .nav-item a {
@@ -177,18 +203,16 @@
             font-weight: 800;
         }
 
-        /* Main Content Wrapper */
         .main-wrapper {
             flex: 1;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            width: calc(100vw - 230px);
+            height: 100%;
+            width: calc(100vw - 240px);
             overflow: hidden;
             background: var(--bg-dark);
         }
 
-        /* Top Header Area */
         header.top-header {
             background: var(--header-bg);
             border-bottom: 1px solid var(--border-color);
@@ -227,6 +251,39 @@
             color: var(--text-color);
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: var(--widget-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 50%;
+            font-weight: 800;
+        }
+
         .header-middle-row {
             display: flex;
             align-items: center;
@@ -263,21 +320,46 @@
             letter-spacing: 0.5px;
         }
 
-        .theme-toggle-btn {
-            background: var(--widget-bg);
+        /* Notification Inbox Dropdown Drawer */
+        .notification-drawer {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 20px;
+            width: 320px;
+            background: var(--sidebar-bg);
             border: 1px solid var(--border-color);
-            color: var(--text-color);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 500;
+            padding: 14px;
+        }
+        .notification-drawer.active {
+            display: block;
+        }
+        .notif-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        .notif-list {
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .notif-item {
+            background: var(--widget-bg);
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            border-left: 3px solid var(--primary);
         }
 
-        /* Content Frame */
         .content-frame-container {
             flex: 1;
             width: 100%;
@@ -294,25 +376,24 @@
             background: transparent;
         }
 
-        /* Mobile & Tablet Rules */
         @media (max-width: 768px) {
-            .app-wrapper { flex-direction: column; }
+            .app-wrapper { flex-direction: column; height: calc(100vh - 35px); }
             .mobile-header { display: flex; }
             .operator-brand-info img { display: none; }
 
             aside.sidebar {
                 position: fixed;
                 top: 0;
-                left: -240px;
+                left: -250px;
                 height: 100vh;
-                width: 230px;
+                width: 240px;
                 z-index: 300;
                 box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
                 transition: left 0.3s ease;
             }
 
             aside.sidebar.open { left: 0; }
-            .main-wrapper { width: 100vw; height: calc(100vh - 53px); }
+            .main-wrapper { width: 100vw; }
             header.top-header { padding: 8px 12px; gap: 6px; }
 
             .header-middle-row {
@@ -324,24 +405,14 @@
             .widget-item { font-size: 0.72rem; }
         }
     </style>
-    <!-- शॉर्टकट नाम -->
-<meta name="application-name" content="Universal Portal">
-<meta name="apple-mobile-web-app-title" content="Universal Portal">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<!-- 1. अगर आपकी इमेज आपके कंप्यूटर/फोल्डर में है -->
-<link rel="icon" type="image/png" sizes="192x192" href="logo.png">
-<link rel="icon" type="image/png" sizes="512x512" href="logo.png">
-<link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-
-<!-- 2. अगर आपकी इमेज इंटरनेट/लाइव लिंक पर है (URL डालें) -->
-<!-- 
-<link rel="icon" type="image/png" href="https://yourdomain.com/logo.png"> 
-<link rel="apple-touch-icon" href="https://yourdomain.com/logo.png">
--->
 </head>
 <body>
+
+    <!-- ================= TOP NOTICE / OFFER BOX ================= -->
+    <div class="promo-bar-box" id="header-custom-box">
+        <span class="highlight">📢 सूचना / ऑफर</span> 
+        <span id="txt-promo">. . . . . . . . . . . . . . . . . . . . . . . .</span>
+    </div>
 
     <!-- Mobile Top Header Bar -->
     <div class="mobile-header">
@@ -390,22 +461,27 @@
                     </a>
                 </li>
                 <li class="nav-item">
-    <a href="modules/plans.html" target="content-frame" data-nav="plans">
-        <i class="fa-solid fa-list-check"></i> Recharge & Connection Plans
-    </a>
+                    <a href="modules/plans.html" target="content-frame" data-nav="plans">
+                        <i class="fa-solid fa-list-check"></i> Recharge Plans
+                    </a>
+                </li>
+                <!-- NEW FEATURE: ADD WORKER / STAFF MANAGEMENT -->
+                <li class="nav-item">
+                    <a href="modules/settings.html?tab=workers" target="content-frame" data-nav="workers">
+                        <i class="fa-solid fa-user-plus"></i> Staff / Add Worker
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a href="modules/settings.html" target="content-frame" data-nav="settings">
                         <i class="fa-solid fa-gear"></i> Settings
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="modules/help_guide.html" target="content-frame" data-nav="help">
+                        <i class="fa-solid fa-robot"></i> Help & AI Guide
+                    </a>
+                </li>
             </ul>
-    <li class="nav-item">
-        <a href="modules/help_guide.html" target="content-frame" data-nav="help">
-            <i class="fa-solid fa-robot"></i> Help & AI Guide
-        </a>
-    </li>
-        </ul>
 
             <div class="user-footer">
                 <div style="display:flex; align-items:center; gap:8px; overflow:hidden; flex:1;">
@@ -429,9 +505,30 @@
                         <h1 id="headerIspName">Eagle Network SBZ</h1>
                     </div>
                     
-                    <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle Theme">
-                        <i class="fa-solid fa-moon"></i>
-                    </button>
+                    <div class="header-actions">
+                        <!-- INBOX / NOTIFICATION BUTTON -->
+                        <button class="icon-btn" onclick="toggleNotificationDrawer()" title="Notification Inbox">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="badge-count" id="notif-badge">1</span>
+                        </button>
+
+                        <button class="icon-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle Theme">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- NOTIFICATION INBOX DRAWER -->
+                <div class="notification-drawer" id="notificationDrawer">
+                    <div class="notif-header">
+                        <span style="font-size:0.85rem; font-weight:800; color:var(--primary);"><i class="fa-solid fa-inbox"></i> Inbox Notifications</span>
+                        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleNotificationDrawer()"></i>
+                    </div>
+                    <div class="notif-list" id="notifList">
+                        <div class="notif-item">
+                            <strong>सिस्टम अपडेट:</strong> यूनिवर्सल पोर्टल वर्शन 2.0 (Vite Engine) सफलतापूर्वक एक्टिवेट हो गया है!
+                        </div>
+                    </div>
                 </div>
 
                 <div class="header-middle-row">
@@ -470,7 +567,7 @@
         </div>
     </div>
 
-    <!-- Firebase Scripts -->
+    <!-- Firebase SDK Compat Version 10.8.0 -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -489,13 +586,12 @@
             firebase.initializeApp(firebaseConfig);
         }
 
-        // Fix Refresh Problem: Store & restore last visited module
+        // Module Switch Logic
         document.querySelectorAll('.nav-list a').forEach(link => {
             link.addEventListener('click', function() {
                 document.querySelectorAll('.nav-list .nav-item').forEach(item => item.classList.remove('active'));
                 this.parentElement.classList.add('active');
 
-                // Save active module link to localStorage
                 const href = this.getAttribute('href');
                 localStorage.setItem('active_portal_module', href);
 
@@ -521,12 +617,15 @@
             document.getElementById('sidebar').classList.toggle('open');
         }
 
-        // Light/Dark Theme Switching
+        function toggleNotificationDrawer() {
+            const drawer = document.getElementById('notificationDrawer');
+            drawer.classList.toggle('active');
+        }
+
         function toggleTheme() {
             document.body.classList.toggle('light-theme');
             const isLight = document.body.classList.contains('light-theme');
             localStorage.setItem('app_theme_mode', isLight ? 'light' : 'dark');
-
             applyThemeUI(isLight);
         }
 
@@ -540,7 +639,6 @@
                 themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
             }
 
-            // Broadcast theme update to iframe content
             const iframe = document.getElementById('content-frame');
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'THEME_CHANGE', isLight: isLight }, '*');
@@ -570,61 +668,6 @@
         setInterval(updateClockAndDay, 1000);
         updateClockAndDay();
 
-        function initAutoWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        
-                        try {
-                            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-                            const geoData = await geoRes.json();
-                            const city = geoData.address.city || geoData.address.town || geoData.address.suburb || "Location";
-                            document.getElementById('user-location').innerText = city;
-                        } catch (e) {
-                            console.log("City fetch error:", e);
-                        }
-
-                        fetchWeatherData(lat, lon);
-                    },
-                    (error) => {
-                        document.getElementById('user-location').innerText = "Shahdara, Delhi";
-                        fetchWeatherData(28.67, 77.28); 
-                    }
-                );
-            } else {
-                fetchWeatherData(28.67, 77.28);
-            }
-        }
-
-        async function fetchWeatherData(lat, lon) {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data && data.current_weather) {
-                    const temp = Math.round(data.current_weather.temperature);
-                    const weatherCode = data.current_weather.weathercode;
-                    document.getElementById('weather-temp').innerText = `${temp}°C`;
-
-                    let icon = "☀️";
-                    if (weatherCode >= 1 && weatherCode <= 3) icon = "⛅";
-                    else if (weatherCode >= 45 && weatherCode <= 48) icon = "🌫️";
-                    else if (weatherCode >= 51 && weatherCode <= 67) icon = "🌧️";
-                    else if (weatherCode >= 80) icon = "⛈️";
-
-                    document.getElementById('weather-icon').innerText = icon;
-                }
-            } catch (error) {
-                console.error("Weather error:", error);
-            }
-        }
-
-        initAutoWeather();
-
-        // Branding Sync Function
         function syncBranding() {
             const name = localStorage.getItem('isp_name') || 'Eagle Network SBZ';
             const logo = localStorage.getItem('isp_logo') || 'https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg';
@@ -648,15 +691,18 @@
             if(confirm("क्या आप सचमुच लॉगआउट करना चाहते हैं?")) {
                 if(firebase.auth()) {
                     firebase.auth().signOut().then(() => {
-                        window.location.href = "login.html";
+                        window.location.href = "index.html";
                     }).catch(() => {
-                        window.location.href = "login.html";
+                        window.location.href = "index.html";
                     });
                 } else {
-                    window.location.href = "login.html";
+                    window.location.href = "index.html";
                 }
             }
         }
     </script>
+
+    <!-- Vite JS Script Module Reference -->
+    <script type="module" src="./app.js"></script>
 </body>
 </html>
