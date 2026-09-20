@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worker Profile Onboarding</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+body { background: #070a12; color: #fff; font-family: sans-serif; padding: 20px; }
+.form-box { max-width: 450px; margin: auto; background: #0f172a; padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); }
+input, textarea { width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 14px; background: #1e293b; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; outline: none; }
+button { width: 100%; padding: 12px; background: #38bdf8; color: #000; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="form-box">
+<h2><i class="fa-solid fa-user-check"></i> वर्कर बायोडाटा फॉर्म (CV Details)</h2>
+<hr style="border-color:#334155; margin: 15px 0;">
+<label>पूरा पता (Full Address)</label>
+<input type="text" id="address" placeholder="उदा. मकान नंबर, शाहदरा दिल्ली">
+<label>अनुभव (Experience in Years)</label>
+<input type="text" id="experience" placeholder="उदा. 3 साल का फ़ाइबर स्प्लिसिंग अनुभव">
+<label>आपकी स्किल्स (Skills)</label>
+<textarea id="skills" placeholder="उदा. ONT Setup, Fiber Jointing, Router Configuration"></textarea>
+<label>फोटो / डॉक्यूमेंट URL Link</label>
+<input type="text" id="photoUrl" placeholder="अपनी इमेज लिंक डालें">
+<button onclick="submitWorkerCV()">बायोडाटा जमा करें (Submit & Open Worker Dashboard)</button>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+authDomain: "universal-portal-dashboard.firebaseapp.com",
+projectId: "universal-portal-dashboard",
+storageBucket: "universal-portal-dashboard.firebasestorage.app",
+messagingSenderId: "403036962443",
+appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+};
+firebase.initializeApp(firebaseConfig);
+function submitWorkerCV() {
+const urlParams = new URLSearchParams(window.location.search);
+const workerId = urlParams.get('workerId');
+if(!workerId) {
+alert("अवैध इनवाइट लिंक !");
+return;
+}
+firebase.firestore().collection("workers").doc(workerId).update({
+address: document.getElementById('address').value,
+experience: document.getElementById('experience').value,
+skills: document.getElementById('skills').value,
+photoUrl: document.getElementById('photoUrl').value || "https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg",
+status: "Active"
+}).then(() => {
+alert("आपका प्रोफाइल सफलतापूर्वक अपडेट हो गया है!");
+window.location.href = "worker-dashboard.html?workerId=" + workerId;
+});
+}
+</script>
+</body>
+  </html>
