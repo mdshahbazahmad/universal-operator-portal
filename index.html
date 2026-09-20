@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eagle Network SBZ - Universal Operator Portal</title>
     
+    <!-- PWA Manifest & Theme Color -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#070a12">
+
     <!-- FontAwesome Icons & Google Fonts -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
@@ -37,28 +41,38 @@
             overflow-x: hidden;
         }
 
-        /* Top Announcement / Deal Banner */
-        .promo-bar {
+        /* ================= CUSTOM ANNOUNCEMENT / OFFER BOX ================= */
+        .promo-bar-box {
             background: linear-gradient(90deg, #b45309, #d97706, #2563eb);
             color: #ffffff;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
             text-align: center;
-            padding: 8px 15px;
+            padding: 10px 15px;
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            z-index: 20;
         }
-        .promo-bar span.highlight {
+        .promo-bar-box span.highlight {
             background: #fff;
             color: #0f172a;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 3px 10px;
+            border-radius: 6px;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+        /* Optional Image styling if you paste an <img> tag in the box */
+        .promo-bar-box img {
+            max-height: 38px;
+            border-radius: 6px;
+            object-fit: contain;
         }
 
         /* Ambient Background FX */
@@ -443,15 +457,15 @@
             }
         }
     </style>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#070a12">
 </head>
 <body>
 
-    <!-- Customer Magnet Offer Bar -->
-    <div class="promo-bar">
+    <!-- ================= EDITABLE ANNOUNCEMENT / OFFER BOX ================= -->
+    <!-- आप अपनी पसंद का संदेश या डायरेक्ट <img src="URL"> यहाँ बदल सकते हैं -->
+    <div class="promo-bar-box" id="header-custom-box">
         <span class="highlight">🔥 Mega Offer</span> 
         <span id="txt-promo">Join Eagle Network Today & Get 30 Days Free Premium Automation Support!</span>
+        <!-- उदाहरण (इमेज लिंक के लिए): <img src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" alt="Offer Banner"> -->
     </div>
 
     <div class="bg-overlay"></div>
@@ -698,6 +712,7 @@
         </div>
     </section>
     <!-- ================= END TRUST & SECURITY BANNER ================= -->
+
     <footer>
         <p>© 2026 Eagle Network SBZ. All Rights Reserved. Universal Operator Portal Engine.</p>
     </footer>
@@ -930,6 +945,8 @@
             document.getElementById('btn-reg-submit').innerText = t.btnRegSubmit;
         }
     </script>
-    <script src="app.js"></script>
+
+    <!-- Vite Module JS Entry Point -->
+    <script type="module" src="./app.js"></script>
 </body>
 </html>
