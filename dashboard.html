@@ -53,8 +53,9 @@
             font-weight: 700;
         }
 
-        /* Top Editable Promo / Notice Box */
+        /* Top Notice Box - DEFAULT HIDDEN (जब आप लिखेंगे तभी दिखेगा) */
         .promo-bar-box {
+            display: none; /* डिफ़ॉल्ट रूप से छिपा रहेगा */
             background: linear-gradient(90deg, #b45309, #d97706, #2563eb);
             color: #ffffff;
             font-size: 0.85rem;
@@ -62,7 +63,6 @@
             text-align: center;
             padding: 8px 15px;
             letter-spacing: 0.5px;
-            display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
@@ -81,7 +81,7 @@
 
         .app-wrapper {
             display: flex;
-            height: calc(100vh - 35px);
+            height: 100vh;
             width: 100vw;
             overflow: hidden;
             position: relative;
@@ -320,7 +320,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Notification Inbox Dropdown Drawer */
         .notification-drawer {
             display: none;
             position: absolute;
@@ -377,7 +376,7 @@
         }
 
         @media (max-width: 768px) {
-            .app-wrapper { flex-direction: column; height: calc(100vh - 35px); }
+            .app-wrapper { flex-direction: column; }
             .mobile-header { display: flex; }
             .operator-brand-info img { display: none; }
 
@@ -408,10 +407,10 @@
 </head>
 <body>
 
-    <!-- ================= TOP NOTICE / OFFER BOX ================= -->
-    <div class="promo-bar-box" id="header-custom-box">
+    <!-- NOTICE BOX (इसे दिखाने के लिए style="display:flex;" करें, वरना छिपा रहेगा) -->
+    <div class="promo-bar-box" id="header-custom-box" style="display: none;">
         <span class="highlight">📢 सूचना / ऑफर</span> 
-        <span id="txt-promo">. . . . . . . . . . . . . . . . . . . . . . . .</span>
+        <span id="txt-promo">यहाँ अपनी सूचना लिखें...</span>
     </div>
 
     <!-- Mobile Top Header Bar -->
@@ -465,7 +464,6 @@
                         <i class="fa-solid fa-list-check"></i> Recharge Plans
                     </a>
                 </li>
-                <!-- NEW FEATURE: ADD WORKER / STAFF MANAGEMENT -->
                 <li class="nav-item">
                     <a href="modules/settings.html?tab=workers" target="content-frame" data-nav="workers">
                         <i class="fa-solid fa-user-plus"></i> Staff / Add Worker
@@ -506,7 +504,6 @@
                     </div>
                     
                     <div class="header-actions">
-                        <!-- INBOX / NOTIFICATION BUTTON -->
                         <button class="icon-btn" onclick="toggleNotificationDrawer()" title="Notification Inbox">
                             <i class="fa-solid fa-bell"></i>
                             <span class="badge-count" id="notif-badge">1</span>
@@ -518,7 +515,6 @@
                     </div>
                 </div>
 
-                <!-- NOTIFICATION INBOX DRAWER -->
                 <div class="notification-drawer" id="notificationDrawer">
                     <div class="notif-header">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--primary);"><i class="fa-solid fa-inbox"></i> Inbox Notifications</span>
@@ -526,7 +522,7 @@
                     </div>
                     <div class="notif-list" id="notifList">
                         <div class="notif-item">
-                            <strong>सिस्टम अपडेट:</strong> यूनिवर्सल पोर्टल वर्शन 2.0 (Vite Engine) सफलतापूर्वक एक्टिवेट हो गया है!
+                            <strong>सिस्टम सूचना:</strong> पोर्टल सफलतापूर्वक Vite इंजन पर एक्टिवेट हो गया है!
                         </div>
                     </div>
                 </div>
@@ -561,6 +557,7 @@
             </header>
 
             <main class="content-frame-container">
+                <!-- डिफ़ॉल्ट रूप से customers.html लोड होगा -->
                 <iframe id="content-frame" name="content-frame" src="modules/customers.html"></iframe>
             </main>
 
@@ -586,7 +583,6 @@
             firebase.initializeApp(firebaseConfig);
         }
 
-        // Module Switch Logic
         document.querySelectorAll('.nav-list a').forEach(link => {
             link.addEventListener('click', function() {
                 document.querySelectorAll('.nav-list .nav-item').forEach(item => item.classList.remove('active'));
@@ -603,13 +599,15 @@
 
         function restoreActiveModule() {
             const savedHref = localStorage.getItem('active_portal_module');
-            if (savedHref) {
+            if (savedHref && savedHref.includes('modules/')) {
                 const targetLink = document.querySelector(`.nav-list a[href="${savedHref}"]`);
                 if (targetLink) {
                     document.querySelectorAll('.nav-list .nav-item').forEach(item => item.classList.remove('active'));
                     targetLink.parentElement.classList.add('active');
                     document.getElementById('content-frame').src = savedHref;
                 }
+            } else {
+                document.getElementById('content-frame').src = "modules/customers.html";
             }
         }
 
@@ -637,11 +635,6 @@
             } else {
                 document.body.classList.remove('light-theme');
                 themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
-            }
-
-            const iframe = document.getElementById('content-frame');
-            if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({ type: 'THEME_CHANGE', isLight: isLight }, '*');
             }
         }
 
@@ -702,7 +695,7 @@
         }
     </script>
 
-    <!-- Vite JS Script Module Reference -->
+    <!-- Vite JS Script Reference -->
     <script type="module" src="./app.js"></script>
 </body>
 </html>
