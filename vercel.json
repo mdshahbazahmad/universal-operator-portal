@@ -1,15 +1,1 @@
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/worker-signup", "destination": "/worker-signup.html" },
-    { "source": "/worker-signup.html", "destination": "/worker-signup.html" },
-    { "source": "/worker-dashboard", "destination": "/worker-dashboard.html" },
-    { "source": "/worker-dashboard.html", "destination": "/worker-dashboard.html" },
-    { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/modules/(.*)", "destination": "/modules/$1" },
-    { "source": "/(.*)", "destination": "/$1" }
-  ]
-}
+
