@@ -1,1 +1,171 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worker Onboarding & Account Creation</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background: #070a12; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.form-box { width: 100%; max-width: 480px; background: rgba(15, 23, 42, 0.85); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(10px); }
+h2 { font-size: 1.2rem; color: #38bdf8; margin-bottom: 15px; text-align: center; }
+label { display: block; font-size: 0.85rem; margin-top: 10px; margin-bottom: 4px; color: #94a3b8; font-weight: 600; }
+input, textarea { width: 100%; padding: 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; outline: none; font-size: 0.9rem; }
+input:focus, textarea:focus { border-color: #38bdf8; }
+button { width: 100%; padding: 13px; background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; border: none; font-size: 0.95rem; font-weight: 800; border-radius: 8px; cursor: pointer; margin-top: 18px; }
+.auth-toggle { text-align: center; margin-top: 15px; font-size: 0.85rem; color: #94a3b8; }
+.auth-toggle a { color: #38bdf8; text-decoration: none; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
 
+<div class="form-box">
+  <h2><i class="fa-solid fa-user-gear"></i> वर्कर अकाउंट एवं बायोडाटा (CV)</h2>
+
+  <!-- Sign Up Form -->
+  <form id="workerSignupForm" onsubmit="handleWorkerSignup(event)">
+    <label>ईमेल आईडी (Email Address)</label>
+    <input type="email" id="wEmail" placeholder="worker@eaglenetwork.com" required>
+
+    <label>नया पासवर्ड (Create Password)</label>
+    <input type="password" id="wPassword" placeholder="••••••••" required>
+
+    <label>पूरा पता (Full Address)</label>
+    <input type="text" id="wAddress" placeholder="मकान नंबर, इलाका, शहर" required>
+
+    <label>अनुभव (Experience in Years)</label>
+    <input type="text" id="wExperience" placeholder="उदा. 3 साल का फ़ाइबर स्प्लिसिंग का काम" required>
+
+    <label>आपकी स्किल्स (Skills)</label>
+    <textarea id="wSkills" rows="2" placeholder="ONT Setup, Jointing, Router Config" required></textarea>
+
+    <label>फोटो / प्रोफाइल लिंक (Photo URL)</label>
+    <input type="url" id="wPhotoUrl" placeholder="https://..." value="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg">
+
+    <button type="submit" id="btnSignup">अकाउंट बनाएं एवं सब-डैशबोर्ड खोलें</button>
+    
+    <div class="auth-toggle">
+      पहले से अकाउंट है? <a onclick="toggleAuthMode('login')">यहाँ लॉगिन करें</a>
+    </div>
+  </form>
+
+  <!-- Login Form -->
+  <form id="workerLoginForm" style="display:none;" onsubmit="handleWorkerLogin(event)">
+    <label>ईमेल आईडी (Email Address)</label>
+    <input type="email" id="loginEmail" placeholder="worker@eaglenetwork.com" required>
+
+    <label>पासवर्ड (Password)</label>
+    <input type="password" id="loginPassword" placeholder="••••••••" required>
+
+    <button type="submit" id="btnLogin">लॉगिन करें</button>
+    
+    <div class="auth-toggle">
+      नया वर्कर इनवाइट मिला है? <a onclick="toggleAuthMode('signup')">साइन-अप करें</a>
+    </div>
+  </form>
+</div>
+
+<!-- Firebase Compat Libraries -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+  authDomain: "universal-portal-dashboard.firebaseapp.com",
+  projectId: "universal-portal-dashboard",
+  storageBucket: "universal-portal-dashboard.firebasestorage.app",
+  messagingSenderId: "403036962443",
+  appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const workerId = urlParams.get('workerId');
+
+function toggleAuthMode(mode) {
+  if (mode === 'login') {
+    document.getElementById('workerSignupForm').style.display = 'none';
+    document.getElementById('workerLoginForm').style.display = 'block';
+  } else {
+    document.getElementById('workerSignupForm').style.display = 'block';
+    document.getElementById('workerLoginForm').style.display = 'none';
+  }
+}
+
+function handleWorkerSignup(e) {
+  e.preventDefault();
+  const email = document.getElementById('wEmail').value;
+  const password = document.getElementById('wPassword').value;
+  const btn = document.getElementById('btnSignup');
+  
+  if(!workerId) {
+    alert("अवैध या मियाद ख़त्म इनवाइट लिंक!");
+    return;
+  }
+
+  btn.innerText = "प्रोसेसिंग...";
+  btn.disabled = true;
+
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const uid = userCredential.user.uid;
+      return firebase.firestore().collection("workers").doc(workerId).update({
+        authUserUid: uid,
+        email: email,
+        address: document.getElementById('wAddress').value,
+        experience: document.getElementById('wExperience').value,
+        skills: document.getElementById('wSkills').value,
+        photoUrl: document.getElementById('wPhotoUrl').value,
+        status: "Active"
+      });
+    })
+    .then(() => {
+      alert("अकाउंट सफलतापूर्वक बन गया!");
+      window.location.href = "worker-dashboard.html?workerId=" + workerId;
+    })
+    .catch((error) => {
+      btn.innerText = "अकाउंट बनाएं एवं सब-डैशबोर्ड खोलें";
+      btn.disabled = false;
+      alert("Error: " + error.message);
+    });
+}
+
+function handleWorkerLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('btnLogin');
+
+  btn.innerText = "प्रमाणित किया जा रहा है...";
+  btn.disabled = true;
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const uid = userCredential.user.uid;
+      return firebase.firestore().collection("workers").where("authUserUid", "==", uid).get();
+    })
+    .then((snapshot) => {
+      btn.innerText = "लॉगिन करें";
+      btn.disabled = false;
+      if (!snapshot.empty) {
+        const docId = snapshot.docs[0].id;
+        window.location.href = "worker-dashboard.html?workerId=" + docId;
+      } else {
+        alert("आपका वर्कर प्रोफाइल नहीं मिला। कृपया ऑपरेटर से इनवाइट लें।");
+      }
+    })
+    .catch((error) => {
+      btn.innerText = "लॉगिन करें";
+      btn.disabled = false;
+      alert("Login Error: " + error.message);
+    });
+}
+</script>
+</body>
+</html>
