@@ -1,1 +1,320 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worker Onboarding & Complete Bio-Data Form</title>
+<!-- FontAwesome & Google Fonts -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background: #070a12; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.form-box { width: 100%; max-width: 650px; background: rgba(15, 23, 42, 0.9); padding: 25px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); }
+h2 { font-size: 1.25rem; color: #38bdf8; margin-bottom: 15px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
+.form-section-title { font-size: 0.9rem; color: #38bdf8; margin-top: 15px; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-left: 3px solid #38bdf8; padding-left: 8px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+label { display: block; font-size: 0.82rem; margin-top: 6px; margin-bottom: 4px; color: #94a3b8; font-weight: 600; }
+input, select, textarea { width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; outline: none; font-size: 0.85rem; }
+input:focus, select:focus, textarea:focus { border-color: #38bdf8; }
+.preview-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #38bdf8; margin-top: 8px; display: none; }
+button { width: 100%; padding: 13px; background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 20px; font-size: 0.95rem; }
+.auth-toggle { text-align: center; margin-top: 15px; font-size: 0.85rem; color: #94a3b8; }
+.auth-toggle a { color: #38bdf8; text-decoration: none; font-weight: 700; cursor: pointer; }
+.alert-msg { padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 12px; display: none; text-align: center; }
+.alert-error { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+.photo-info { font-size: 0.75rem; color: #22c55e; margin-top: 4px; display: none; }
+.req-star { color: #ef4444; }
+</style>
+</head>
+<body>
+<div class="form-box">
+  <div id="alertBox" class="alert-msg alert-error"></div>
+  
+  <h2><i class="fa-solid fa-address-card"></i> वर्कर बायोडाटा एवं प्रोफाइल रजिस्ट्रेशन</h2>
+  
+  <!-- SIGN UP FORM -->
+  <form id="workerSignupForm" onsubmit="handleWorkerSignup(event)">
+    
+    <div class="form-section-title"><i class="fa-solid fa-key"></i> लॉगिन क्रेडेंशियल</div>
+    <div class="form-grid">
+      <div>
+        <label>ईमेल आईडी <span class="req-star">*</span></label>
+        <input type="email" id="wEmail" placeholder="worker@eaglenetwork.com" required>
+      </div>
+      <div>
+        <label>नया पासवर्ड <span class="req-star">*</span></label>
+        <input type="password" id="wPassword" placeholder="••••••••" required>
+      </div>
+    </div>
 
+    <div class="form-section-title"><i class="fa-solid fa-user"></i> अनिवार्य व्यक्तिगत विवरण</div>
+    <div class="form-grid">
+      <div>
+        <label>पूरा नाम (Full Name) <span class="req-star">*</span></label>
+        <input type="text" id="wName" placeholder="उदा. राहुल कुमार" required>
+      </div>
+      <div>
+        <label>जन्मतिथि (Date of Birth) <span class="req-star">*</span></label>
+        <input type="date" id="wDob" required>
+      </div>
+      <div>
+        <label>लिंग (Gender) <span class="req-star">*</span></label>
+        <select id="wGender" required>
+          <option value="">-- लिंग चुनें --</option>
+          <option value="Male">पुरुष (Male)</option>
+          <option value="Female">महिला (Female)</option>
+          <option value="Other">अन्य (Other)</option>
+        </select>
+      </div>
+      <div>
+        <label>पिता का नाम (Father's Name) <span class="req-star">*</span></label>
+        <input type="text" id="wFatherName" placeholder="श्री..." required>
+      </div>
+      <div>
+        <label>माता का नाम (Mother's Name) <span class="req-star">*</span></label>
+        <input type="text" id="wMotherName" placeholder="श्रीमती..." required>
+      </div>
+      <div>
+        <label>वैवाहिक स्थिति (Marital Status) <span class="req-star">*</span></label>
+        <select id="wMaritalStatus" required>
+          <option value="">-- स्थिति चुनें --</option>
+          <option value="Single/Unmarried">अविवाहित (Unmarried)</option>
+          <option value="Married">विवाहित (Married)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-section-title"><i class="fa-solid fa-id-card"></i> पहचान व योग्यता विवरण</div>
+    <div class="form-grid">
+      <div>
+        <label>आधार कार्ड नंबर <span class="req-star">*</span></label>
+        <input type="text" id="wAadhaarNo" placeholder="12 अंकों का आधार नंबर" maxlength="12" required>
+      </div>
+      <div>
+        <label>शैक्षणिक योग्यता (Qualification) <span class="req-star">*</span></label>
+        <select id="wEducation" required>
+          <option value="">-- योग्यता चुनें --</option>
+          <option value="10th Pass">10वीं पास (10th Pass)</option>
+          <option value="12th Pass">12वीं पास (12th Pass)</option>
+          <option value="ITI / Diploma">ITI / डिप्लोमा (Technical)</option>
+          <option value="Graduate">स्नातक (Graduate)</option>
+          <option value="Other">अन्य (Other)</option>
+        </select>
+      </div>
+      <div>
+        <label>वैकल्पिक फोन नंबर (Optional)</label>
+        <input type="tel" id="wAltPhone" placeholder="उदा. 9838xxxxxx">
+      </div>
+    </div>
+
+    <label style="margin-top:8px;">पूरा स्थायी पता (Permanent Address) <span class="req-star">*</span></label>
+    <textarea id="wAddress" rows="2" placeholder="मकान नंबर, गली, इलाका, शहर, पिनकोड" required></textarea>
+
+    <div class="form-section-title"><i class="fa-solid fa-briefcase"></i> स्किल्स व अनुभव (ऐच्छिक / Optional)</div>
+    <div class="form-grid">
+      <div>
+        <label>कुल अनुभव (Experience - Optional)</label>
+        <input type="text" id="wExperience" placeholder="उदा. 2 साल / फ्रेशर">
+      </div>
+      <div>
+        <label>मुख्य स्किल्स (Main Skills - Optional)</label>
+        <input type="text" id="wSkills" placeholder="उदा. Fiber Splicing, ONT, Net Routing">
+      </div>
+    </div>
+
+    <div class="form-section-title"><i class="fa-solid fa-image"></i> प्रोफाइल फोटो (Profile Photo)</div>
+    <div>
+      <label>गैलरी से फोटो चुनें (ऑटो-कंप्रेस होकर 50KB की बनेगी)</label>
+      <input type="file" id="wPhotoFile" accept="image/*" onchange="previewAndCompressPhoto(event)">
+      <div id="photoCompressStatus" class="photo-info">✓ फोटो सफलतापूर्वक कंप्रेस की गई (~50KB)</div>
+      <img id="photoPreview" class="preview-img" alt="Profile Preview">
+    </div>
+
+    <button type="submit" id="btnSignup">बायोडाटा जमा करें एवं सब-डैशबोर्ड खोलें</button>
+    <div class="auth-toggle">
+      पहले से अकाउंट पंजीकृत है? <a onclick="toggleAuthMode('login')">यहाँ लॉगिन करें</a>
+    </div>
+  </form>
+
+  <!-- LOGIN FORM -->
+  <form id="workerLoginForm" style="display:none;" onsubmit="handleWorkerLogin(event)">
+    <label>ईमेल आईडी (Email Address)</label>
+    <input type="email" id="loginEmail" placeholder="worker@eaglenetwork.com" required>
+    
+    <label>पासवर्ड (Password)</label>
+    <input type="password" id="loginPassword" placeholder="••••••••" required>
+    
+    <button type="submit" id="btnLogin">लॉगिन करें</button>
+    
+    <div class="auth-toggle">
+      नया वर्कर इनवाइट मिला है? <a onclick="toggleAuthMode('signup')">साइन-अप करें</a>
+    </div>
+  </form>
+</div>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+ apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+ authDomain: "universal-portal-dashboard.firebaseapp.com",
+ projectId: "universal-portal-dashboard",
+ storageBucket: "universal-portal-dashboard.firebasestorage.app",
+ messagingSenderId: "403036962443",
+ appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+};
+
+if (!firebase.apps.length) {
+ firebase.initializeApp(firebaseConfig);
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const workerId = urlParams.get('workerId');
+let uploadedPhotoBase64 = "https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg";
+
+function showAlert(msg) {
+  const alertBox = document.getElementById('alertBox');
+  alertBox.innerText = msg;
+  alertBox.style.display = 'block';
+}
+
+function toggleAuthMode(mode) {
+ document.getElementById('alertBox').style.display = 'none';
+ if (mode === 'login') {
+   document.getElementById('workerSignupForm').style.display = 'none';
+   document.getElementById('workerLoginForm').style.display = 'block';
+ } else {
+   document.getElementById('workerSignupForm').style.display = 'block';
+   document.getElementById('workerLoginForm').style.display = 'none';
+ }
+}
+
+// फोटो कंप्रेसर फ़ंक्शन (~50KB)
+function previewAndCompressPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = function(e) {
+    const img = new Image();
+    img.src = e.target.result;
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 350;
+      const scaleFactor = MAX_WIDTH / img.width;
+      
+      canvas.width = MAX_WIDTH;
+      canvas.height = img.height * scaleFactor;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      uploadedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.55);
+
+      const preview = document.getElementById('photoPreview');
+      preview.src = uploadedPhotoBase64;
+      preview.style.display = 'block';
+
+      document.getElementById('photoCompressStatus').style.display = 'block';
+    };
+  };
+}
+
+function handleWorkerSignup(e) {
+ e.preventDefault();
+ const email = document.getElementById('wEmail').value.trim();
+ const password = document.getElementById('wPassword').value.trim();
+ const btn = document.getElementById('btnSignup');
+ 
+ if(!workerId) {
+   showAlert("अवैध या मियाद ख़त्म इनवाइट लिंक! ऑपरेटर से नया लिंक प्राप्त करें।");
+   return;
+ }
+ 
+ btn.innerText = "प्रोफ़ाइल जमा की जा रही है...";
+ btn.disabled = true;
+
+ firebase.auth().createUserWithEmailAndPassword(email, password)
+ .then((userCredential) => {
+   const uid = userCredential.user.uid;
+
+   const altPhone = document.getElementById('wAltPhone').value.trim() || "None";
+   const experience = document.getElementById('wExperience').value.trim() || "None";
+   const skills = document.getElementById('wSkills').value.trim() || "None";
+
+   return firebase.firestore().collection("workers").doc(workerId).update({
+     authUserUid: uid,
+     email: email,
+     name: document.getElementById('wName').value.trim(),
+     dob: document.getElementById('wDob').value,
+     gender: document.getElementById('wGender').value,
+     fatherName: document.getElementById('wFatherName').value.trim(),
+     motherName: document.getElementById('wMotherName').value.trim(),
+     maritalStatus: document.getElementById('wMaritalStatus').value,
+     aadhaarNo: document.getElementById('wAadhaarNo').value.trim(),
+     education: document.getElementById('wEducation').value,
+     address: document.getElementById('wAddress').value.trim(),
+     altPhone: altPhone,
+     experience: experience,
+     skills: skills,
+     photoUrl: uploadedPhotoBase64,
+     status: "Active",
+     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+   });
+ })
+ .then(() => {
+   alert("वर्कर प्रोफ़ाइल एवं बायोडाटा सफलतापूर्वक दर्ज हो गया है!");
+   window.location.href = "worker-dashboard.html?workerId=" + workerId;
+ })
+ .catch((error) => {
+   btn.innerText = "बायोडाटा जमा करें एवं सब-डैशबोर्ड खोलें";
+   btn.disabled = false;
+   if(error.code === 'auth/email-already-in-use') {
+     showAlert("यह ईमेल पहले से पंजीकृत है! कृपया नीचे दिए गए लॉगिन बटन का उपयोग करें।");
+     document.getElementById('loginEmail').value = email;
+     setTimeout(() => toggleAuthMode('login'), 2000);
+   } else {
+     showAlert("Error: " + error.message);
+   }
+ });
+}
+
+function handleWorkerLogin(e) {
+ e.preventDefault();
+ const email = document.getElementById('loginEmail').value.trim();
+ const password = document.getElementById('loginPassword').value.trim();
+ const btn = document.getElementById('btnLogin');
+ btn.innerText = "प्रमाणित किया जा रहा है...";
+ btn.disabled = true;
+
+ firebase.auth().signInWithEmailAndPassword(email, password)
+ .then((userCredential) => {
+   const uid = userCredential.user.uid;
+   return firebase.firestore().collection("workers").where("authUserUid", "==", uid).get();
+ })
+ .then((snapshot) => {
+   btn.innerText = "लॉगिन करें";
+   btn.disabled = false;
+   if (!snapshot.empty) {
+     const docId = snapshot.docs[0].id;
+     window.location.href = "worker-dashboard.html?workerId=" + docId;
+   } else if(workerId) {
+     window.location.href = "worker-dashboard.html?workerId=" + workerId;
+   } else {
+     showAlert("आपका वर्कर प्रोफाइल नहीं मिला। कृपया ऑपरेटर से नया इनवाइट लिंक लें।");
+   }
+ })
+ .catch((error) => {
+   btn.innerText = "लॉगिन करें";
+   btn.disabled = false;
+   showAlert("Login Error: " + error.message);
+ });
+}
+</script>
+</body>
+                                                             </html>
