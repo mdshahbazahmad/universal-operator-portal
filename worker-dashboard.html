@@ -1,1 +1,730 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worker Field Dashboard</title>
+<!-- FontAwesome & Google Fonts -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: #38bdf8;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --bg-dark: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.85);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --sidebar-width: 260px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background: var(--bg-dark); color: #f8fafc; padding: 15px; min-height: 100vh; overflow-x: hidden; }
 
+/* NAVBAR & SIDEBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 12px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+.menu-btn {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.user-profile-mini { display: flex; align-items: center; gap: 10px; }
+.avatar-mini { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -270px;
+    width: var(--sidebar-width);
+    height: 100%;
+    background: #1e293b;
+    border-right: 1px solid var(--border-color);
+    z-index: 1000;
+    transition: 0.3s ease;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.sidebar.active { left: 0; }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+.sidebar-close { background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; }
+.nav-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.nav-item:hover, .nav-item.active { background: rgba(56, 189, 248, 0.15); color: var(--primary); }
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    display: none;
+}
+.sidebar-overlay.active { display: block; }
+
+/* PAGE SECTIONS */
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* CARDS & UI COMPONENTS */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ATTENDANCE SECTION */
+.attendance-card {
+    background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9));
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.attendance-status { font-size: 0.95rem; color: #cbd5e1; margin-bottom: 15px; font-weight: 600; }
+.btn-group { display: flex; gap: 15px; justify-content: center; }
+.btn-punch {
+    flex: 1;
+    max-width: 200px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn-in { background: var(--success); color: #fff; }
+.btn-out { background: var(--danger); color: #fff; }
+.btn-punch:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* COMPLAINTS STYLES */
+.complaint-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+.complaint-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; }
+.cust-name { font-size: 1rem; color: #fff; font-weight: 700; }
+.complaint-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--warning); }
+.complaint-details { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 6px; }
+.complaint-details i { color: var(--primary); width: 20px; }
+.btn-done {
+    width: 100%;
+    padding: 11px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* MONTHLY ATTENDANCE TABLE */
+.table-responsive { width: 100%; overflow-x: auto; }
+.att-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.att-table th, .att-table td { padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
+.att-table th { background: rgba(0,0,0,0.3); color: #94a3b8; font-weight: 700; white-space: nowrap; }
+.badge-present { background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 8px; border-radius: 6px; font-weight: 700; border: 1px solid #22c55e; }
+.badge-off { background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 3px 8px; border-radius: 6px; font-weight: 700; border: 1px solid #ef4444; }
+.badge-ot { background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+
+/* PROFILE FORM STYLES */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.info-item { background: rgba(15, 23, 42, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+.info-item label { font-size: 0.75rem; color: #94a3b8; display: block; font-weight: 600; }
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: #fff;
+    outline: none;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+.btn-save {
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 15px;
+    width: 100%;
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR NAVIGATION DRAWER -->
+<div class="sidebar" id="sidebarDrawer">
+    <div class="sidebar-header">
+        <h3 style="color:#fff; font-size:1.1rem;"><i class="fa-solid fa-bars"></i> मेन्यू</h3>
+        <button class="sidebar-close" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <ul class="nav-links">
+        <li class="nav-item active" id="nav-dashboard" onclick="switchPage('page-dashboard', 'nav-dashboard')">
+            <i class="fa-solid fa-house"></i> मुख्य डैशबोर्ड (शिकायतें)
+        </li>
+        <li class="nav-item" id="nav-attendance" onclick="switchPage('page-attendance', 'nav-attendance')">
+            <i class="fa-solid fa-clock"></i> अटेंडेंस व ओ.टी. रिपोर्ट
+        </li>
+        <li class="nav-item" id="nav-profile" onclick="switchPage('page-profile', 'nav-profile')">
+            <i class="fa-solid fa-id-card"></i> प्रोफाइल एवं बायोडाटा
+        </li>
+        <li class="nav-item" style="margin-top: auto; color:#ef4444;" onclick="logoutWorker()">
+            <i class="fa-solid fa-right-from-bracket"></i> लॉगआउट
+        </li>
+    </ul>
+</div>
+
+<!-- HEADER NAVIGATION BAR -->
+<div class="navbar">
+    <button class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="user-profile-mini">
+        <img id="workerAvatar" src="https://i.ibb.co/cKBTN905/IMG-20260821-WA0005.jpg" class="avatar-mini" alt="Photo">
+        <div>
+            <h4 id="workerName" style="font-size: 0.95rem; color: #fff;">लोड हो रहा है...</h4>
+            <p id="workerRoleIsp" style="font-size: 0.75rem; color: #94a3b8;">Technician</p>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 1: MAIN DASHBOARD (COMPLAINTS) -->
+<div id="page-dashboard" class="page-section active">
+    <!-- Quick Attendance Snapshot -->
+    <div class="card" style="padding: 12px 18px; margin-bottom: 15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.85rem; color:#cbd5e1;"><i class="fa-solid fa-clock" style="color:var(--primary);"></i> आज की स्थिति:</span>
+            <span id="quickAttendanceText" style="font-size:0.85rem; font-weight:700; color:#f59e0b;">चेक किया जा रहा है...</span>
+        </div>
+    </div>
+
+    <!-- Assigned Complaints Section -->
+    <div class="card">
+        <div class="card-title">
+            <span><i class="fa-solid fa-list-check"></i> मेरी आवंटित शिकायतें (Complaints)</span>
+            <span id="complaintCountBadge" style="font-size:0.8rem; background:rgba(56,189,248,0.2); color:var(--primary); padding:2px 8px; border-radius:12px;">0 लंबित</span>
+        </div>
+
+        <div id="complaintsContainer">
+            <p style="color:#94a3b8; text-align:center; padding:15px;">शिकायतें लोड की जा रही हैं...</p>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 2: ATTENDANCE & OVERTIME -->
+<div id="page-attendance" class="page-section">
+    <!-- PUNCH IN / PUNCH OUT CARD -->
+    <div class="attendance-card">
+        <div class="card-title" style="justify-content:center;">
+            <span><i class="fa-solid fa-clock"></i> दैनिक डिजिटल अटेंडेंस (Push IN / Push OUT)</span>
+        </div>
+        <div class="attendance-status" id="attendanceText">आज की ड्यूटी स्थिति: अभी पंच-इन नहीं किया गया है</div>
+        <div class="btn-group">
+            <button class="btn-punch btn-in" id="btnPunchIn" onclick="punchIn()">
+                <i class="fa-solid fa-location-dot"></i> Push IN (आने का समय)
+            </button>
+            <button class="btn-punch btn-out" id="btnPunchOut" onclick="punchOut()" disabled>
+                <i class="fa-solid fa-person-walking-arrow-right"></i> Push OUT (जाने का समय)
+            </button>
+        </div>
+    </div>
+
+    <!-- MONTHLY LOG TABLE -->
+    <div class="card">
+        <div class="card-title">
+            <span><i class="fa-solid fa-calendar-days"></i> पूरे महीने की अटेंडेंस व ओवर-टाइम रिपोर्ट</span>
+            <span id="currentMonthLabel" style="font-size:0.8rem; background:rgba(56,189,248,0.2); color:var(--primary); padding:3px 10px; border-radius:12px;">माह: लाइव</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="att-table">
+                <thead>
+                    <tr>
+                        <th>तारीख</th>
+                        <th>स्थिति (Status)</th>
+                        <th>आने का समय (IN)</th>
+                        <th>जाने का समय (OUT)</th>
+                        <th>कुल घंटे</th>
+                        <th>ओवरटाइम (OT)</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceLogTableBody">
+                    <tr><td colspan="6" style="text-align:center; color:#94a3b8;">अटेंडेंस रिकॉर्ड लोड हो रहा है...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 3: EDIT PROFILE & BIODATA -->
+<div id="page-profile" class="page-section">
+    <div class="card">
+        <div class="card-title">
+            <span><i class="fa-solid fa-id-card"></i> मेरा बायोडाटा एवं प्रोफाइल अपडेट</span>
+        </div>
+
+        <form id="profileEditForm" onsubmit="updateWorkerProfile(event)">
+            <div class="grid-2">
+                <div class="info-item">
+                    <label>पिता का नाम (Father's Name)</label>
+                    <input type="text" id="editFatherName" required>
+                </div>
+                <div class="info-item">
+                    <label>माता का नाम (Mother's Name)</label>
+                    <input type="text" id="editMotherName" required>
+                </div>
+                <div class="info-item">
+                    <label>जन्मतिथि (DOB)</label>
+                    <input type="date" id="editDob" required>
+                </div>
+                <div class="info-item">
+                    <label>लिंग (Gender)</label>
+                    <select id="editGender" required>
+                        <option value="Male">पुरुष (Male)</option>
+                        <option value="Female">महिला (Female)</option>
+                        <option value="Other">अन्य (Other)</option>
+                    </select>
+                </div>
+                <div class="info-item">
+                    <label>फोन नंबर (Phone)</label>
+                    <input type="tel" id="editPhone" required>
+                </div>
+                <div class="info-item">
+                    <label>वैवाहिक स्थिति (Marital Status)</label>
+                    <select id="editMaritalStatus">
+                        <option value="Single/Unmarried">अविवाहित (Unmarried)</option>
+                        <option value="Married">विवाहित (Married)</option>
+                    </select>
+                </div>
+                <div class="info-item">
+                    <label>शैक्षणिक योग्यता (Qualification)</label>
+                    <select id="editEducation">
+                        <option value="10th Pass">10वीं पास (10th Pass)</option>
+                        <option value="12th Pass">12वीं पास (12th Pass)</option>
+                        <option value="ITI / Diploma">ITI / डिप्लोमा</option>
+                        <option value="Graduate">स्नातक (Graduate)</option>
+                        <option value="Other">अन्य</option>
+                    </select>
+                </div>
+                <div class="info-item">
+                    <label>आधार नंबर (Aadhaar Number)</label>
+                    <input type="text" id="editAadhaarNo" readonly style="opacity:0.6;">
+                </div>
+            </div>
+
+            <div style="margin-top:12px;">
+                <label style="font-size:0.75rem; color:#94a3b8; font-weight:600;">पूरा स्थायी पता (Permanent Address)</label>
+                <textarea id="editAddress" rows="2" required></textarea>
+            </div>
+
+            <div class="grid-2" style="margin-top:12px;">
+                <div class="info-item">
+                    <label>अनुभव (Experience)</label>
+                    <input type="text" id="editExperience">
+                </div>
+                <div class="info-item">
+                    <label>मुख्य स्किल्स (Skills)</label>
+                    <input type="text" id="editSkills">
+                </div>
+            </div>
+
+            <div style="margin-top:12px; background:rgba(15,23,42,0.6); padding:10px; border-radius:8px;">
+                <label style="font-size:0.8rem; color:#38bdf8; font-weight:600;"><i class="fa-solid fa-camera"></i> नई प्रोफाइल फोटो बदलें</label>
+                <input type="file" accept="image/*" style="margin-top:5px;" onchange="compressAndPreviewPhoto(event)">
+            </div>
+
+            <button type="submit" class="btn-save" id="btnSaveProfile">प्रोफाइल अपडेट करें</button>
+        </form>
+    </div>
+</div>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCVsmFa6Xr-_EfUqh_ZS6tmzBwcdMZq0JA",
+    authDomain: "universal-portal-dashboard.firebaseapp.com",
+    projectId: "universal-portal-dashboard",
+    storageBucket: "universal-portal-dashboard.firebasestorage.app",
+    messagingSenderId: "403036962443",
+    appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// Session Management
+const urlParams = new URLSearchParams(window.location.search);
+let workerId = urlParams.get('workerId') || localStorage.getItem('loggedWorkerId');
+
+if (workerId) {
+    localStorage.setItem('loggedWorkerId', workerId);
+} else {
+    alert("अवैध सेशन! कृपया पुनः लॉगिन करें।");
+    window.location.href = "worker-signup.html";
+}
+
+let updatedPhotoBase64 = null;
+const todayStr = new Date().toISOString().split('T')[0];
+
+// Navigation Sidebar Drawer Functions
+function toggleSidebar() {
+    document.getElementById('sidebarDrawer').classList.toggle('active');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+function switchPage(pageId, navItemId) {
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active'));
+    // Deactivate all nav links
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+
+    // Show targeted page and set active state
+    document.getElementById(pageId).classList.add('active');
+    document.getElementById(navItemId).classList.add('active');
+
+    // Close Sidebar
+    toggleSidebar();
+}
+
+function loadWorkerDashboard() {
+    firebase.firestore().collection("workers").doc(workerId).get().then((doc) => {
+        if(!doc.exists) {
+            alert("वर्कर प्रोफाइल नहीं मिला!");
+            return;
+        }
+        const w = doc.data();
+        document.getElementById('workerName').innerText = w.name || "Worker Name";
+        document.getElementById('workerRoleIsp').innerText = `${w.role || 'Technician'} | ${w.operatorName || 'ISP Portal'}`;
+        
+        if (w.photoUrl) {
+            document.getElementById('workerAvatar').src = w.photoUrl;
+        }
+
+        // Fill Form Fields Safely
+        document.getElementById('editFatherName').value = w.fatherName || '';
+        document.getElementById('editMotherName').value = w.motherName || '';
+        document.getElementById('editDob').value = w.dob || '';
+        document.getElementById('editGender').value = w.gender || 'Male';
+        document.getElementById('editPhone').value = w.phone || '';
+        document.getElementById('editMaritalStatus').value = w.maritalStatus || 'Single/Unmarried';
+        document.getElementById('editEducation').value = w.education || '10th Pass';
+        document.getElementById('editAadhaarNo').value = w.aadhaarNo || '';
+        document.getElementById('editAddress').value = w.address || '';
+        document.getElementById('editExperience').value = w.experience || '';
+        document.getElementById('editSkills').value = w.skills || '';
+
+        checkTodayAttendance();
+        loadMonthlyAttendanceLog();
+        listenAssignedComplaints();
+    }).catch(err => {
+        console.error(err);
+        alert("डेटा लोड करने में समस्या आई: " + err.message);
+    });
+}
+
+function listenAssignedComplaints() {
+    const container = document.getElementById('complaintsContainer');
+    const badge = document.getElementById('complaintCountBadge');
+
+    firebase.firestore().collection("complaints")
+        .where("assignedWorkerId", "==", workerId)
+        .where("status", "==", "Pending")
+        .onSnapshot((snapshot) => {
+            badge.innerText = `${snapshot.size} लंबित`;
+            if(snapshot.empty) {
+                container.innerHTML = `<p style="color:#94a3b8; text-align:center; padding:15px;"><i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> वर्तमान में कोई लंबित शिकायत नहीं है।</p>`;
+                return;
+            }
+
+            let html = "";
+            snapshot.forEach((doc) => {
+                const c = doc.data();
+                html += `
+                    <div class="complaint-card">
+                        <div class="complaint-header">
+                            <span class="cust-name"><i class="fa-solid fa-user-gear"></i> ${c.customerName || 'कस्टमर'}</span>
+                            <span class="complaint-badge"><i class="fa-solid fa-clock"></i> Pending</span>
+                        </div>
+                        <div class="complaint-details">
+                            <p><i class="fa-solid fa-phone"></i> <strong>फ़ोन:</strong> <a href="tel:${c.customerPhone}" style="color:#38bdf8; text-decoration:none; font-weight:700;">${c.customerPhone || 'N/A'}</a></p>
+                            <p><i class="fa-solid fa-location-dot"></i> <strong>पता / स्थान:</strong> ${c.address || 'N/A'}</p>
+                            <p><i class="fa-solid fa-wrench"></i> <strong>समस्या:</strong> ${c.issue || 'नेटवर्क समस्या'}</p>
+                        </div>
+                        <button class="btn-done" onclick="markComplaintComplete('${doc.id}')">
+                            <i class="fa-solid fa-circle-check"></i> कार्य पूर्ण (Mark Completed)
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }, err => {
+            container.innerHTML = `<p style="color:#ef4444; text-align:center; padding:15px;">शिकायतें लोड करने में समस्या: ${err.message}</p>`;
+        });
+}
+
+function markComplaintComplete(complaintId) {
+    if(!confirm("क्या आपने इस शिकायत का समाधान कर लिया है?")) return;
+
+    firebase.firestore().collection("complaints").doc(complaintId).update({
+        status: "Completed",
+        completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        completedByWorkerId: workerId
+    }).then(() => {
+        alert("कार्य पूर्ण चिह्नित कर दिया गया है!");
+    }).catch(err => alert("Error: " + err.message));
+}
+
+function checkTodayAttendance() {
+    firebase.firestore().collection("workers").doc(workerId).collection("attendance").doc(todayStr).get().then((doc) => {
+        const attText = document.getElementById('attendanceText');
+        const quickAttText = document.getElementById('quickAttendanceText');
+
+        if(doc.exists) {
+            const data = doc.data();
+            if(data.punchOut) {
+                const text = `ड्यूटी पूर्ण (IN: ${data.punchIn} | OUT: ${data.punchOut})`;
+                attText.innerHTML = `<span style="color:#22c55e;">${text}</span>`;
+                quickAttText.innerHTML = `<span style="color:#22c55e;">${text}</span>`;
+                document.getElementById('btnPunchIn').disabled = true;
+                document.getElementById('btnPunchOut').disabled = true;
+            } else if(data.punchIn) {
+                const text = `ड्यूटी चालू है (IN: ${data.punchIn})`;
+                attText.innerHTML = `<span style="color:#f59e0b;">${text}</span>`;
+                quickAttText.innerHTML = `<span style="color:#f59e0b;">${text}</span>`;
+                document.getElementById('btnPunchIn').disabled = true;
+                document.getElementById('btnPunchOut').disabled = false;
+            }
+        } else {
+            attText.innerText = "आज की ड्यूटी स्थिति: अभी पंच-इन नहीं किया गया है";
+            quickAttText.innerText = "अभी पंच-इन नहीं किया गया है";
+            document.getElementById('btnPunchIn').disabled = false;
+            document.getElementById('btnPunchOut').disabled = true;
+        }
+    });
+}
+
+function punchIn() {
+    const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const fullISO = new Date().toISOString();
+
+    firebase.firestore().collection("workers").doc(workerId).collection("attendance").doc(todayStr).set({
+        date: todayStr,
+        punchIn: timeNow,
+        isoIn: fullISO,
+        status: "Present",
+        timestampIn: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).then(() => {
+        alert("Push IN दर्ज हुआ! समय: " + timeNow);
+        checkTodayAttendance();
+        loadMonthlyAttendanceLog();
+    }).catch(err => alert("Error: " + err.message));
+}
+
+function punchOut() {
+    const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const fullISO = new Date().toISOString();
+
+    firebase.firestore().collection("workers").doc(workerId).collection("attendance").doc(todayStr).get().then((docSnap) => {
+        let totalHours = 0;
+        let overtime = 0;
+
+        if (docSnap.exists && docSnap.data().isoIn) {
+            const startTime = new Date(docSnap.data().isoIn);
+            const endTime = new Date(fullISO);
+            const diffMs = endTime - startTime;
+            totalHours = (diffMs / (1000 * 60 * 60)).toFixed(2);
+
+            if (totalHours > 8) {
+                overtime = (totalHours - 8).toFixed(2);
+            }
+        }
+
+        firebase.firestore().collection("workers").doc(workerId).collection("attendance").doc(todayStr).set({
+            punchOut: timeNow,
+            isoOut: fullISO,
+            totalHours: totalHours,
+            overtime: overtime,
+            timestampOut: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).then(() => {
+            alert(`Push OUT दर्ज हुआ!\nसमय: ${timeNow}\nकुल घंटे: ${totalHours} hrs\nओवरटाइम: ${overtime} hrs`);
+            checkTodayAttendance();
+            loadMonthlyAttendanceLog();
+        });
+    }).catch(err => alert("Error: " + err.message));
+}
+
+function loadMonthlyAttendanceLog() {
+    const tbody = document.getElementById('attendanceLogTableBody');
+    const now = new Date();
+    document.getElementById('currentMonthLabel').innerText = `माह: ${now.toLocaleString('hi-IN', { month: 'long', year: 'numeric' })}`;
+
+    firebase.firestore().collection("workers").doc(workerId).collection("attendance")
+        .orderBy("date", "desc")
+        .limit(31)
+        .onSnapshot((snapshot) => {
+            if(snapshot.empty) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">कोई अटेंडेंस रिकॉर्ड नहीं मिला।</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            snapshot.forEach((doc) => {
+                const att = doc.data();
+                const formattedDate = new Date(att.date).toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                let statusBadge = `<span class="badge-present"><i class="fa-solid fa-circle-check"></i> Present</span>`;
+                if(att.status === 'Off' || !att.punchIn) {
+                    statusBadge = `<span class="badge-off"><i class="fa-solid fa-circle-xmark"></i> OFF / Absent</span>`;
+                }
+
+                let otText = att.overtime > 0 ? `<span class="badge-ot">+${att.overtime} hrs OT</span>` : `<span style="color:#94a3b8;">0 hrs</span>`;
+                let totalH = att.totalHours ? `${att.totalHours} hrs` : (att.punchIn && !att.punchOut ? '<small style="color:#f59e0b;">चालू है...</small>' : '-');
+
+                html += `
+                    <tr>
+                        <td style="font-weight:700;">${formattedDate}</td>
+                        <td>${statusBadge}</td>
+                        <td style="color:#22c55e; font-weight:600;">${att.punchIn || '--:--'}</td>
+                        <td style="color:#ef4444; font-weight:600;">${att.punchOut || '--:--'}</td>
+                        <td>${totalH}</td>
+                        <td>${otText}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        });
+}
+
+function compressAndPreviewPhoto(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 300;
+            const scale = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scale;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            updatedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.6);
+            document.getElementById('workerAvatar').src = updatedPhotoBase64;
+        };
+    };
+}
+
+function updateWorkerProfile(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSaveProfile');
+    btn.innerText = "सेव हो रहा है...";
+    btn.disabled = true;
+
+    const updateData = {
+        fatherName: document.getElementById('editFatherName').value.trim(),
+        motherName: document.getElementById('editMotherName').value.trim(),
+        dob: document.getElementById('editDob').value,
+        gender: document.getElementById('editGender').value,
+        phone: document.getElementById('editPhone').value.trim(),
+        maritalStatus: document.getElementById('editMaritalStatus').value,
+        education: document.getElementById('editEducation').value,
+        address: document.getElementById('editAddress').value.trim(),
+        experience: document.getElementById('editExperience').value.trim(),
+        skills: document.getElementById('editSkills').value.trim(),
+        status: "Active",
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if(updatedPhotoBase64) {
+        updateData.photoUrl = updatedPhotoBase64;
+    }
+
+    firebase.firestore().collection("workers").doc(workerId).update(updateData).then(() => {
+        btn.innerText = "प्रोफाइल अपडेट करें";
+        btn.disabled = false;
+        alert("प्रोफाइल और बायोडाटा सफलतापूर्वक अपडेट हो गया!");
+    }).catch(err => {
+        btn.innerText = "प्रोफाइल अपडेट करें";
+        btn.disabled = false;
+        alert("Error: " + err.message);
+    });
+}
+
+function logoutWorker() {
+    localStorage.removeItem('loggedWorkerId');
+    firebase.auth().signOut().then(() => {
+        window.location.href = "worker-signup.html";
+    });
+}
+
+window.onload = function() {
+    loadWorkerDashboard();
+};
+</script>
+</body>
+</html>
