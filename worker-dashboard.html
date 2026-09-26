@@ -202,6 +202,41 @@ input, textarea, select {
     width: 100%;
 }
 </style>
+    <script>
+    // डैशबोर्ड के स्क्रिप्ट की शुरुआत में लिखें:
+const workerId = localStorage.getItem("loggedWorkerId");
+
+if (!workerId) {
+    alert("लॉगिन सत्र समाप्त हो गया है! कृपया फिर से लॉगिन करें।");
+    window.location.href = "worker-login.html";
+}
+
+// वर्कर प्रोफाइल फ़ेच करते समय:
+function loadWorkerProfile() {
+    firebase.firestore().collection("workers").doc(workerId).get().then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            
+            // डेटा को HTML एलिमेंट्स में सेट करें
+            document.getElementById("dispWorkerName").innerText = data.name || "नाम उपलब्ध नहीं";
+            document.getElementById("dispWorkerRole").innerText = data.role || "Technician";
+            document.getElementById("dispWorkerPhone").innerText = data.phone || "N/A";
+            document.getElementById("dispWorkerEmail").innerText = data.email || "N/A";
+            
+            if (data.photoUrl) {
+                document.getElementById("dispWorkerDp").src = data.photoUrl;
+            }
+        }
+    }).catch((err) => {
+        console.error("Dashboard Load Error: ", err);
+    });
+}
+
+// विंडो लोड होने पर चलाएँ
+window.onload = function() {
+    loadWorkerProfile();
+};
+</script>
 </head>
 <body>
 
