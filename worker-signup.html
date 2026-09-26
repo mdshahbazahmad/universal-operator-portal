@@ -3,62 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Worker Registration & Sign Up</title>
+<title>Worker Portal - Login & Sign Up</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-    --primary: #38bdf8;
-    --bg-dark: #0f172a;
-    --card-bg: rgba(30, 41, 59, 0.85);
-    --border-color: rgba(255, 255, 255, 0.12);
-}
+:root { --primary: #38bdf8; --bg-dark: #0f172a; --card-bg: rgba(30, 41, 59, 0.85); --border-color: rgba(255, 255, 255, 0.12); }
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
 body { background: var(--bg-dark); color: #f8fafc; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-.signup-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; width: 100%; max-width: 480px; backdrop-filter: blur(10px); position: relative; }
-.signup-card h2 { color: var(--primary); font-size: 1.3rem; margin-bottom: 8px; text-align: center; }
-.signup-card p { color: #94a3b8; font-size: 0.85rem; text-align: center; margin-bottom: 20px; }
+.auth-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; width: 100%; max-width: 440px; backdrop-filter: blur(10px); }
+.auth-card h2 { color: var(--primary); font-size: 1.3rem; margin-bottom: 6px; text-align: center; }
+.auth-card p { color: #94a3b8; font-size: 0.85rem; text-align: center; margin-bottom: 20px; }
 .form-group { margin-bottom: 14px; position: relative; }
 .form-group label { display: block; font-size: 0.82rem; color: #94a3b8; margin-bottom: 5px; font-weight: 600; }
 .form-group input { width: 100%; padding: 11px; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; outline: none; }
 
-/* Password Input Wrapper with Eye Icon */
 .password-wrapper { position: relative; display: flex; align-items: center; }
 .password-wrapper input { padding-right: 40px; }
 .toggle-password { position: absolute; right: 12px; color: #94a3b8; cursor: pointer; font-size: 0.95rem; }
 .toggle-password:hover { color: var(--primary); }
 
-.forgot-link { text-align: right; display: block; margin-top: 4px; font-size: 0.78rem; color: var(--primary); text-decoration: none; cursor: pointer; }
+.forgot-link { text-align: right; display: none; margin-top: 5px; font-size: 0.78rem; color: var(--primary); text-decoration: none; cursor: pointer; }
 .forgot-link:hover { text-decoration: underline; }
 
-.btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #38bdf8, #2563eb); border: none; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 0.95rem; }
-.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.login-redirect { text-align: center; margin-top: 15px; font-size: 0.82rem; color: #94a3b8; }
-.login-redirect a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #38bdf8, #2563eb); border: none; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; margin-top: 12px; font-size: 0.95rem; }
+.toggle-auth { text-align: center; margin-top: 15px; font-size: 0.82rem; color: #94a3b8; }
+.toggle-auth a { color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer; }
 
 /* Modal Styling for Forgot Password */
-.modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:99; }
+.modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index:99; }
 .modal-box { background: #0f172a; border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; width: 90%; max-width: 380px; }
-.modal-box h3 { color: var(--primary); font-size: 1.1rem; margin-bottom: 10px; }
-.modal-box p { font-size: 0.8rem; color: #94a3b8; margin-bottom: 15px; }
-.modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-.btn-secondary { background: #334155; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<div class="signup-card">
-    <h2><i class="fa-solid fa-user-plus"></i> वर्कर रजिस्ट्रेशन (Worker Sign Up)</h2>
-    <p>अपना खाता सुरक्षित करने के लिए विवरण भरें</p>
+<div class="auth-card">
+    <h2 id="formTitle"><i class="fa-solid fa-user-plus"></i> वर्कर साइन-अप (Sign Up)</h2>
+    <p id="formSub">खाता बनाकर सीधे डैशबोर्ड पर प्रवेश करें</p>
 
-    <div class="form-group">
+    <!-- साइन-अप में दिखेगा, लॉगिन में छुप जाएगा -->
+    <div class="form-group" id="nameGroup">
         <label>पूरा नाम (Full Name)</label>
         <input type="text" id="workerName" placeholder="उदा. राहुल कुमार">
     </div>
 
-    <div class="form-group">
-        <label>फ़ोन / व्हाट्सएप नंबर (Phone)</label>
+    <!-- साइन-अप में दिखेगा, लॉगिन में छुप जाएगा -->
+    <div class="form-group" id="phoneGroup">
+        <label>फ़ोन / व्हाट्सएप नंबर</label>
         <input type="tel" id="workerPhone" placeholder="10 अंकों का मोबाइल नंबर">
     </div>
 
@@ -69,35 +59,35 @@ body { background: var(--bg-dark); color: #f8fafc; padding: 20px; display: flex;
 
     <!-- Password Input with Show/Hide Eye Button -->
     <div class="form-group">
-        <label>पासवर्ड बनाएँ (Password)</label>
+        <label>पासवर्ड (Password)</label>
         <div class="password-wrapper">
             <input type="password" id="workerPassword" placeholder="न्यूनतम 6 अक्षर का पासवर्ड">
             <i class="fa-solid fa-eye toggle-password" id="eyeIcon" onclick="togglePasswordVisibility()"></i>
         </div>
-        <span class="forgot-link" onclick="openForgotModal()">पासवर्ड भूल गए? (Forgot Password?)</span>
+        <!-- यह केवल लॉगिन मोड में दिखाई देगा -->
+        <span class="forgot-link" id="forgotBtn" onclick="openForgotModal()">पासवर्ड भूल गए? (Forgot Password?)</span>
     </div>
 
-    <button class="btn-submit" id="submitBtn" onclick="registerWorker()">
+    <button class="btn-submit" id="submitBtn" onclick="handleAuth()">
         <i class="fa-solid fa-check-circle"></i> खाता बनाएँ और आगे बढ़ें
     </button>
 
-    <div class="login-redirect">
-        पहले से खाता है? <a href="worker-login.html">लॉगिन करें (Login)</a>
+    <div class="toggle-auth">
+        <span id="toggleText">पहले से खाता है?</span> <a id="toggleBtn" onclick="switchAuthMode()">लॉगिन करें</a>
     </div>
 </div>
 
-<!-- FORGOT PASSWORD MODAL -->
+<!-- FORGOT PASSWORD MODAL (केवल लॉगिन के समय काम करेगा) -->
 <div class="modal-overlay" id="forgotModal">
     <div class="modal-box">
-        <h3><i class="fa-solid fa-key"></i> पासवर्ड रिसेट करें</h3>
-        <p>अपनी पंजीकृत ईमेल आईडी डालें। हम पासवर्ड बदलने के लिए एक लिंक भेजेंगे।</p>
+        <h3 style="color:var(--primary); margin-bottom:10px;"><i class="fa-solid fa-key"></i> पासवर्ड रिसेट करें</h3>
+        <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:12px;">अपनी पंजीकृत ईमेल आईडी डालें। हम रिसेट लिंक भेजेंगे:</p>
         <div class="form-group">
-            <label>ईमेल आईडी (Registered Email)</label>
             <input type="email" id="resetEmail" placeholder="example@gmail.com">
         </div>
-        <div class="modal-actions">
+        <div style="display:flex; gap:10px;">
             <button class="btn-submit" style="margin-top:0;" onclick="sendPasswordReset()">लिंक भेजें</button>
-            <button class="btn-secondary" onclick="closeForgotModal()">रद्द करें</button>
+            <button style="background:#334155; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer;" onclick="closeForgotModal()">रद्द करें</button>
         </div>
     </div>
 </div>
@@ -116,57 +106,67 @@ const firebaseConfig = {
     messagingSenderId: "403036962443",
     appId: "1:403036962443:web:5a15ac684c76efd2c3de8e"
 };
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+let isLoginMode = false; // डिफॉल्ट रूप से Sign Up मोड चालू रहेगा
+const urlParams = new URLSearchParams(window.location.search);
+const inviteWorkerId = urlParams.get('workerId');
+
+// Sign-Up और Login के बीच स्विच करने वाला फ़ंक्शन
+function switchAuthMode() {
+    isLoginMode = !isLoginMode;
+
+    // साइन-अप में नाम और फोन दिखेगा, लॉगिन में छुप जाएगा
+    document.getElementById('nameGroup').style.display = isLoginMode ? 'none' : 'block';
+    document.getElementById('phoneGroup').style.display = isLoginMode ? 'none' : 'block';
+
+    // "Forgot Password" केवल लॉगिन मोड में ही दिखेगा!
+    document.getElementById('forgotBtn').style.display = isLoginMode ? 'block' : 'none';
+
+    // UI टेक्स्ट चेंज
+    document.getElementById('formTitle').innerHTML = isLoginMode 
+        ? '<i class="fa-solid fa-right-to-bracket"></i> वर्कर लॉगिन (Login)' 
+        : '<i class="fa-solid fa-user-plus"></i> वर्कर साइन-अप (Sign Up)';
+
+    document.getElementById('formSub').innerText = isLoginMode 
+        ? 'अपने खाते में प्रवेश करें' 
+        : 'खाता बनाकर सीधे डैशबोर्ड पर प्रवेश करें';
+
+    document.getElementById('submitBtn').innerHTML = isLoginMode 
+        ? '<i class="fa-solid fa-right-to-bracket"></i> लॉगिन करें' 
+        : '<i class="fa-solid fa-check-circle"></i> खाता बनाएँ और आगे बढ़ें';
+
+    document.getElementById('toggleText').innerText = isLoginMode ? 'खाता नहीं है?' : 'पहले से खाता है?';
+    document.getElementById('toggleBtn').innerText = isLoginMode ? 'साइन-अप करें' : 'लॉगिन करें';
 }
 
-// 1. Password Show / Hide Toggle Function
+// 1. Password Show / Hide Toggle
 function togglePasswordVisibility() {
     const pwdInput = document.getElementById('workerPassword');
     const eyeIcon = document.getElementById('eyeIcon');
-
     if (pwdInput.type === "password") {
         pwdInput.type = "text";
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
+        eyeIcon.className = "fa-solid fa-eye-slash toggle-password";
     } else {
         pwdInput.type = "password";
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
+        eyeIcon.className = "fa-solid fa-eye toggle-password";
     }
 }
 
 // 2. Forgot Password Modal Functions
-function openForgotModal() {
-    document.getElementById('forgotModal').style.display = 'flex';
-}
-function closeForgotModal() {
-    document.getElementById('forgotModal').style.display = 'none';
-}
+function openForgotModal() { document.getElementById('forgotModal').style.display = 'flex'; }
+function closeForgotModal() { document.getElementById('forgotModal').style.display = 'none'; }
 
-// Send Reset Link via Firebase Auth
 function sendPasswordReset() {
     const email = document.getElementById('resetEmail').value.trim();
-    if (!email) {
-        alert("कृपया अपनी ईमेल आईडी दर्ज करें!");
-        return;
-    }
-
-    firebase.auth().sendPasswordResetEmail(email)
-        .then(() => {
-            alert("पासवर्ड रिसेट लिंक आपकी ईमेल पर भेज दिया गया है। कृपया अपना ईमेल इनबॉक्स/स्पैम फ़ोल्डर जाँचें।");
-            closeForgotModal();
-        })
-        .catch((error) => {
-            alert("त्रुटि: " + error.message);
-        });
+    if (!email) return alert("कृपया ईमेल दर्ज करें!");
+    firebase.auth().sendPasswordResetEmail(email).then(() => {
+        alert("पासवर्ड रिसेट लिंक आपकी ईमेल पर भेज दिया गया है!");
+        closeForgotModal();
+    }).catch(e => alert("त्रुटि: " + e.message));
 }
 
-// 3. Invite Data Auto-fill
-const urlParams = new URLSearchParams(window.location.search);
-const inviteWorkerId = urlParams.get('workerId');
-
+// 3. Invite Data Load
 window.onload = async function() {
     if (inviteWorkerId) {
         try {
@@ -176,89 +176,55 @@ window.onload = async function() {
                 if (data.name) document.getElementById('workerName').value = data.name;
                 if (data.phone) document.getElementById('workerPhone').value = data.phone;
             }
-        } catch(e) { console.error("Invite load error", e); }
+        } catch(e) { console.error("Invite error", e); }
     }
 };
 
-// 4. Main Worker Registration Function
-async function registerWorker() {
-    const name = document.getElementById('workerName').value.trim();
-    const phone = document.getElementById('workerPhone').value.trim();
+// 4. Submit Action (Sign Up or Login)
+async function handleAuth() {
     const email = document.getElementById('workerEmail').value.trim().toLowerCase();
     const password = document.getElementById('workerPassword').value.trim();
     const submitBtn = document.getElementById('submitBtn');
 
-    if (!name || !phone || !email || !password) {
-        alert("कृपया सभी जानकारी भरें!");
-        return;
-    }
-
-    if (password.length < 6) {
-        alert("पासवर्ड कम से कम 6 अक्षरों का होना चाहिए!");
-        return;
-    }
+    if (!email || !password) return alert("कृपया ईमेल और पासवर्ड भरें!");
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> जाँच की जा रही है...';
+    submitBtn.innerText = "जाँच की जा रही है...";
 
     try {
-        // Check 1: Duplicate Email in Firestore
-        const emailCheck = await firebase.firestore().collection("workers")
-            .where("email", "==", email)
-            .get();
-
-        if (!emailCheck.empty) {
-            alert("यह Email ID पहले से पंजीकृत है! कृपया लॉगिन करें।");
-            window.location.href = "worker-login.html";
-            return;
-        }
-
-        // Check 2: Duplicate Phone in Firestore
-        const phoneCheck = await firebase.firestore().collection("workers")
-            .where("phone", "==", phone)
-            .get();
-
-        if (!phoneCheck.empty) {
-            alert("यह फ़ोन नंबर पहले से पंजीकृत है! एक ही नंबर से दो खाते नहीं बन सकते।");
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> खाता बनाएँ और आगे बढ़ें';
-            return;
-        }
-
-        // Create Account in Firebase Auth
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-
-        const updateData = {
-            uid: user.uid,
-            name: name,
-            phone: phone,
-            email: email,
-            status: "Active Registered",
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        const targetDocId = inviteWorkerId ? inviteWorkerId : user.uid;
-        await firebase.firestore().collection("workers").doc(targetDocId).set(updateData, { merge: true });
-
-        localStorage.setItem("loggedWorkerId", targetDocId);
-        localStorage.setItem("workerUid", user.uid);
-
-        alert("खाता सफलतापूर्वक बन गया!");
-        window.location.href = "worker-dashboard.html";
-
-    } catch (error) {
-        console.error("Signup Error:", error);
-        if (error.code === 'auth/email-already-in-use') {
-            alert("यह ईमेल एड्रेस पहले से पंजीकृत है! कृपया लॉगिन करें।");
-            window.location.href = "worker-login.html";
+        if (isLoginMode) {
+            // LOGIN LOGIC
+            const cred = await firebase.auth().signInWithEmailAndPassword(email, password);
+            localStorage.setItem("loggedWorkerId", cred.user.uid);
+            window.location.href = "worker-dashboard.html";
         } else {
-            alert("त्रुटि: " + error.message);
+            // SIGN UP LOGIC
+            const name = document.getElementById('workerName').value.trim();
+            const phone = document.getElementById('workerPhone').value.trim();
+            if (!name || !phone) { submitBtn.disabled = false; return alert("नाम और फोन नंबर भरना आवश्यक है!"); }
+
+            const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+            const user = cred.user;
+            const targetDocId = inviteWorkerId ? inviteWorkerId : user.uid;
+
+            await firebase.firestore().collection("workers").doc(targetDocId).set({
+                uid: user.uid,
+                name: name,
+                phone: phone,
+                email: email,
+                status: "Pending Profile Fill",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            localStorage.setItem("loggedWorkerId", targetDocId);
+            window.location.href = "worker-dashboard.html";
         }
+    } catch (err) {
+        alert("त्रुटि: " + err.message);
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> खाता बनाएँ और आगे बढ़ें';
+        submitBtn.innerText = isLoginMode ? "लॉगिन करें" : "खाता बनाएँ";
     }
 }
 </script>
 </body>
-  </html>
+    </html>
