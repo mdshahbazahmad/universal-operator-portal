@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isOperator() { return signedIn() && exists(/databases/$(database)/documents/operators/$(request.auth.uid)); }
+    function ownsWorker(workerId) {
+      return signedIn() && exists(/databases/$(database)/documents/workers/$(workerId))
+        && get(/databases/$(database)/documents/workers/$(workerId)).data.operatorUid == request.auth.uid;
+    }
+    function assignedWorker() {
+      return signedIn() && resource.data.assignedWorkerId == request.auth.uid;
+    }
+
+    match /operators/{operatorId} {
+      allow read, create, update: if signedIn() && request.auth.uid == operatorId;
+      allow delete: if false;
+    }
+    match /users/{userId} {
+      allow read, create, update: if signedIn() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+    match /workers/{workerId} {
+      allow create: if signedIn() && (
+        (request.auth.uid == workerId && (!('operatorUid' in request.resource.data) ||
+          exists(/databases/$(database)/documents/operators/$(request.resource.data.operatorUid)))) ||
+        (request.resource.data.operatorUid == request.auth.uid && isOperator())
+      ) && !('aadhaarNumber' in request.resource.data);
+      allow read: if signedIn() && (request.auth.uid == workerId || resource.data.operatorUid == request.auth.uid);
+      allow update: if signedIn() && !('aadhaarNumber' in request.resource.data) &&
+        ((request.auth.uid == workerId && request.resource.data.uid == request.auth.uid &&
+          request.resource.data.operatorUid == resource.data.operatorUid) ||
+         (resource.data.operatorUid == request.auth.uid && isOperator() &&
+          request.resource.data.operatorUid == resource.data.operatorUid));
+      allow delete: if signedIn() && resource.data.operatorUid == request.auth.uid;
+
+      match /private/{privateDoc} {
+        allow read, create, update: if signedIn() &&
+          (request.auth.uid == workerId || ownsWorker(workerId)) &&
+          privateDoc == 'identity' &&
+          request.resource.data.keys().hasOnly(['aadhaarNumber', 'updatedAt']) &&
+          (!('aadhaarNumber' in request.resource.data) || request.resource.data.aadhaarNumber is string);
+        allow delete: if signedIn() && (request.auth.uid == workerId || ownsWorker(workerId));
+      }
+      match /attendance/{day} {
+        allow read: if signedIn() && (request.auth.uid == workerId || ownsWorker(workerId));
+        allow create: if signedIn() && request.auth.uid == workerId &&
+          request.resource.data.keys().hasOnly(['date','punchIn','punchOut','timestamp','updatedAt']) &&
+          request.resource.data.date == day && request.resource.data.punchIn is string;
+        allow update: if signedIn() && request.auth.uid == workerId &&
+          request.resource.data.date == resource.data.date &&
+          resource.data.punchOut == null && request.resource.data.punchOut is string &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['punchOut','updatedAt']);
+        allow delete: if false;
+      }
+    }
+    match /complaints/{complaintId} {
+      allow create: if isOperator() && request.resource.data.operatorUid == request.auth.uid &&
+        request.resource.data.status == 'Pending' &&
+        request.resource.data.keys().hasOnly(['operatorUid','ticketNo','customerName','customerPhone','address','lat','lng','issue','status','assignedWorkerId','source','createdAt']);
+      allow read: if signedIn() && (resource.data.operatorUid == request.auth.uid || assignedWorker());
+      allow update: if signedIn() && (
+        (resource.data.operatorUid == request.auth.uid && isOperator() && request.resource.data.operatorUid == resource.data.operatorUid) ||
+        (assignedWorker() && request.resource.data.assignedWorkerId == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','actionTaken','resolvedAt']) &&
+          request.resource.data.status in ['Done','Solved','Resolved','Completed'])
+      );
+      allow delete: if isOperator() && resource.data.operatorUid == request.auth.uid;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
